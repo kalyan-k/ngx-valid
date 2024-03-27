@@ -1,4 +1,4 @@
-import { ValidationHelper } from "./validator-helper";
+import { ValidationHelper } from "./validation-helper";
 
 type ValidatorsToRun = {
     errorMessage: string,
@@ -10,7 +10,7 @@ type ValidatorsToRun = {
 
 export class Validator {
     public propertyName: string | undefined;
-    // public dependency: string;
+    public dependency!: string;
     private validationRules: ValidationHelper;
     public validatorsToRun: ValidatorsToRun[] = [];
 
@@ -244,5 +244,4 @@ export class Validator {
         this.createDecoratedValidator.call(this, msg, isValid, true);
         return this;
     }
-
 }

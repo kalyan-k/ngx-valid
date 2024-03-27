@@ -1,6 +1,6 @@
 import { Validator } from "../validator";
-import { ValidationHelper } from "../validator-helper";
+import { ValidatorHelper } from "../validator-helper";
 
 export interface ValidationPolicy {
-    addValidations(validatorHelper: ValidationHelper): Validator[];
+    addValidations(validatorHelper: ValidatorHelper): Validator[];
 }

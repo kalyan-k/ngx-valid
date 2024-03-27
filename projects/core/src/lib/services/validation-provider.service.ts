@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Validator } from '../validator';
-import { ValidationHelper } from '../validator-helper';
 import { ValidationPolicy } from '../interface/validation-policy.interface';
 import { Policy } from '../policy';
 import * as _ from 'underscore';
+import { ValidatorHelper } from '../validator-helper';
 
 @Injectable({
 	providedIn: 'root'
@@ -11,11 +11,11 @@ import * as _ from 'underscore';
 export class ValidationProviderService {
 	fileSuffix = '.Policy';
 	policies: { [key: string]: Validator[] } = {};
-	validatorHelper: ValidationHelper;
+	validatorHelper: ValidatorHelper;
 	formGroup: { [key: string]: Array<string> } = {};
 
 	constructor() {
-		this.validatorHelper = new ValidationHelper();
+		this.validatorHelper = new ValidatorHelper();
 	}
 
 	register = (name: string, validationPolicy: ValidationPolicy) => {

@@ -1,15 +1,15 @@
-import { Binary, Conditional, ImplicitReceiver, KeyedRead, Lexer, LiteralArray, LiteralMap, LiteralPrimitive, MethodCall, Parser, PrefixNot, PropertyRead } from '@angular/compiler';
+import { Binary, Conditional, ImplicitReceiver, KeyedRead, Lexer, LiteralArray, LiteralMap, LiteralPrimitive, Call, Parser, PrefixNot, PropertyRead, AST } from '@angular/compiler';
 
-const isString = v => typeof v === 'string';
-const isDef = v => v !== void 0;
-const ifDef = (v, d) => v === void 0 ? d : v;
-const plus = (a, b) => void 0 === a ? b : void 0 === b ? a : a + b;
-const minus = (a, b) => ifDef(a, 0) - ifDef(b, 0);
+const isString = (v: any) => typeof v === 'string';
+const isDef = (v: undefined) => v !== void 0;
+const ifDef = (v: undefined, d: number) => v === void 0 ? d : v;
+const plus = (a: undefined, b: undefined) => void 0 === a ? b : void 0 === b ? a : a + b;
+const minus = (a: undefined, b: undefined) => ifDef(a, 0) - ifDef(b, 0);
 const noop = () => { };
 
 const fnCache = new Map();
 
-const primitiveEquals = (a, b) => {
+const primitiveEquals = (a: any, b: any) => {
     if (typeof a === 'object' || typeof b === 'object') {
         return false;
     }
@@ -20,7 +20,7 @@ const primitiveEquals = (a, b) => {
 };
 
 // tslint:disable:no-unused-variable
-const detectChanges = (ov, nv) => {
+const detectChanges = (ov: any[], nv: string | any[]) => {
     const len = nv.length;
     let hasChange = len > 10;
     switch (len) {
@@ -41,14 +41,14 @@ const detectChanges = (ov, nv) => {
 
 
 class ASTCompiler {
-    ast; // ast to be compiled
-    declarations; // variable names
-    stmts; // function body statements
+    ast: any; // ast to be compiled
+    declarations: any; // variable names
+    stmts: any; // function body statements
     vIdx; // variable name index
-    cAst; // current AST node in the process
-    cStmts;
+    cAst: any; // current AST node in the process
+    cStmts: any;
 
-    constructor(ast) {
+    constructor(ast: AST) {
         this.ast = ast;
         this.declarations = [];
         this.stmts = [];
@@ -86,11 +86,11 @@ class ASTCompiler {
         const ast = this.cAst;
         const stmts = this.cStmts;
         const v = this.createVar();
-        const _values = [];
+        const _values: any[] = [];
         for (const _value of ast.values) {
             _values.push(this.build(_value));
         }
-        stmts.push(`${v}={${ast.keys.map((k, i) => k.key + ':' + _values[i])}}`);
+        stmts.push(`${v}={${ast.keys.map((k: { key: string; }, i: any) => k.key + ':' + _values[i])}}`);
         return v;
     }
 
@@ -136,7 +136,7 @@ class ASTCompiler {
         const ast = this.cAst;
         const stmts = this.cStmts;
         const _s1 = [];
-        const _s2 = [];
+        const _s2: any[] = [];
         const l = this.build(ast.left);
         const r = this.build(ast.right, _s2);
 
@@ -191,8 +191,8 @@ class ASTCompiler {
         const condition = this.build(ast.condition);
         const v = this.createVar();
         const _s1 = [];
-        const _s2 = [];
-        const _s3 = [];
+        const _s2: any[] = [];
+        const _s3: any[] = [];
         const trueExp = this.build(ast.trueExp, _s2);
         const falseExp = this.build(ast.falseExp, _s3);
 
@@ -223,7 +223,7 @@ class ASTCompiler {
         return v;
     }
 
-    build(ast, cStmts?) {
+    build(ast: any, cStmts?: any[] | undefined): any {
         this.cAst = ast;
         this.cStmts = cStmts || this.stmts;
 
@@ -245,7 +245,7 @@ class ASTCompiler {
             return this.processBinary();
         } else if (ast instanceof Conditional) {
             return this.processConditional();
-        } else if (ast instanceof MethodCall) {
+        } else if (ast instanceof Call) {
             return this.processMethod();
         }
     }
@@ -270,7 +270,7 @@ class ASTCompiler {
         return args.join(',');
     }
 
-    addReturnStmt(result) {
+    addReturnStmt(result: any) {
         this.stmts.push(`return ${result};`);
     }
 
@@ -289,7 +289,7 @@ class ASTCompiler {
     }
 }
 
-export function $parse(expr) {
+export function $parse(expr: string) {
 
     if (!isString(expr)) {
         return noop;
@@ -308,7 +308,7 @@ export function $parse(expr) {
     }
 
     const parser = new Parser(new Lexer());
-    const ast = parser.parseBinding(expr, '');
+    const ast = parser.parseBinding(expr, '', 0);
     let boundFn;
 
     if (ast.errors.length) {
