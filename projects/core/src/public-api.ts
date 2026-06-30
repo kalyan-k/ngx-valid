@@ -21,6 +21,7 @@ export {
   ValidationResult,
   RequiredResult,
   FormGroupStatus,
+  PolicyGroupConfig,
   ControlType
 } from './lib/interfaces/validation-result.interface';
 export { VALIDATION_DISPLAY_CONFIG } from './lib/tokens/validation-display.token';
@@ -30,3 +31,7 @@ export { MaterialValidationDisplayStrategy } from './lib/strategies/material-val
 export { GenericValidationDisplayStrategy } from './lib/strategies/generic-validation-display.strategy';
 export { DefaultValidationDisplayStrategy } from './lib/strategies/default-validation-display.strategy';
 export { ValidationSummaryComponent } from './lib/components/validation-summary.component';
+export { ValidationGroupStatusComponent } from './lib/components/validation-group-status.component';
+export { ValidationGroupSummaryComponent } from './lib/components/validation-group-summary.component';
+export { ValidationPolicyGroupStatusComponent } from './lib/components/validation-policy-group-status.component';
+export { ValidationPolicyGroupSummaryComponent } from './lib/components/validation-policy-group-summary.component';

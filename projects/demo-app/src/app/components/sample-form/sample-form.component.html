@@ -1,9 +1,28 @@
-<div class="container py-4">
+<div class="container py-4 demo-form-page">
   <h2>Sample Form — All HTML Controls</h2>
-  <p class="text-muted">Single form demonstrating ngx-valid with Bootstrap styling and policy-based rules.</p>
+
+  <div class="alert alert-info demo-intro">
+    <strong>How this demo works</strong>
+    <ul class="mb-0 mt-2">
+      <li><strong>Required (*)</strong> — shown immediately for always-required fields.</li>
+      <li><strong>Field errors</strong> — appear after you leave a field (blur) or change a checkbox/radio.</li>
+      <li><strong>Form status badge</strong> — stays <em>Not validated</em> until you click Submit; then shows Valid/Invalid.</li>
+      <li><strong>Error summary</strong> — appears at the top only after Submit when validation fails.</li>
+    </ul>
+  </div>
 
   <form (ngSubmit)="onSubmit()" #sampleForm="ngForm">
-    <ngx-validation-summary *ngIf="showSummary" [model]="model"></ngx-validation-summary>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <ngx-validation-group-status
+        [model]="model"
+        groupName="mainForm"
+        pendingTooltip="Submit the form to evaluate all fields in this section."
+        evaluatedTooltip="Shows whether all fields in this form group passed validation on the last submit."
+      ></ngx-validation-group-status>
+    </div>
+
+    <ngx-validation-summary [model]="model"></ngx-validation-summary>
+    <ngx-validation-group-summary [model]="model" groupName="mainForm"></ngx-validation-group-summary>
 
     <div class="form-group mb-3" data-ngx-valid-field>
       <label for="textInput">Text Input</label>
@@ -51,6 +70,7 @@
         [withPolicy]="'SampleForm'"
         groupName="mainForm"
       />
+      <small class="text-muted">Minimum 8 characters</small>
     </div>
 
     <div class="form-group mb-3" data-ngx-valid-field>
@@ -167,14 +187,12 @@
         [withPolicy]="'SampleForm'"
         groupName="mainForm"
       ></textarea>
+      <small class="text-muted">Minimum 10 characters</small>
     </div>
 
     <div class="d-flex align-items-center gap-3 mt-3">
       <button type="submit" class="btn btn-primary">Submit</button>
       <button type="button" class="btn btn-outline-secondary" (click)="onClear()">Clear</button>
-      <span *ngIf="model.mainForm" [class.text-danger]="model.mainForm.isInValid" [class.text-success]="model.mainForm.isValid">
-        Form status: {{ model.mainForm.isValid ? 'Valid' : 'Invalid' }}
-      </span>
     </div>
 
     <div *ngIf="submitMessage" class="alert mt-3" [class.alert-danger]="model.mainForm?.isInValid" [class.alert-success]="model.mainForm?.isValid">

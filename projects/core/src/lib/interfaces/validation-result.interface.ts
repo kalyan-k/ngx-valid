@@ -16,6 +16,13 @@ export interface RequiredResult {
 export interface FormGroupStatus {
   isValid: boolean;
   isInValid: boolean;
+  isEvaluated?: boolean;
+  errors?: ValidationResult[];
+}
+
+export interface PolicyGroupConfig {
+  policies: string[];
+  formGroups: string[];
 }
 
 export type ControlType = 'input' | 'checkbox' | 'radio' | 'select' | 'textarea';

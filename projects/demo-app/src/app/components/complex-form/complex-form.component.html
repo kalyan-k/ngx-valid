@@ -1,95 +1,134 @@
-<div class="container py-4">
-  <h2>Complex Form — Multiple Forms on One Page</h2>
-  <p class="text-muted">
-    Three independent validation policies (Personal, Shipping, Billing) with nested models and conditional rules.
-  </p>
+<div class="container py-4 demo-form-page">
+  <h2>Complex Form — Multiple Policies on One Page</h2>
+
+  <div class="alert alert-info demo-intro">
+    <strong>How this demo works</strong>
+    <ul class="mb-0 mt-2">
+      <li><strong>Three policies</strong> — PersonalInfo, ShippingAddress, and BillingAddress run independently on the same model.</li>
+      <li><strong>Conditional required (*)</strong> — e.g. City/State/ZIP show * only after Street Address is entered; billing fields show * only when "Same as shipping" is unchecked.</li>
+      <li><strong>Section badges</strong> — each card shows <em>Not validated</em> until Submit; hover for an explanation.</li>
+      <li><strong>Page-level status</strong> — <code>ngx-validation-policy-group-status</code> aggregates all sections via the registered <code>checkout</code> policy group.</li>
+      <li><strong>Errors</strong> — field errors on blur; section and page summaries appear after Submit.</li>
+    </ul>
+  </div>
 
   <form (ngSubmit)="onSubmit()">
-    <ngx-validation-summary *ngIf="showSummary" [model]="model"></ngx-validation-summary>
+    <div class="card mb-4 border-primary">
+      <div class="card-body">
+        <ngx-validation-policy-group-status
+          [model]="model"
+          policyGroupName="checkout"
+          label="Entire page (checkout policy group)"
+          pendingTooltip="Validates PersonalInfo + ShippingAddress + BillingAddress policies together on submit."
+          evaluatedTooltip="Combined result across all three form sections. Errors from any section appear below."
+        ></ngx-validation-policy-group-status>
+        <ngx-validation-policy-group-summary
+          [model]="model"
+          policyGroupName="checkout"
+        ></ngx-validation-policy-group-summary>
+        <ngx-validation-summary [model]="model" title="All errors on this page:"></ngx-validation-summary>
+      </div>
+    </div>
 
     <!-- Personal Information -->
     <section class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Personal Information</h5>
-        <span *ngIf="model.personalInfo" class="badge" [class.bg-success]="model.personalInfo.isValid" [class.bg-danger]="model.personalInfo.isInValid">
-          {{ model.personalInfo.isValid ? 'Valid' : 'Invalid' }}
-        </span>
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="mb-0">Personal Information</h5>
+          <small class="text-muted">Policy: <code>PersonalInfo</code> · Group: <code>personalInfo</code></small>
+        </div>
+        <ngx-validation-group-status
+          [model]="model"
+          groupName="personalInfo"
+          pendingTooltip="All personal fields are always required. Status updates after you submit."
+          evaluatedTooltip="Valid when first name, last name, email, and phone pass validation."
+        ></ngx-validation-group-status>
       </div>
-      <div class="card-body row">
-        <div class="col-md-6 form-group mb-3">
-          <label for="firstName">First Name</label>
-          <input
-            type="text"
-            class="form-control"
-            id="firstName"
-            name="firstName"
-            [(ngModel)]="model.personal.firstName"
-            ngxValidator
-            [validateModel]="'form.personal.firstName'"
-            [actualModel]="model"
-            [withPolicy]="'PersonalInfo'"
-            groupName="personalInfo"
-          />
-        </div>
-        <div class="col-md-6 form-group mb-3">
-          <label for="lastName">Last Name</label>
-          <input
-            type="text"
-            class="form-control"
-            id="lastName"
-            name="lastName"
-            [(ngModel)]="model.personal.lastName"
-            ngxValidator
-            [validateModel]="'form.personal.lastName'"
-            [actualModel]="model"
-            [withPolicy]="'PersonalInfo'"
-            groupName="personalInfo"
-          />
-        </div>
-        <div class="col-md-6 form-group mb-3">
-          <label for="personalEmail">Email</label>
-          <input
-            type="email"
-            class="form-control"
-            id="personalEmail"
-            name="personalEmail"
-            [(ngModel)]="model.personal.email"
-            ngxValidator
-            [validateModel]="'form.personal.email'"
-            [actualModel]="model"
-            [withPolicy]="'PersonalInfo'"
-            groupName="personalInfo"
-          />
-        </div>
-        <div class="col-md-6 form-group mb-3">
-          <label for="phone">Phone</label>
-          <input
-            type="tel"
-            class="form-control"
-            id="phone"
-            name="phone"
-            placeholder="(555) 555-5555"
-            [(ngModel)]="model.personal.phone"
-            ngxValidator
-            [validateModel]="'form.personal.phone'"
-            [actualModel]="model"
-            [withPolicy]="'PersonalInfo'"
-            groupName="personalInfo"
-          />
+      <div class="card-body">
+        <ngx-validation-group-summary [model]="model" groupName="personalInfo"></ngx-validation-group-summary>
+        <div class="row">
+          <div class="col-md-6 form-group mb-3" data-ngx-valid-field>
+            <label for="firstName">First Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="firstName"
+              name="firstName"
+              [(ngModel)]="model.personal.firstName"
+              ngxValidator
+              [validateModel]="'form.personal.firstName'"
+              [actualModel]="model"
+              [withPolicy]="'PersonalInfo'"
+              groupName="personalInfo"
+            />
+          </div>
+          <div class="col-md-6 form-group mb-3" data-ngx-valid-field>
+            <label for="lastName">Last Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="lastName"
+              name="lastName"
+              [(ngModel)]="model.personal.lastName"
+              ngxValidator
+              [validateModel]="'form.personal.lastName'"
+              [actualModel]="model"
+              [withPolicy]="'PersonalInfo'"
+              groupName="personalInfo"
+            />
+          </div>
+          <div class="col-md-6 form-group mb-3" data-ngx-valid-field>
+            <label for="personalEmail">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="personalEmail"
+              name="personalEmail"
+              [(ngModel)]="model.personal.email"
+              ngxValidator
+              [validateModel]="'form.personal.email'"
+              [actualModel]="model"
+              [withPolicy]="'PersonalInfo'"
+              groupName="personalInfo"
+            />
+          </div>
+          <div class="col-md-6 form-group mb-3" data-ngx-valid-field>
+            <label for="phone">Phone</label>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone"
+              name="phone"
+              placeholder="(555) 555-5555"
+              [(ngModel)]="model.personal.phone"
+              ngxValidator
+              [validateModel]="'form.personal.phone'"
+              [actualModel]="model"
+              [withPolicy]="'PersonalInfo'"
+              groupName="personalInfo"
+            />
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Shipping Address -->
     <section class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Shipping Address</h5>
-        <span *ngIf="model.shippingInfo" class="badge" [class.bg-success]="model.shippingInfo.isValid" [class.bg-danger]="model.shippingInfo.isInValid">
-          {{ model.shippingInfo.isValid ? 'Valid' : 'Invalid' }}
-        </span>
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="mb-0">Shipping Address</h5>
+          <small class="text-muted">Policy: <code>ShippingAddress</code> · Conditional rules on city/state/zip</small>
+        </div>
+        <ngx-validation-group-status
+          [model]="model"
+          groupName="shippingInfo"
+          pendingTooltip="City, State, ZIP, and Country are required only when Street Address has a value."
+          evaluatedTooltip="Valid when required shipping fields pass validation for the current address input."
+        ></ngx-validation-group-status>
       </div>
       <div class="card-body">
-        <div class="form-group mb-3">
+        <ngx-validation-group-summary [model]="model" groupName="shippingInfo"></ngx-validation-group-summary>
+        <div class="form-group mb-3" data-ngx-valid-field>
           <label for="shippingLine1">Street Address</label>
           <input
             type="text"
@@ -103,13 +142,14 @@
             [withPolicy]="'ShippingAddress'"
             groupName="shippingInfo"
           />
+          <small class="text-muted">Enter a street address to enable required city, state, ZIP, and country fields.</small>
         </div>
         <div class="form-group mb-3">
           <label for="shippingLine2">Street Address 2 (optional)</label>
           <input type="text" class="form-control" id="shippingLine2" name="shippingLine2" [(ngModel)]="model.shipping.line2" />
         </div>
         <div class="row">
-          <div class="col-md-4 form-group mb-3">
+          <div class="col-md-4 form-group mb-3" data-ngx-valid-field>
             <label for="shippingCity">City</label>
             <input
               type="text"
@@ -124,7 +164,7 @@
               groupName="shippingInfo"
             />
           </div>
-          <div class="col-md-4 form-group mb-3">
+          <div class="col-md-4 form-group mb-3" data-ngx-valid-field>
             <label for="shippingState">State</label>
             <input
               type="text"
@@ -139,7 +179,7 @@
               groupName="shippingInfo"
             />
           </div>
-          <div class="col-md-4 form-group mb-3">
+          <div class="col-md-4 form-group mb-3" data-ngx-valid-field>
             <label for="shippingZip">ZIP Code</label>
             <input
               type="text"
@@ -155,7 +195,7 @@
             />
           </div>
         </div>
-        <div class="form-group mb-3">
+        <div class="form-group mb-3" data-ngx-valid-field>
           <label for="shippingCountry">Country</label>
           <select
             class="form-control"
@@ -173,19 +213,25 @@
             <option value="CA">Canada</option>
           </select>
         </div>
-        <p class="text-muted small mb-0">City, State, ZIP, and Country are required only when a street address is entered.</p>
       </div>
     </section>
 
     <!-- Billing Address -->
     <section class="card mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Billing Address</h5>
-        <span *ngIf="model.billingInfo" class="badge" [class.bg-success]="model.billingInfo.isValid" [class.bg-danger]="model.billingInfo.isInValid">
-          {{ model.billingInfo.isValid ? 'Valid' : 'Invalid' }}
-        </span>
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="mb-0">Billing Address</h5>
+          <small class="text-muted">Policy: <code>BillingAddress</code> · Depends on <code>!billing.sameAsShipping</code></small>
+        </div>
+        <ngx-validation-group-status
+          [model]="model"
+          groupName="billingInfo"
+          pendingTooltip="Billing fields are required only when 'Same as shipping' is unchecked."
+          evaluatedTooltip="Valid when billing rules pass for the current same-as-shipping selection."
+        ></ngx-validation-group-status>
       </div>
       <div class="card-body">
+        <ngx-validation-group-summary [model]="model" groupName="billingInfo"></ngx-validation-group-summary>
         <div class="form-check mb-3">
           <input
             type="checkbox"
@@ -193,12 +239,13 @@
             id="sameAsShipping"
             name="sameAsShipping"
             [(ngModel)]="model.billing.sameAsShipping"
+            (ngModelChange)="onSameAsShippingChange()"
           />
           <label class="form-check-label" for="sameAsShipping">Same as shipping address</label>
         </div>
 
         <div *ngIf="!model.billing.sameAsShipping">
-          <div class="form-group mb-3">
+          <div class="form-group mb-3" data-ngx-valid-field>
             <label for="billingLine1">Street Address</label>
             <input
               type="text"
@@ -214,7 +261,7 @@
             />
           </div>
           <div class="row">
-            <div class="col-md-6 form-group mb-3">
+            <div class="col-md-6 form-group mb-3" data-ngx-valid-field>
               <label for="billingCity">City</label>
               <input
                 type="text"
@@ -229,7 +276,7 @@
                 groupName="billingInfo"
               />
             </div>
-            <div class="col-md-6 form-group mb-3">
+            <div class="col-md-6 form-group mb-3" data-ngx-valid-field>
               <label for="billingZip">ZIP Code</label>
               <input
                 type="text"
@@ -254,7 +301,7 @@
       <button type="button" class="btn btn-outline-secondary" (click)="onClear()">Clear</button>
     </div>
 
-    <div *ngIf="submitMessage" class="alert mt-3" [class.alert-danger]="model.validationResults?.length" [class.alert-success]="!model.validationResults?.length">
+    <div *ngIf="submitMessage" class="alert mt-3" [class.alert-danger]="model.checkout?.isInValid" [class.alert-success]="model.checkout?.isValid">
       {{ submitMessage }}
     </div>
   </form>

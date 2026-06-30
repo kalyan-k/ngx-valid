@@ -48,9 +48,10 @@ export class ComplexFormModel {
   personal: PersonalInfo;
   shipping: AddressInfo;
   billing: BillingInfo;
-  personalInfo?: { isValid: boolean; isInValid: boolean };
-  shippingInfo?: { isValid: boolean; isInValid: boolean };
-  billingInfo?: { isValid: boolean; isInValid: boolean };
+  personalInfo?: { isValid: boolean; isInValid: boolean; isEvaluated?: boolean };
+  shippingInfo?: { isValid: boolean; isInValid: boolean; isEvaluated?: boolean };
+  billingInfo?: { isValid: boolean; isInValid: boolean; isEvaluated?: boolean };
+  checkout?: { isValid: boolean; isInValid: boolean; isEvaluated?: boolean };
   validationResults?: Array<{ propertyName: string; error: { message: string } }>;
 
   constructor() {

@@ -85,16 +85,22 @@ export class Policy {
         return returnValue;
     }
 
+    private isDependencySatisfied = (model: any, validator: Validator) => {
+        if (!validator.dependency) {
+            return true;
+        }
+
+        if (_.isFunction(validator.dependency)) {
+            return !!validator.dependency.call(this, model);
+        }
+
+        const getter = $parse(validator.dependency);
+        return !!getter(model);
+    }
+
     private canRunValidation = (model: any, value: any, validator: any, validationRule: any) => {
         if (validator.dependency) {
-            if (_.isFunction(validator.dependency)) {
-                return validator.dependency.call(this, model);
-            } else {
-                const getter = $parse(validator.dependency);
-                const result = getter(model);
-
-                return result;
-            }
+            return this.isDependencySatisfied(model, validator);
         }
 
         // Don't run validation if the rule is optional and doesn't have a value.
@@ -218,25 +224,36 @@ export class Policy {
         return observableOf(model.requiredResults).pipe(take(1));
     }
 
-    /** Populates requiredResults with isRequired markers for all required rules (for initial asterisk display). */
-    public initializeRequiredFields = (model: any) => {
+    /** Updates required markers respecting conditional dependencies. */
+    public updateConditionalRequiredFields = (model: any, propertyName?: string) => {
         model.requiredResults = model.requiredResults || [];
 
         for (let validator = 0; validator < this.validators.length; validator++) {
-            const propertyName = this.validators[validator].propertyName;
-            const hasRequiredRule = this.validators[validator].validatorsToRun.some((rule) => rule.checkIsRequired);
+            const fieldName = this.validators[validator].propertyName;
+            if (!fieldName || (propertyName && fieldName !== propertyName)) {
+                continue;
+            }
 
-            if (hasRequiredRule && propertyName) {
-                const reqResultIdx = _.findIndex(model.requiredResults, { 'propertyName': propertyName });
-                if (reqResultIdx === -1) {
-                    model.requiredResults.push({
-                        'propertyName': propertyName,
-                        'isRequired': true,
-                        'hasRequiredError': false
-                    });
-                } else if (!model.requiredResults[reqResultIdx].isRequired) {
-                    model.requiredResults[reqResultIdx].isRequired = true;
-                }
+            const hasRequiredRule = this.validators[validator].validatorsToRun.some((rule) => rule.checkIsRequired);
+            const dependencyMet = this.isDependencySatisfied(model, this.validators[validator]);
+            const shouldShowRequired = hasRequiredRule && dependencyMet;
+            const reqResultIdx = _.findIndex(model.requiredResults, { 'propertyName': fieldName });
+
+            if (reqResultIdx > -1) {
+                model.requiredResults[reqResultIdx] = {
+                    ...model.requiredResults[reqResultIdx],
+                    propertyName: fieldName,
+                    isRequired: shouldShowRequired,
+                    hasRequiredError: shouldShowRequired
+                        ? model.requiredResults[reqResultIdx].hasRequiredError
+                        : false
+                };
+            } else if (shouldShowRequired) {
+                model.requiredResults.push({
+                    propertyName: fieldName,
+                    isRequired: true,
+                    hasRequiredError: false
+                });
             }
         }
 
@@ -245,21 +262,33 @@ export class Policy {
         }
     }
 
+    /** @deprecated Use updateConditionalRequiredFields */
+    public initializeRequiredFields = (model: any) => {
+        this.updateConditionalRequiredFields(model);
+    }
+
     // model: The is the model passed in (the actualModel parameter passed to the validator directive).
     // formGroupList: This is the list of all the formGroup Names.
-    public checkFormGroupValid = (model: any, formGroupList: any) => {
-        // FormGroup holds array of properties grouped by form (sent from UI).
-        // Data Type is - { [key: string]: Array<string> } 
+    public checkFormGroupValid = (model: any, formGroupList: any, markEvaluated = true) => {
         Object.keys(formGroupList).forEach((groupName) => {
-            // Here Key is the Group Name.
-            // Here this.validationService.formGroup[key] is the array of properties which fall under the "key".
             if (!!groupName) {
-                const hasValidationError = _.some(formGroupList[groupName], function (propertyPath) {
+                const groupErrors: Array<{ propertyName: string; error: { message: string } }> = [];
+
+                formGroupList[groupName].forEach((propertyPath: string) => {
                     const foundValidationErrorFields = _.where(model.validationResults || [], { 'propertyName': propertyPath });
-                    return !!foundValidationErrorFields && !_.isEmpty(foundValidationErrorFields);
+                    if (foundValidationErrorFields?.length) {
+                        groupErrors.push(...foundValidationErrorFields);
+                    }
                 });
 
-                model[groupName] = { isValid: !hasValidationError, isInValid: hasValidationError };
+                const hasValidationError = groupErrors.length > 0;
+
+                model[groupName] = {
+                    isValid: !hasValidationError,
+                    isInValid: hasValidationError,
+                    isEvaluated: markEvaluated,
+                    errors: groupErrors
+                };
             }
         });
     }

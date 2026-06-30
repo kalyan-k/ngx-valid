@@ -17,13 +17,13 @@ import {
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as _ from 'underscore';
-import { ValidationDisplayContext, ValidationDisplayStrategy } from '../interfaces/validation-display.interface';
+import { ValidationDisplayConfig, ValidationDisplayContext, ValidationDisplayStrategy } from '../interfaces/validation-display.interface';
 import { RequiredResult } from '../interfaces/validation-result.interface';
 import { ValidationProviderService } from '../services/validation-provider.service';
 import { DefaultValidationDisplayStrategy } from '../strategies/default-validation-display.strategy';
 import { VALIDATION_DISPLAY_CONFIG } from '../tokens/validation-display.token';
 import { VALIDATION_DISPLAY_STRATEGY } from '../tokens/validation-display-strategy.token';
-import { ValidationDisplayConfig } from '../interfaces/validation-display.interface';
+import { markFieldTouched, shouldShowFieldErrors } from '../utils/validation-meta.util';
 
 @Directive({
   selector: '[ngxValidator], [libValidatorDirective]'
@@ -51,6 +51,7 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   controlType!: ReturnType<ValidationDisplayStrategy['detectControlType']>;
   private displayContext!: ValidationDisplayContext;
   private unlisten?: () => void;
+  private inputUnlisten?: () => void;
   private refreshSubscription?: Subscription;
   private readonly displayStrategy: ValidationDisplayStrategy;
 
@@ -101,14 +102,12 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
     if (!this.validationService.formGroup[this.groupName].includes(this.modelInfo.propertyPath)) {
       this.validationService.formGroup[this.groupName].push(this.modelInfo.propertyPath);
     }
-
-    if (!this.actualModel[this.groupName]) {
-      this.actualModel[this.groupName] = {};
-    }
   }
 
   ngDoCheck(): void {
     this.runcheck();
+    this.policy.updateConditionalRequiredFields(this.actualModel, this.modelInfo.propertyPath);
+    this.syncRequiredUi();
   }
 
   runcheck(): void {
@@ -122,7 +121,6 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       validationResultsChanged.forEachOperation((changeRecord: IterableChangeRecord<any>) => {
         if (changeRecord.item?.propertyName === this.modelInfo.propertyPath) {
           this.syncValidationUi();
-          this.checkAndSetFormGroupsValid();
         }
       });
     }
@@ -140,15 +138,9 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       requiredResultsChanged.forEachOperation((changeRecord: IterableChangeRecord<any>) => {
         if (changeRecord.item?.propertyName === this.modelInfo.propertyPath) {
           this.syncRequiredUi();
-          this.checkAndSetFormGroupsValid();
         }
       });
     }
-  }
-
-  checkAndSetFormGroupsValid(): void {
-    this.policy.checkFormValid(this.actualModel, this.validationService.formGroup);
-    this.changeDetectorRef.detectChanges();
   }
 
   ngAfterViewInit(): void {
@@ -161,10 +153,16 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       const delay = (this.controlType === 'radio' || this.controlType === 'checkbox') ? 200 : 0;
       this.validateModelWithPolicy(delay);
     });
+
+    this.inputUnlisten = this.renderer2.listen(this.elementRef.nativeElement, 'input', () => {
+      this.policy.updateConditionalRequiredFields(this.actualModel);
+      this.syncRequiredUi();
+    });
   }
 
   ngOnDestroy(): void {
     this.unlisten?.();
+    this.inputUnlisten?.();
     this.refreshSubscription?.unsubscribe();
   }
 
@@ -187,7 +185,7 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
     this.ngZone.runOutsideAngular(() => {
       window.setTimeout(() => {
         this.ngZone.run(() => {
-          this.policy.initializeRequiredFields(this.actualModel);
+          this.policy.updateConditionalRequiredFields(this.actualModel);
           this.syncRequiredUi();
           this.changeDetectorRef.markForCheck();
         });
@@ -196,12 +194,17 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   private refreshUi(): void {
+    this.policy.updateConditionalRequiredFields(this.actualModel);
     this.syncValidationUi();
     this.syncRequiredUi();
-    this.checkAndSetFormGroupsValid();
   }
 
   private syncValidationUi(): void {
+    if (!shouldShowFieldErrors(this.actualModel, this.modelInfo.propertyPath)) {
+      this.displayStrategy.clearErrors(this.displayContext, this.renderer2);
+      return;
+    }
+
     const filteredResults = _.where(this.actualModel.validationResults || [], {
       propertyName: this.modelInfo.propertyPath
     });
@@ -218,19 +221,26 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       propertyName: this.modelInfo.propertyPath
     }) as RequiredResult | undefined;
 
-    if (requiredResult?.isRequired) {
-      this.displayStrategy.renderRequiredIndicator(this.displayContext, requiredResult, this.renderer2);
-    }
+    const indicator: RequiredResult = requiredResult ?? {
+      propertyName: this.modelInfo.propertyPath,
+      isRequired: false,
+      hasRequiredError: false
+    };
+
+    this.displayStrategy.renderRequiredIndicator(this.displayContext, indicator, this.renderer2);
   }
 
   private validateModelWithPolicy(delayByMs = 0): void {
     this.policy = this.validationService.getPolicy(this.withPolicy);
+    markFieldTouched(this.actualModel, this.modelInfo.propertyPath);
 
     window.setTimeout(() => {
       this.policy.validate(this.actualModel, this.modelInfo.propertyPath).pipe(take(1))
         .subscribe(() => {
           this.ngZone.run(() => {
+            this.policy.updateConditionalRequiredFields(this.actualModel);
             this.syncValidationUi();
+            this.syncRequiredUi();
             this.changeDetectorRef.detectChanges();
           });
         });
@@ -239,6 +249,7 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
     this.policy.checkModelRequired(this.actualModel, this.modelInfo.propertyPath).pipe(take(1))
       .subscribe(() => {
         this.ngZone.run(() => {
+          this.policy.updateConditionalRequiredFields(this.actualModel);
           this.syncRequiredUi();
           this.changeDetectorRef.detectChanges();
         });

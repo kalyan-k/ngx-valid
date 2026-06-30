@@ -1,5 +1,9 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ValidationGroupStatusComponent } from './components/validation-group-status.component';
+import { ValidationGroupSummaryComponent } from './components/validation-group-summary.component';
+import { ValidationPolicyGroupStatusComponent } from './components/validation-policy-group-status.component';
+import { ValidationPolicyGroupSummaryComponent } from './components/validation-policy-group-summary.component';
 import { ValidationSummaryComponent } from './components/validation-summary.component';
 import { ValidatorDirective } from './directives/validator.directive';
 import { ValidationDisplayConfig, ValidationDisplayStrategy } from './interfaces/validation-display.interface';
@@ -17,14 +21,22 @@ export function createValidationDisplayStrategy(config: ValidationDisplayConfig 
 @NgModule({
   declarations: [
     ValidatorDirective,
-    ValidationSummaryComponent
+    ValidationSummaryComponent,
+    ValidationGroupStatusComponent,
+    ValidationGroupSummaryComponent,
+    ValidationPolicyGroupStatusComponent,
+    ValidationPolicyGroupSummaryComponent
   ],
   imports: [
     CommonModule
   ],
   exports: [
     ValidatorDirective,
-    ValidationSummaryComponent
+    ValidationSummaryComponent,
+    ValidationGroupStatusComponent,
+    ValidationGroupSummaryComponent,
+    ValidationPolicyGroupStatusComponent,
+    ValidationPolicyGroupSummaryComponent
   ]
 })
 export class ValidationModule {

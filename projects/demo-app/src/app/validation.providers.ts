@@ -13,6 +13,11 @@ export function registerValidationPolicies(validationProvider: ValidationProvide
     validationProvider.register('PersonalInfo', new PersonalInfoValidationPolicy());
     validationProvider.register('ShippingAddress', new ShippingAddressValidationPolicy());
     validationProvider.register('BillingAddress', new BillingAddressValidationPolicy());
+
+    validationProvider.registerPolicyGroup('checkout', {
+      policies: ['PersonalInfo', 'ShippingAddress', 'BillingAddress'],
+      formGroups: ['personalInfo', 'shippingInfo', 'billingInfo']
+    });
   };
 }
 
