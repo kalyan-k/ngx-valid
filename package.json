@@ -4,11 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
+    "prestart": "ng build core --configuration development",
+    "build": "ng build core && ng build demo-app",
+    "build-core": "ng build core",
+    "build-demo": "ng build demo-app",
+    "watch": "ng build core --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint",
-    "build-core": "ng build core"
+    "lint": "ng lint"
   },
   "private": true,
   "dependencies": {

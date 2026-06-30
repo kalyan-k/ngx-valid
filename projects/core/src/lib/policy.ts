@@ -111,7 +111,7 @@ export class Policy {
         return;
     }
 
-    public validate = (model: any, propertyName: string) => {
+    public validate = (model: any, propertyName?: string) => {
         const self = this;
         const results: Array<Observable<any>> = [];
 
@@ -150,20 +150,21 @@ export class Policy {
             }
         }
 
+        if (results.length === 0) {
+            if (model.validationResults && model.validationResults.length <= 0) {
+                delete model.validationResults;
+            }
+            return observableOf(model.validationResults).pipe(take(1));
+        }
+
         const observable = observableForkJoin(results).pipe(
-            map(
-                function () {
-                    // Delete the validationResults property off of the model if it has no errors
-                    if (model.validationResults && model.validationResults.length <= 0) {
-                        delete model.validationResults;
-                    }
-                    return model.validationResults;
-                },
-                function () {
-                    // Delete the validationResults property off of the model since validation couldn't finish.
+            map(function () {
+                if (model.validationResults && model.validationResults.length <= 0) {
                     delete model.validationResults;
                 }
-            ));
+                return model.validationResults;
+            })
+        );
 
         observable.subscribe();
 

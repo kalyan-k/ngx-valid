@@ -1,27 +1,45 @@
-# NgxValid
+# ngx-valid
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.2.10.
+Angular validation library with policy-based rules and pluggable error display.
 
-## Development server
+## Workspace Structure
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+```
+ngx-valid/
+├── projects/
+│   ├── core/              # Publishable library (npm: ngx-valid)
+│   └── demo-app/          # Demo application
+├── angular.json
+└── package.json
+```
 
-## Code scaffolding
+## Development
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```bash
+# Install dependencies
+npm install
 
-## Build
+# Build the library (required before serving demo)
+npm run build-core
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+# Run demo app
+npm start
 
-## Running unit tests
+# Build library in watch mode (separate terminal)
+npm run build-core -- --watch --configuration development
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Demo Routes
 
-## Running end-to-end tests
+| Route | Description |
+|-------|-------------|
+| `/sample-form` | Single form with all HTML control types |
+| `/complex-form` | Multiple forms with nested models and conditional validation |
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Library Documentation
 
-## Further help
+See [projects/core/README.md](projects/core/README.md) for API documentation and usage examples.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## License
+
+MIT

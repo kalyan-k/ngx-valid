@@ -19,24 +19,17 @@ const primitiveEquals = (a: any, b: any) => {
     return a === b;
 };
 
-// tslint:disable:no-unused-variable
 const detectChanges = (ov: any[], nv: string | any[]) => {
     const len = nv.length;
-    let hasChange = len > 10;
-    switch (len) {
-        // tslint:disable:no-switch-case-fall-through
-        case 10: hasChange = !primitiveEquals(ov[9], nv[9]); if (hasChange) { break; }
-        case 9: hasChange = !primitiveEquals(ov[8], nv[8]); if (hasChange) { break; }
-        case 8: hasChange = !primitiveEquals(ov[7], nv[7]); if (hasChange) { break; }
-        case 7: hasChange = !primitiveEquals(ov[6], nv[6]); if (hasChange) { break; }
-        case 6: hasChange = !primitiveEquals(ov[5], nv[5]); if (hasChange) { break; }
-        case 5: hasChange = !primitiveEquals(ov[4], nv[4]); if (hasChange) { break; }
-        case 4: hasChange = !primitiveEquals(ov[3], nv[3]); if (hasChange) { break; }
-        case 3: hasChange = !primitiveEquals(ov[2], nv[2]); if (hasChange) { break; }
-        case 2: hasChange = !primitiveEquals(ov[1], nv[1]); if (hasChange) { break; }
-        case 1: hasChange = !primitiveEquals(ov[0], nv[0]); if (hasChange) { break; }
+    if (len > 10) {
+        return true;
     }
-    return hasChange;
+    for (let i = len - 1; i >= 0; i--) {
+        if (!primitiveEquals(ov[i], nv[i])) {
+            return true;
+        }
+    }
+    return false;
 };
 
 

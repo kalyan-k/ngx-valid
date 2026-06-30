@@ -1,35 +1,25 @@
 export interface ISampleForm {
-    TextInput: string;
-    EmailInput: string;
-    PasswordInput: string;
-    NumberInput: string;
-    DateInput: string;
-    Checkbox: boolean;
-    Radiobox: string;
-    Dropdown: string;
-    Textarea: string;
+  textInput: string;
+  emailInput: string;
+  passwordInput: string;
+  numberInput: string;
+  dateInput: string;
+  checkboxInput: boolean;
+  radioGroup: string;
+  selectInput: string;
+  textareaInput: string;
 }
 
 export class SampleForm implements ISampleForm {
-    TextInput: string;
-    EmailInput: string;
-    PasswordInput: string;
-    NumberInput: string;
-    DateInput: string;
-    Checkbox: boolean;
-    Radiobox: string;
-    Dropdown: string;
-    Textarea: string;
-
-    constructor() {
-        this.TextInput = "";
-        this.EmailInput = "";
-        this.PasswordInput = "";
-        this.NumberInput = "";
-        this.DateInput = "";
-        this.Checkbox = false;
-        this.Radiobox = "";
-        this.Dropdown = "";
-        this.Textarea = "";
-    }
+  textInput = '';
+  emailInput = '';
+  passwordInput = '';
+  numberInput = '';
+  dateInput = '';
+  checkboxInput = false;
+  radioGroup = '';
+  selectInput = '';
+  textareaInput = '';
+  mainForm?: { isValid: boolean; isInValid: boolean };
+  validationResults?: Array<{ propertyName: string; error: { message: string } }>;
 }

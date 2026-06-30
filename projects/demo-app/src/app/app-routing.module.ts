@@ -4,6 +4,7 @@ import { SampleFormComponent } from './components/sample-form/sample-form.compon
 import { ComplexFormComponent } from './components/complex-form/complex-form.component';
 
 const routes: Routes = [
+  { path: '', redirectTo: 'sample-form', pathMatch: 'full' },
   { path: 'sample-form', component: SampleFormComponent },
   { path: 'complex-form', component: ComplexFormComponent }
 ];
