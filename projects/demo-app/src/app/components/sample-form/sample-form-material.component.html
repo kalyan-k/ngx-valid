@@ -70,21 +70,25 @@
       </mat-form-field>
     </div>
 
-    <mat-checkbox class="mb-3" data-ngx-valid-field
-      id="matCheckboxInput" name="checkboxInput" [(ngModel)]="model.checkboxInput"
-      ngxValidator [validateModel]="'form.checkboxInput'" [actualModel]="model"
-      [withPolicy]="'SampleForm'" groupName="mainForm">
-      I accept the terms and conditions
-    </mat-checkbox>
+    <div class="mat-checkbox-field" data-ngx-valid-field>
+      <mat-checkbox class="mb-3"
+        id="matCheckboxInput" name="checkboxInput" [(ngModel)]="model.checkboxInput"
+        ngxValidator [validateModel]="'form.checkboxInput'" [actualModel]="model"
+        [withPolicy]="'SampleForm'" groupName="mainForm">
+        I accept the terms and conditions
+      </mat-checkbox>
+    </div>
 
-    <mat-radio-group class="mat-radio-block mb-3" data-ngx-valid-field
-      name="radioGroup" [(ngModel)]="model.radioGroup"
-      ngxValidator [validateModel]="'form.radioGroup'" [actualModel]="model"
-      [withPolicy]="'SampleForm'" groupName="mainForm">
-      <label class="mat-group-label">Radio Group</label>
-      <mat-radio-button value="option1">Option 1</mat-radio-button>
-      <mat-radio-button value="option2">Option 2</mat-radio-button>
-    </mat-radio-group>
+    <div class="mat-radio-block mb-3" data-ngx-valid-field>
+      <mat-label class="mat-group-label">Radio Group</mat-label>
+      <mat-radio-group
+        name="radioGroup" [(ngModel)]="model.radioGroup"
+        ngxValidator [validateModel]="'form.radioGroup'" [actualModel]="model"
+        [withPolicy]="'SampleForm'" groupName="mainForm">
+        <mat-radio-button value="option1">Option 1</mat-radio-button>
+        <mat-radio-button value="option2">Option 2</mat-radio-button>
+      </mat-radio-group>
+    </div>
 
     <div class="mat-actions">
       <button mat-flat-button color="primary" type="submit">Submit</button>

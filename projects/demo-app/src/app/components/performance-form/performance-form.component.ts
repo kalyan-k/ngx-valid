@@ -2,10 +2,12 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  Input,
   NgZone,
   OnDestroy,
   OnInit
 } from '@angular/core';
+import { DemoFramework } from '../../demo/demo-framework.model';
 import { Subscription } from 'rxjs';
 import { ValidationProviderService } from 'core';
 import {
@@ -26,6 +28,8 @@ import { PerformanceBuildResult, PerformanceFormBuilderService } from './perform
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PerformanceFormComponent implements OnInit, OnDestroy {
+  @Input() uiFramework: DemoFramework = 'bootstrap';
+
   model = new PerformanceFormModel();
   renderedSections: PerformanceSectionMeta[] = [];
   allSectionMetas: PerformanceSectionMeta[] = [];

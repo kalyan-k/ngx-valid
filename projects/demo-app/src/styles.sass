@@ -76,3 +76,179 @@
 .tw-required-marker
   color: #dc2626
   font-weight: 600
+
+// Angular Material demo fixes
+.mat-mdc-select-panel,
+.mat-select-panel
+  background: #fff !important
+
+.mat-mdc-option,
+.mat-option
+  background: #fff
+
+.mat-mdc-form-field-error,
+mat-error.mat-error
+  display: block
+  font-size: 0.75rem
+  line-height: 1.2
+
+.ngx-valid-mat-checkbox-errors,
+.ngx-valid-mat-radio-errors
+  margin-top: 0.25rem
+
+  mat-error
+    display: block
+    font-size: 0.75rem
+    color: #f44336
+
+.mat-checkbox-field
+  margin-bottom: 1rem
+
+.mat-mdc-checkbox-invalid .mdc-checkbox__background,
+.mat-checkbox-invalid .mdc-checkbox__background
+  border-color: #f44336 !important
+
+.mat-mdc-form-field-invalid .mdc-notched-outline__leading,
+.mat-mdc-form-field-invalid .mdc-notched-outline__notch,
+.mat-mdc-form-field-invalid .mdc-notched-outline__trailing
+  border-color: #f44336 !important
+
+.mat-placeholder-required,
+.mat-mdc-form-field-required-marker
+  color: #f44336
+
+// Shared demo layout utilities (Material + Tailwind forms)
+.material-form-page,
+.performance-form-page
+  .mat-fields-grid
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
+    gap: 0.25rem 1rem
+
+  .mat-actions
+    display: flex
+    flex-wrap: wrap
+    gap: 0.75rem
+
+  .mat-card-header-spacer
+    flex: 1
+
+.tw-form-page,
+.performance-form-page
+  .tw-field
+    margin-bottom: 1rem
+
+  .tw-label
+    display: block
+    font-size: 0.875rem
+    font-weight: 600
+    color: #374151
+    margin-bottom: 0.35rem
+
+  .tw-input
+    display: block
+    width: 100%
+    border-radius: 0.375rem
+    border: 1px solid #d1d5db
+    padding: 0.5rem 0.75rem
+    font-size: 0.95rem
+    background: #fff
+
+    &:focus
+      outline: none
+      border-color: #3b82f6
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2)
+
+  .tw-textarea
+    resize: vertical
+
+  .tw-hint
+    margin: 0.25rem 0 0
+    font-size: 0.8rem
+    color: #6b7280
+
+  .tw-grid-2
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr))
+    gap: 1rem
+
+  .tw-check
+    display: flex
+    align-items: center
+    gap: 0.5rem
+
+  .tw-checkbox
+    width: 1rem
+    height: 1rem
+
+  .tw-check-label
+    margin: 0
+    font-size: 0.95rem
+
+  .tw-fieldset
+    border: 1px solid #e5e7eb
+    border-radius: 0.375rem
+    padding: 0.75rem 1rem
+    margin-bottom: 1rem
+
+  .tw-radio
+    display: flex
+    align-items: center
+    gap: 0.5rem
+    margin-top: 0.35rem
+    font-size: 0.95rem
+
+  .tw-actions
+    display: flex
+    flex-wrap: wrap
+    gap: 0.75rem
+
+  .tw-btn
+    border-radius: 0.375rem
+    padding: 0.5rem 1rem
+    font-weight: 600
+    border: 1px solid transparent
+    cursor: pointer
+
+  .tw-btn-sm
+    padding: 0.25rem 0.65rem
+    font-size: 0.85rem
+
+  .tw-btn-primary
+    background: #2563eb
+    color: #fff
+
+    &:hover
+      background: #1d4ed8
+
+  .tw-btn-secondary
+    background: #fff
+    border-color: #d1d5db
+    color: #374151
+
+  .tw-panel
+    border: 1px solid #e5e7eb
+    border-radius: 0.5rem
+    padding: 1rem 1.25rem
+    background: #fff
+
+  .tw-panel-highlight
+    border-color: #93c5fd
+    background: #eff6ff
+
+  .tw-panel-header
+    display: flex
+    flex-wrap: wrap
+    align-items: flex-start
+    justify-content: space-between
+    gap: 0.75rem
+    margin-bottom: 0.75rem
+
+  .tw-panel-title
+    margin: 0
+    font-size: 1.05rem
+
+  .tw-panel-subtitle
+    margin: 0.15rem 0 0
+    font-size: 0.8rem
+    color: #6b7280

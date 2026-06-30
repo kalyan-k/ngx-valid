@@ -280,8 +280,12 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
       return parentLabel as HTMLElement;
     }
 
-    const fieldWrapper = host.closest('[data-ngx-valid-field], .form-group, .form-check, fieldset, .field, .mb-3');
+    const fieldWrapper = host.closest('[data-ngx-valid-field], .form-group, .form-check, fieldset, .field, .mb-3, .tw-field');
     if (fieldWrapper) {
+      const twLabel = fieldWrapper.querySelector('.tw-label');
+      if (twLabel) {
+        return twLabel as HTMLElement;
+      }
       const legend = fieldWrapper.querySelector('legend');
       if (legend) {
         return legend as HTMLElement;

@@ -31,6 +31,7 @@ export class SampleFormTailwindComponent {
     Object.assign(this.model, new SampleForm());
     this.validationProvider.resetFormGroups();
     this.validationProvider.clearValidationState(this.model, [this.policyName]);
+    this.validationProvider.notifyValidationRefresh(this.model);
     this.submitMessage = '';
   }
 }

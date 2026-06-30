@@ -4,8 +4,25 @@
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr))
     gap: 0.25rem 1rem
 
-  .mat-field-full
-    grid-column: 1 / -1
+.mat-field-full,
+.perf-mat-fields .mat-field-full
+  grid-column: 1 / -1
+
+.perf-mat-section-header
+  display: flex
+  flex-wrap: wrap
+  align-items: flex-start
+  gap: 0.5rem
+  margin-bottom: 0.5rem
+
+.perf-tw-section-header
+  margin-bottom: 0.75rem
+
+.tw-field-full
+  grid-column: 1 / -1
+
+.perf-tw-fields
+  margin-top: 0.5rem
 
   .mat-radio-block
     display: flex

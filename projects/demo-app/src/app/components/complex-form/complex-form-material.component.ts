@@ -39,6 +39,7 @@ export class ComplexFormMaterialComponent {
 
     this.validationProvider.resetFormGroups();
     this.validationProvider.clearValidationState(this.model, this.policies);
+    this.validationProvider.notifyValidationRefresh(this.model);
     this.submitMessage = '';
   }
 }

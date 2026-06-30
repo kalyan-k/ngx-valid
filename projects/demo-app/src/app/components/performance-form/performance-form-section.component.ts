@@ -14,6 +14,7 @@ import {
 import { Subscription } from 'rxjs';
 import { ValidationProviderService } from 'core';
 import { PerformanceFieldDef, PerformanceFormGroupStatus, PerformanceFormModel, PerformanceSectionMeta } from '../../models/performance-form.model';
+import { DemoFramework } from '../../demo/demo-framework.model';
 import { PerformanceFormBuilderService } from './performance-form-builder.service';
 
 const FIELD_BATCH_SIZE = 15;
@@ -28,6 +29,7 @@ const FIELD_BATCH_SIZE = 15;
 export class PerformanceFormSectionComponent implements OnInit, OnChanges, OnDestroy {
   @Input() section!: PerformanceSectionMeta;
   @Input() model!: PerformanceFormModel;
+  @Input() uiFramework: DemoFramework = 'bootstrap';
   @Input() renderGeneration = 0;
   @Input() collapsed = false;
   @Input() actionsDisabled = false;

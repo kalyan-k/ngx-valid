@@ -197,14 +197,38 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       events.add('blur');
     }
 
+    const eventTargets = this.getValidationEventTargets();
     events.forEach((eventName) => {
-      this.addListener(this.elementRef.nativeElement, eventName, handler);
+      eventTargets.forEach((target) => this.addListener(target, eventName, handler));
     });
 
-    this.addListener(this.elementRef.nativeElement, 'input', () => {
-      this.policy.updateConditionalRequiredFields(this.actualModel);
-      this.syncRequiredUi();
+    eventTargets.forEach((target) => {
+      this.addListener(target, 'input', () => {
+        this.policy.updateConditionalRequiredFields(this.actualModel);
+        this.syncRequiredUi();
+      });
     });
+  }
+
+  private getValidationEventTargets(): HTMLElement[] {
+    const host = this.elementRef.nativeElement as HTMLElement;
+    const tag = host.tagName.toUpperCase();
+
+    if (tag === 'MAT-CHECKBOX') {
+      const nativeInput = host.querySelector('input[type="checkbox"]') as HTMLElement | null;
+      return nativeInput ? [nativeInput, host] : [host];
+    }
+
+    if (tag === 'MAT-SELECT') {
+      return [host];
+    }
+
+    if (tag === 'MAT-RADIO-GROUP') {
+      const radios = Array.from(host.querySelectorAll('input[type="radio"]')) as HTMLElement[];
+      return radios.length ? radios : [host];
+    }
+
+    return [host];
   }
 
   private addListener(target: HTMLElement, eventName: string, handler: () => void): void {

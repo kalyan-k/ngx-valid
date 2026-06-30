@@ -31,7 +31,7 @@
       <ng-container [ngSwitch]="activeTab">
         <app-sample-form *ngSwitchCase="'sample'"></app-sample-form>
         <app-complex-form *ngSwitchCase="'complex'"></app-complex-form>
-        <app-performance-form *ngSwitchCase="'performance'"></app-performance-form>
+        <app-performance-form *ngSwitchCase="'performance'" [uiFramework]="framework"></app-performance-form>
       </ng-container>
     </ng-container>
 
@@ -40,10 +40,7 @@
         <app-sample-form-material *ngSwitchCase="'sample'"></app-sample-form-material>
         <app-complex-form-material *ngSwitchCase="'complex'"></app-complex-form-material>
         <ng-container *ngSwitchCase="'performance'">
-          <app-performance-form></app-performance-form>
-          <p class="framework-note">
-            Performance benchmark uses standard HTML controls; Material display strategy applies to error rendering where supported.
-          </p>
+          <app-performance-form [uiFramework]="framework"></app-performance-form>
         </ng-container>
       </ng-container>
     </ng-container>
@@ -52,7 +49,7 @@
       <ng-container [ngSwitch]="activeTab">
         <app-sample-form-tailwind *ngSwitchCase="'sample'"></app-sample-form-tailwind>
         <app-complex-form-tailwind *ngSwitchCase="'complex'"></app-complex-form-tailwind>
-        <app-performance-form *ngSwitchCase="'performance'"></app-performance-form>
+        <app-performance-form *ngSwitchCase="'performance'" [uiFramework]="framework"></app-performance-form>
       </ng-container>
     </ng-container>
   </div>
