@@ -5,7 +5,8 @@
     "baseUrl": "./",
     "paths": {
       "core": [
-        "dist/core"
+        "dist/core",
+        "projects/core/src/public-api.ts"
       ]
     },
     "outDir": "./dist/out-tsc",

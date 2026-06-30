@@ -58,6 +58,12 @@
 			"architect": {
 				"build": {
 					"builder": "@angular-devkit/build-angular:browser",
+					"dependsOn": [
+						{
+							"target": "build",
+							"projects": "core"
+						}
+					],
 					"options": {
 						"outputPath": "dist/demo-app",
 						"index": "projects/demo-app/src/index.html",
@@ -73,6 +79,7 @@
 						],
 						"styles": [
 							"node_modules/bootstrap/dist/css/bootstrap.min.css",
+							"@angular/material/prebuilt-themes/indigo-pink.css",
 							"projects/demo-app/src/styles.sass"
 						],
 						"scripts": []
@@ -82,8 +89,8 @@
 							"budgets": [
 								{
 									"type": "initial",
-									"maximumWarning": "1.2mb",
-									"maximumError": "1.5mb"
+									"maximumWarning": "1.5mb",
+									"maximumError": "2mb"
 								},
 								{
 									"type": "anyComponentStyle",

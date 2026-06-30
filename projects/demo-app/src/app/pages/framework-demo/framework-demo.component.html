@@ -1,0 +1,59 @@
+<div class="demo-page framework-demo-page" *ngIf="frameworkMeta as meta">
+  <header class="demo-page-header">
+    <h1>{{ meta.label }} Demo</h1>
+    <p class="lead">{{ meta.description }}</p>
+    <p class="strategy-note">
+      Display strategy: <code>{{ meta.strategy }}</code>
+    </p>
+  </header>
+
+  <ul class="demo-tabs" role="tablist">
+    <li *ngFor="let tab of tabs">
+      <button
+        type="button"
+        class="demo-tab"
+        role="tab"
+        [class.active]="activeTab === tab.id"
+        [attr.aria-selected]="activeTab === tab.id"
+        (click)="setTab(tab.id)"
+      >
+        {{ tab.label }}
+      </button>
+    </li>
+  </ul>
+
+  <p class="tab-description" *ngFor="let tab of tabs">
+    <ng-container *ngIf="activeTab === tab.id">{{ tab.description }}</ng-container>
+  </p>
+
+  <div class="demo-tab-panel" [ngSwitch]="framework">
+    <ng-container *ngSwitchCase="'bootstrap'">
+      <ng-container [ngSwitch]="activeTab">
+        <app-sample-form *ngSwitchCase="'sample'"></app-sample-form>
+        <app-complex-form *ngSwitchCase="'complex'"></app-complex-form>
+        <app-performance-form *ngSwitchCase="'performance'"></app-performance-form>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'material'">
+      <ng-container [ngSwitch]="activeTab">
+        <app-sample-form-material *ngSwitchCase="'sample'"></app-sample-form-material>
+        <app-complex-form-material *ngSwitchCase="'complex'"></app-complex-form-material>
+        <ng-container *ngSwitchCase="'performance'">
+          <app-performance-form></app-performance-form>
+          <p class="framework-note">
+            Performance benchmark uses standard HTML controls; Material display strategy applies to error rendering where supported.
+          </p>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'tailwind'">
+      <ng-container [ngSwitch]="activeTab">
+        <app-sample-form-tailwind *ngSwitchCase="'sample'"></app-sample-form-tailwind>
+        <app-complex-form-tailwind *ngSwitchCase="'complex'"></app-complex-form-tailwind>
+        <app-performance-form *ngSwitchCase="'performance'"></app-performance-form>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

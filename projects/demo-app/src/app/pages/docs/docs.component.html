@@ -1,0 +1,41 @@
+<div class="demo-page docs-page">
+  <header class="demo-page-header">
+    <h1>Library Documentation</h1>
+    <p class="lead">
+      Industry-standard breakdown of the ngx-valid architecture, setup, and public API.
+      Use the section menu to jump between topics.
+    </p>
+  </header>
+
+  <div class="docs-layout">
+    <nav class="docs-toc" aria-label="Documentation sections">
+      <a
+        *ngFor="let section of sections"
+        class="docs-toc-link"
+        [class.active]="isActive(section.id)"
+        (click)="selectSection(section)"
+        href="javascript:void(0)"
+      >
+        {{ section.title }}
+      </a>
+    </nav>
+
+    <div class="docs-content">
+      <article
+        *ngFor="let section of sections"
+        class="docs-section demo-card"
+        [id]="'doc-' + section.id"
+        (click)="activeSectionId = section.id"
+      >
+        <h2>{{ section.title }}</h2>
+        <p>{{ section.summary }}</p>
+
+        <ul *ngIf="section.bullets?.length" class="docs-bullets">
+          <li *ngFor="let bullet of section.bullets">{{ bullet }}</li>
+        </ul>
+
+        <pre *ngIf="section.code" class="docs-code"><code>{{ section.code }}</code></pre>
+      </article>
+    </div>
+  </div>
+</div>

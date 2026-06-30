@@ -1,0 +1,55 @@
+<div class="demo-shell">
+  <aside class="demo-sidebar">
+    <div class="demo-sidebar-brand">
+      <a routerLink="/" class="demo-brand-link">
+        <span class="demo-brand-title">ngx-valid</span>
+        <span class="demo-brand-subtitle">Interactive demo</span>
+      </a>
+    </div>
+
+    <nav class="demo-sidebar-nav" aria-label="Demo navigation">
+      <ng-container *ngFor="let item of navItems">
+        <a
+          *ngIf="!item.children"
+          class="demo-nav-link"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+        >
+          {{ item.label }}
+        </a>
+
+        <div *ngIf="item.children" class="demo-nav-group">
+          <button
+            type="button"
+            class="demo-nav-group-toggle"
+            (click)="isFrameworksExpanded = !isFrameworksExpanded"
+            [attr.aria-expanded]="isFrameworksExpanded"
+          >
+            {{ item.label }}
+            <span class="demo-nav-chevron">{{ isFrameworksExpanded ? '▼' : '▶' }}</span>
+          </button>
+          <div *ngIf="isFrameworksExpanded" class="demo-nav-children">
+            <a
+              *ngFor="let child of item.children"
+              class="demo-nav-link demo-nav-child"
+              [routerLink]="child.route"
+              routerLinkActive="active"
+            >
+              {{ child.label }}
+            </a>
+          </div>
+        </div>
+      </ng-container>
+    </nav>
+
+    <footer class="demo-sidebar-footer">
+      <small>Policy-based validation for Angular forms</small>
+      <small class="text-muted">© {{ currentYear }}</small>
+    </footer>
+  </aside>
+
+  <main class="demo-main">
+    <router-outlet></router-outlet>
+  </main>
+</div>

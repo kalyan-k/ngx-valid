@@ -1,0 +1,65 @@
+<div class="demo-page home-page">
+  <header class="demo-page-header">
+    <h1>ngx-valid Demo Application</h1>
+    <p class="lead">
+      Explore policy-based Angular form validation with pluggable error display strategies.
+      The same validation engine powers Bootstrap, Angular Material, and Tailwind CSS examples.
+    </p>
+  </header>
+
+  <section class="demo-card-grid">
+    <article class="demo-card">
+      <h2>What you can try</h2>
+      <ul>
+        <li *ngFor="let demo of demos">
+          <strong>{{ demo.label }}</strong> — {{ demo.description }}
+        </li>
+      </ul>
+    </article>
+
+    <article class="demo-card">
+      <h2>UI framework demos</h2>
+      <p>Pick a framework from the left menu. Each demo page includes tabs for all three form scenarios.</p>
+      <div class="framework-pills">
+        <a *ngFor="let fw of frameworks" class="framework-pill" [routerLink]="['/demos', fw.id]">
+          {{ fw.label }}
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <section class="demo-card">
+    <h2>Quick start</h2>
+    <ol class="quick-start-list">
+      <li *ngFor="let item of quickStart">
+        <strong>{{ item.step }}. {{ item.title }}</strong>
+        <span>{{ item.detail }}</span>
+      </li>
+    </ol>
+    <p class="mb-0">
+      Read the full guide in <a routerLink="/docs">Library Docs</a> for architecture, API reference, and best practices.
+    </p>
+  </section>
+
+  <section class="demo-card">
+    <h2>Validation UX patterns demonstrated</h2>
+    <div class="pattern-grid">
+      <div>
+        <h3>Field-level</h3>
+        <p>Errors after blur/change via <code>ngxValidator</code> and display strategies.</p>
+      </div>
+      <div>
+        <h3>Section badges</h3>
+        <p><code>ngx-validation-group-status</code> per form group after submit or validate.</p>
+      </div>
+      <div>
+        <h3>Policy groups</h3>
+        <p>Aggregate status across multiple sections (checkout, performance form).</p>
+      </div>
+      <div>
+        <h3>Summaries</h3>
+        <p>Page-level and section-level error lists after full validation.</p>
+      </div>
+    </div>
+  </section>
+</div>

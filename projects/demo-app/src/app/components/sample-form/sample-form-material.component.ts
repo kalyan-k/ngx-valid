@@ -1,0 +1,36 @@
+import { Component } from '@angular/core';
+import { ValidationProviderService } from 'core';
+import { SampleForm } from '../../models/sample-form.model';
+
+@Component({
+  selector: 'app-sample-form-material',
+  standalone: false,
+  templateUrl: './sample-form-material.component.html',
+  styleUrls: ['./sample-form-material.component.sass']
+})
+export class SampleFormMaterialComponent {
+  model = new SampleForm();
+  submitMessage = '';
+  private readonly policyName = 'SampleForm';
+
+  constructor(private validationProvider: ValidationProviderService) {}
+
+  onSubmit(): void {
+    this.validationProvider.validateAll(this.model, this.policyName, {
+      showAllErrors: true,
+      evaluateGroups: true
+    }).subscribe(() => {
+      const hasErrors = !!this.model.validationResults?.length;
+      this.submitMessage = hasErrors
+        ? 'Please fix validation errors before submitting.'
+        : 'Form submitted successfully!';
+    });
+  }
+
+  onClear(): void {
+    Object.assign(this.model, new SampleForm());
+    this.validationProvider.resetFormGroups();
+    this.validationProvider.clearValidationState(this.model, [this.policyName]);
+    this.submitMessage = '';
+  }
+}
