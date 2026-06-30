@@ -13,6 +13,7 @@ import { ValidationProviderService } from '../services/validation-provider.servi
 
 @Component({
   selector: 'ngx-validation-group-status',
+  standalone: false,
   template: `
     <span
       *ngIf="status?.isEvaluated; else pendingBadge"

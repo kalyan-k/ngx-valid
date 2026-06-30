@@ -4,6 +4,7 @@ import { SampleForm } from '../../models/sample-form.model';
 
 @Component({
   selector: 'app-sample-form',
+  standalone: false,
   templateUrl: './sample-form.component.html',
   styleUrls: ['./sample-form.component.sass']
 })

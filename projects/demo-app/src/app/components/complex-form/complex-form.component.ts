@@ -4,6 +4,7 @@ import { AddressInfo, BillingInfo, ComplexFormModel, PersonalInfo } from '../../
 
 @Component({
   selector: 'app-complex-form',
+  standalone: false,
   templateUrl: './complex-form.component.html',
   styleUrls: ['./complex-form.component.sass']
 })

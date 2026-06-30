@@ -4,6 +4,7 @@ import { getValidationMeta } from '../utils/validation-meta.util';
 
 @Component({
   selector: 'ngx-validation-summary',
+  standalone: false,
   template: `
     <div *ngIf="visible" class="ngx-valid-summary" role="alert" [attr.aria-live]="'polite'">
       <strong class="ngx-valid-summary-title">{{ title }}</strong>

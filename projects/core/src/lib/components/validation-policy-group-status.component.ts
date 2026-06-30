@@ -13,6 +13,7 @@ import { ValidationProviderService } from '../services/validation-provider.servi
 
 @Component({
   selector: 'ngx-validation-policy-group-status',
+  standalone: false,
   template: `
     <div class="ngx-valid-policy-group-status d-flex align-items-center gap-2">
       <span class="fw-semibold">{{ label }}</span>

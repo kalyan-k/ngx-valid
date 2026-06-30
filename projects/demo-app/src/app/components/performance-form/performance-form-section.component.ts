@@ -20,6 +20,7 @@ const FIELD_BATCH_SIZE = 15;
 
 @Component({
   selector: 'app-performance-form-section',
+  standalone: false,
   templateUrl: './performance-form-section.component.html',
   styleUrls: ['./performance-form-section.component.sass'],
   changeDetection: ChangeDetectionStrategy.OnPush

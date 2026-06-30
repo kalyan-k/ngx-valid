@@ -19,6 +19,7 @@ import { PerformanceBuildResult, PerformanceFormBuilderService } from './perform
 
 @Component({
   selector: 'app-performance-form',
+  standalone: false,
   templateUrl: './performance-form.component.html',
   styleUrls: ['./performance-form.component.sass'],
   providers: [PerformanceFormBuilderService],

@@ -3,6 +3,7 @@ import { FormGroupStatus } from '../interfaces/validation-result.interface';
 
 @Component({
   selector: 'ngx-validation-group-summary',
+  standalone: false,
   template: `
     <div
       *ngIf="status?.isEvaluated && status?.errors?.length"

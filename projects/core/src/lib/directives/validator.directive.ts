@@ -26,7 +26,8 @@ import { VALIDATION_DISPLAY_STRATEGY } from '../tokens/validation-display-strate
 import { markFieldTouched, shouldShowFieldErrors } from '../utils/validation-meta.util';
 
 @Directive({
-  selector: '[ngxValidator], [libValidatorDirective]'
+  selector: '[ngxValidator], [libValidatorDirective]',
+  standalone: false
 })
 export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   @Input()

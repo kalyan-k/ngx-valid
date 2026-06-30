@@ -1,4 +1,4 @@
-import { Binary, Conditional, ImplicitReceiver, KeyedRead, Lexer, LiteralArray, LiteralMap, LiteralPrimitive, Call, Parser, PrefixNot, PropertyRead, AST } from '@angular/compiler';
+import { Binary, Conditional, ImplicitReceiver, KeyedRead, Lexer, LiteralArray, LiteralMap, LiteralPrimitive, Call, Parser, PrefixNot, PropertyRead, AST, ParseLocation, ParseSourceFile, ParseSourceSpan } from '@angular/compiler';
 
 const isString = (v: any) => typeof v === 'string';
 const isDef = (v: undefined) => v !== void 0;
@@ -8,6 +8,13 @@ const minus = (a: undefined, b: undefined) => ifDef(a, 0) - ifDef(b, 0);
 const noop = () => { };
 
 const fnCache = new Map();
+
+function bindingSourceSpan(expr: string): ParseSourceSpan {
+    const file = new ParseSourceFile(expr, 'expression');
+    const start = new ParseLocation(file, 0, 0, 0);
+    const end = new ParseLocation(file, expr.length, 0, expr.length);
+    return new ParseSourceSpan(start, end);
+}
 
 const primitiveEquals = (a: any, b: any) => {
     if (typeof a === 'object' || typeof b === 'object') {
@@ -301,7 +308,7 @@ export function $parse(expr: string) {
     }
 
     const parser = new Parser(new Lexer());
-    const ast = parser.parseBinding(expr, '', 0);
+    const ast = parser.parseBinding(expr, bindingSourceSpan(expr), 0);
     let boundFn;
 
     if (ast.errors.length) {

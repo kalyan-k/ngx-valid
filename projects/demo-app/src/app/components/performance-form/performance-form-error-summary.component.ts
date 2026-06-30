@@ -10,6 +10,7 @@ export interface PerformanceErrorGroup {
 
 @Component({
   selector: 'app-performance-form-error-summary',
+  standalone: false,
   templateUrl: './performance-form-error-summary.component.html',
   styleUrls: ['./performance-form-error-summary.component.sass']
 })
