@@ -5,6 +5,7 @@ import * as _ from 'underscore';
 import { $parse } from './parser/expression-parser';
 import { Validator } from './validator';
 import { isValidationFailure } from './utils/dom.util';
+import { getValidationMeta } from './utils/validation-meta.util';
 
 export class Policy {
     // tslint:disable:no-unused-variable
@@ -271,26 +272,70 @@ export class Policy {
     // formGroupList: This is the list of all the formGroup Names.
     public checkFormGroupValid = (model: any, formGroupList: any, markEvaluated = true) => {
         Object.keys(formGroupList).forEach((groupName) => {
-            if (!!groupName) {
-                const groupErrors: Array<{ propertyName: string; error: { message: string } }> = [];
+            this.evaluateFormGroup(model, groupName, formGroupList[groupName] || [], markEvaluated);
+        });
+    }
 
-                formGroupList[groupName].forEach((propertyPath: string) => {
-                    const foundValidationErrorFields = _.where(model.validationResults || [], { 'propertyName': propertyPath });
-                    if (foundValidationErrorFields?.length) {
-                        groupErrors.push(...foundValidationErrorFields);
-                    }
-                });
+    /** Returns property paths for this policy that are currently active (dependency satisfied). */
+    public getActivePropertyPaths = (model: any): string[] => {
+        const paths: string[] = [];
 
-                const hasValidationError = groupErrors.length > 0;
+        for (let validator = 0; validator < this.validators.length; validator++) {
+            const propertyName = this.validators[validator].propertyName;
+            if (propertyName && this.isDependencySatisfied(model, this.validators[validator])) {
+                paths.push(propertyName);
+            }
+        }
 
-                model[groupName] = {
-                    isValid: !hasValidationError,
-                    isInValid: hasValidationError,
-                    isEvaluated: markEvaluated,
-                    errors: groupErrors
-                };
+        return _.uniq(paths);
+    }
+
+    /**
+     * Evaluates a single form group's validity. Uses policy property paths when registered
+     * DOM paths are unavailable (e.g. billing fields hidden by *ngIf).
+     */
+    public evaluateFormGroup = (
+        model: any,
+        groupName: string,
+        registeredPaths: string[] = [],
+        markEvaluated = true
+    ) => {
+        const policyPaths = this.getActivePropertyPaths(model);
+        const pathsToCheck = policyPaths.length > 0
+            ? policyPaths
+            : _.uniq(registeredPaths);
+
+        const meta = getValidationMeta(model);
+        const groupErrors: Array<{ propertyName: string; error: { message: string } }> = [];
+
+        pathsToCheck.forEach((propertyPath: string) => {
+            const foundValidationErrorFields = _.where(model.validationResults || [], { 'propertyName': propertyPath });
+            if (foundValidationErrorFields?.length) {
+                groupErrors.push(...foundValidationErrorFields);
             }
         });
+
+        const hasErrors = groupErrors.length > 0;
+        const anyTouched = pathsToCheck.some((path) => !!meta.touchedFields[path]);
+        const allTouched = pathsToCheck.length === 0 || pathsToCheck.every((path) => !!meta.touchedFields[path]);
+
+        let isEvaluated = false;
+        if (pathsToCheck.length === 0) {
+            isEvaluated = markEvaluated;
+        } else if (meta.showAllErrors) {
+            isEvaluated = markEvaluated;
+        } else if (hasErrors && anyTouched) {
+            isEvaluated = markEvaluated;
+        } else if (allTouched) {
+            isEvaluated = markEvaluated;
+        }
+
+        model[groupName] = {
+            isValid: isEvaluated && !hasErrors,
+            isInValid: isEvaluated && hasErrors,
+            isEvaluated,
+            errors: groupErrors
+        };
     }
 
     public setPolicyVariables = (name: string, validators: Validator[]) => {

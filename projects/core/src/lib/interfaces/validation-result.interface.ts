@@ -25,4 +25,4 @@ export interface PolicyGroupConfig {
   formGroups: string[];
 }
 
-export type ControlType = 'input' | 'checkbox' | 'radio' | 'select' | 'textarea';
+export type ControlType = 'input' | 'checkbox' | 'radio' | 'radio-group' | 'select' | 'textarea';

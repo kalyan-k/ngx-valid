@@ -117,12 +117,19 @@
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
         groupName="mainForm"
-        validateOnEvent="change"
       />
       <label class="form-check-label" for="checkboxInput">I accept the terms and conditions</label>
     </div>
 
-    <fieldset class="mb-3" data-ngx-valid-field>
+    <fieldset
+      class="mb-3"
+      data-ngx-valid-field
+      ngxValidator
+      [validateModel]="'form.radioGroup'"
+      [actualModel]="model"
+      [withPolicy]="'SampleForm'"
+      groupName="mainForm"
+    >
       <legend class="form-label">Radio Group</legend>
       <div class="form-check">
         <input
@@ -132,11 +139,6 @@
           name="radioGroup"
           value="option1"
           [(ngModel)]="model.radioGroup"
-          ngxValidator
-          [validateModel]="'form.radioGroup'"
-          [actualModel]="model"
-          [withPolicy]="'SampleForm'"
-          groupName="mainForm"
         />
         <label class="form-check-label" for="radioInput1">Option 1</label>
       </div>

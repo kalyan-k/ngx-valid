@@ -11,6 +11,7 @@ const ERROR_ATTR = 'data-ngx-valid-error';
 const ERROR_CONTAINER_ATTR = 'data-ngx-valid-error-container';
 const BASE_INVALID_CLASS = 'ngx-valid-invalid';
 const BASE_ERROR_CLASS = 'ngx-valid-error';
+const RADIO_GROUP_INVALID_CLASS = 'ngx-valid-radio-group-invalid';
 
 /**
  * Framework-agnostic display strategy. Uses configurable CSS classes so consumers
@@ -35,6 +36,11 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
 
   detectControlType(element: HTMLElement): ControlType {
     const tag = element.tagName.toUpperCase();
+
+    if (tag === 'FIELDSET') {
+      return 'radio-group';
+    }
+
     const type = (element.getAttribute('type') || '').toLowerCase();
 
     if (tag === 'TEXTAREA') {
@@ -57,14 +63,12 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
   }
 
   getErrorContainer(context: ValidationDisplayContext): HTMLElement | null {
-    const host = context.hostElement;
-    const containerId = this.containerId(context);
-    const parent = host.parentElement;
-    if (!parent) {
+    const root = this.getDisplayRoot(context);
+    if (!root) {
       return null;
     }
 
-    return parent.querySelector(`[${ERROR_CONTAINER_ATTR}="${containerId}"]`) as HTMLElement | null;
+    return root.querySelector(`[${ERROR_CONTAINER_ATTR}="${this.containerId(context)}"]`) as HTMLElement | null;
   }
 
   renderErrors(
@@ -92,8 +96,7 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
       renderer.appendChild(container, errorElement);
     });
 
-    addClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
-    renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
+    this.applyInvalidState(context, renderer);
   }
 
   clearErrors(context: ValidationDisplayContext, renderer: Renderer2): void {
@@ -102,8 +105,7 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
       renderer.removeChild(container.parentElement, container);
     }
 
-    removeClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
-    renderer.removeAttribute(context.hostElement, 'aria-invalid');
+    this.clearInvalidState(context, renderer);
   }
 
   renderRequiredIndicator(
@@ -129,28 +131,144 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
     }
   }
 
+  private applyInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
+    if (context.controlType === 'radio' || context.controlType === 'radio-group') {
+      this.getRadioInputs(context).forEach((radio) => {
+        addClasses(renderer, radio, BASE_INVALID_CLASS);
+        const formCheck = radio.closest('.form-check');
+        if (formCheck) {
+          addClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+        }
+      });
+      const fieldset = this.getFieldset(context);
+      if (fieldset) {
+        addClasses(renderer, fieldset, RADIO_GROUP_INVALID_CLASS);
+        renderer.setAttribute(fieldset, 'aria-invalid', 'true');
+      }
+      return;
+    }
+
+    if (context.controlType === 'checkbox') {
+      addClasses(renderer, context.hostElement, `${BASE_INVALID_CLASS}`);
+      const formCheck = context.hostElement.closest('.form-check');
+      if (formCheck) {
+        addClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+      }
+      renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
+      return;
+    }
+
+    addClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
+    renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
+  }
+
+  private clearInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
+    if (context.controlType === 'radio' || context.controlType === 'radio-group') {
+      this.getRadioInputs(context).forEach((radio) => {
+        removeClasses(renderer, radio, BASE_INVALID_CLASS);
+        removeClasses(renderer, radio, this.invalidClass);
+        const formCheck = radio.closest('.form-check');
+        if (formCheck) {
+          removeClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+        }
+      });
+      const fieldset = this.getFieldset(context);
+      if (fieldset) {
+        removeClasses(renderer, fieldset, RADIO_GROUP_INVALID_CLASS);
+        renderer.removeAttribute(fieldset, 'aria-invalid');
+      }
+      return;
+    }
+
+    if (context.controlType === 'checkbox') {
+      removeClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
+      const formCheck = context.hostElement.closest('.form-check');
+      if (formCheck) {
+        removeClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+      }
+      renderer.removeAttribute(context.hostElement, 'aria-invalid');
+      return;
+    }
+
+    removeClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
+    renderer.removeAttribute(context.hostElement, 'aria-invalid');
+  }
+
   private createErrorContainer(context: ValidationDisplayContext, renderer: Renderer2): HTMLElement | null {
-    const parent = context.hostElement.parentElement;
-    if (!parent) {
+    const root = this.getDisplayRoot(context);
+    if (!root) {
       return null;
     }
 
     const container = renderer.createElement('div');
     addClasses(renderer, container, this.errorContainerClass);
     renderer.setAttribute(container, ERROR_CONTAINER_ATTR, this.containerId(context));
-    renderer.insertBefore(parent, container, context.hostElement.nextSibling);
+
+    if (context.controlType === 'radio' || context.controlType === 'radio-group') {
+      renderer.appendChild(root, container);
+      return container;
+    }
+
+    renderer.insertBefore(root, container, context.hostElement.nextSibling);
     return container;
   }
 
   private containerId(context: ValidationDisplayContext): string {
+    if (context.controlType === 'radio' || context.controlType === 'radio-group') {
+      return context.propertyPath;
+    }
+
     const hostId = context.hostElement.getAttribute('id');
     return hostId ?? context.propertyPath;
   }
 
+  private getDisplayRoot(context: ValidationDisplayContext): HTMLElement | null {
+    if (context.controlType === 'radio' || context.controlType === 'radio-group') {
+      return this.getFieldset(context) ?? context.hostElement.parentElement;
+    }
+
+    return context.hostElement.parentElement;
+  }
+
+  private getFieldset(context: ValidationDisplayContext): HTMLElement | null {
+    if (context.hostElement.tagName.toUpperCase() === 'FIELDSET') {
+      return context.hostElement;
+    }
+
+    return context.hostElement.closest('fieldset') as HTMLElement | null;
+  }
+
+  private getRadioInputs(context: ValidationDisplayContext): HTMLInputElement[] {
+    const fieldset = this.getFieldset(context);
+    if (fieldset) {
+      return Array.from(fieldset.querySelectorAll('input[type="radio"]')) as HTMLInputElement[];
+    }
+
+    const name = context.hostElement.getAttribute('name');
+    if (!name) {
+      return [context.hostElement as HTMLInputElement];
+    }
+
+    return Array.from(
+      context.hostElement.ownerDocument.querySelectorAll(`input[type="radio"][name="${name}"]`)
+    ) as HTMLInputElement[];
+  }
+
   private findLabel(context: ValidationDisplayContext): HTMLElement | null {
     const host = context.hostElement;
+
+    if (context.controlType === 'radio' || context.controlType === 'radio-group') {
+      const fieldset = this.getFieldset(context);
+      if (fieldset) {
+        const legend = fieldset.querySelector('legend');
+        if (legend) {
+          return legend as HTMLElement;
+        }
+      }
+    }
+
     const id = host.getAttribute('id');
-    if (id) {
+    if (id && context.controlType !== 'radio') {
       const labelByFor = host.ownerDocument.querySelector(`label[for="${id}"]`);
       if (labelByFor) {
         return labelByFor as HTMLElement;
@@ -164,7 +282,11 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
 
     const fieldWrapper = host.closest('[data-ngx-valid-field], .form-group, .form-check, fieldset, .field, .mb-3');
     if (fieldWrapper) {
-      const label = fieldWrapper.querySelector('label, legend');
+      const legend = fieldWrapper.querySelector('legend');
+      if (legend) {
+        return legend as HTMLElement;
+      }
+      const label = fieldWrapper.querySelector('label');
       return label as HTMLElement | null;
     }
 

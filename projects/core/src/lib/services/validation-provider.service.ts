@@ -16,6 +16,7 @@ export class ValidationProviderService {
 	fileSuffix = '.Policy';
 	policies: { [key: string]: Validator[] } = {};
 	policyGroups: { [key: string]: PolicyGroupConfig } = {};
+	formGroupPolicies: { [key: string]: string } = {};
 	validatorHelper: ValidatorHelper;
 	formGroup: { [key: string]: Array<string> } = {};
 	private validationRefreshSource = new Subject<any>();
@@ -36,9 +37,13 @@ export class ValidationProviderService {
 		this.policies[registeredName] = validators;
 	}
 
-	/** Registers a named group of policies and form-group keys for page-level validation status. */
 	registerPolicyGroup = (groupKey: string, config: PolicyGroupConfig) => {
 		this.policyGroups[groupKey] = config;
+	}
+
+	/** Maps a form group name (groupName on ngxValidator) to its validation policy. */
+	registerFormGroupPolicy = (groupName: string, policyName: string) => {
+		this.formGroupPolicies[groupName] = policyName;
 	}
 
 	private createPolicyFacade = (policy: Policy) => ({
@@ -46,7 +51,9 @@ export class ValidationProviderService {
 		checkModelRequired: policy.checkModelRequired.bind(policy),
 		checkFormValid: policy.checkFormGroupValid.bind(policy),
 		initializeRequiredFields: policy.initializeRequiredFields.bind(policy),
-		updateConditionalRequiredFields: policy.updateConditionalRequiredFields.bind(policy)
+		updateConditionalRequiredFields: policy.updateConditionalRequiredFields.bind(policy),
+		evaluateFormGroup: policy.evaluateFormGroup.bind(policy),
+		getActivePropertyPaths: policy.getActivePropertyPaths.bind(policy)
 	});
 
 	getPolicy = (name: string) => {
@@ -73,6 +80,30 @@ export class ValidationProviderService {
 		);
 	}
 
+	/** Evaluates a single form group badge (e.g. after blur when section becomes complete). */
+	evaluateFormGroup(model: any, groupName: string, policyName?: string): void {
+		const resolvedPolicyName = policyName ?? this.formGroupPolicies[groupName];
+		if (!resolvedPolicyName) {
+			return;
+		}
+
+		const policy = this.getPolicy(resolvedPolicyName);
+		policy.evaluateFormGroup(model, groupName, this.formGroup[groupName] || [], true);
+	}
+
+	evaluatePolicyFormGroups(model: any, policyName: string, markEvaluated = true): void {
+		Object.keys(this.formGroupPolicies)
+			.filter((groupName) => this.formGroupPolicies[groupName] === policyName)
+			.forEach((groupName) => {
+				this.getPolicy(policyName).evaluateFormGroup(
+					model,
+					groupName,
+					this.formGroup[groupName] || [],
+					markEvaluated
+				);
+			});
+	}
+
 	validateAll(
 		model: any,
 		policyName: string,
@@ -92,14 +123,13 @@ export class ValidationProviderService {
 			tap(() => {
 				policy.updateConditionalRequiredFields(model);
 				if (evaluateGroups) {
-					policy.checkFormValid(model, this.formGroup, markEvaluated);
+					this.evaluatePolicyFormGroups(model, policyName, markEvaluated);
 				}
 				this.notifyValidationRefresh(model);
 			})
 		);
 	}
 
-	/** Validates multiple policies, evaluates form groups and optional policy-group status. */
 	evaluatePolicies(
 		model: any,
 		policyNames: string[],
@@ -125,15 +155,26 @@ export class ValidationProviderService {
 			return;
 		}
 
-		const propertyPaths = config.formGroups.flatMap((formGroup) => this.formGroup[formGroup] || []);
-		const errors = (model.validationResults || []).filter(
-			(result: { propertyName: string }) => propertyPaths.includes(result.propertyName)
+		const errors = (model.validationResults || []).filter((result: { propertyName: string }) => {
+			return config.formGroups.some((formGroupName) => {
+				const policyName = this.formGroupPolicies[formGroupName];
+				if (!policyName) {
+					return (this.formGroup[formGroupName] || []).includes(result.propertyName);
+				}
+				const activePaths = this.getPolicy(policyName).getActivePropertyPaths(model);
+				const paths = activePaths.length > 0 ? activePaths : (this.formGroup[formGroupName] || []);
+				return paths.includes(result.propertyName);
+			});
+		});
+
+		const allSectionsEvaluated = config.formGroups.every(
+			(formGroupName) => !!model[formGroupName]?.isEvaluated
 		);
 
 		model[groupKey] = {
 			isValid: errors.length === 0,
 			isInValid: errors.length > 0,
-			isEvaluated: true,
+			isEvaluated: allSectionsEvaluated || getValidationMeta(model).showAllErrors,
 			errors
 		};
 	}
@@ -148,6 +189,10 @@ export class ValidationProviderService {
 		resetValidationMeta(model);
 
 		Object.keys(this.formGroup).forEach((groupName) => {
+			delete model[groupName];
+		});
+
+		Object.keys(this.formGroupPolicies).forEach((groupName) => {
 			delete model[groupName];
 		});
 

@@ -18,6 +18,7 @@ export class ComplexFormComponent {
 
   onSameAsShippingChange(): void {
     this.validationProvider.getPolicy('BillingAddress').updateConditionalRequiredFields(this.model);
+    this.validationProvider.evaluateFormGroup(this.model, 'billingInfo', 'BillingAddress');
     this.validationProvider.notifyValidationRefresh(this.model);
   }
 
