@@ -82,7 +82,11 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
     }
 
     if (context.controlType === 'checkbox') {
-      return parent.querySelector(`.${CHECKBOX_ERROR_CLASS}`);
+      const checkbox = this.findParentFormField(context);
+      if (!checkbox) {
+        return null;
+      }
+      return this.findCheckboxDisplayRoot(checkbox).querySelector(`.${CHECKBOX_ERROR_CLASS}`);
     }
 
     if (context.controlType === 'radio' && parent.tagName.toUpperCase() === 'MAT-RADIO-GROUP') {
@@ -216,15 +220,43 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
     return wrapper;
   }
 
-  private ensureCheckboxErrorContainer(parent: HTMLElement, renderer: Renderer2): HTMLElement {
-    let container = parent.querySelector(`.${CHECKBOX_ERROR_CLASS}`) as HTMLElement | null;
+  private ensureCheckboxErrorContainer(checkbox: HTMLElement, renderer: Renderer2): HTMLElement {
+    const root = this.findCheckboxDisplayRoot(checkbox);
+    let container = root.querySelector(`.${CHECKBOX_ERROR_CLASS}`) as HTMLElement | null;
     if (!container) {
       container = renderer.createElement('div') as HTMLElement;
       renderer.addClass(container, CHECKBOX_ERROR_CLASS);
       renderer.addClass(container, 'mat-mdc-form-field-error-wrapper');
-      renderer.appendChild(parent.parentElement ?? parent, container);
+      this.insertAfterElement(checkbox, container, renderer);
     }
     return container;
+  }
+
+  private findCheckboxDisplayRoot(checkbox: HTMLElement): HTMLElement {
+    const dedicated = checkbox.closest('.mat-checkbox-field') as HTMLElement | null;
+    if (dedicated) {
+      return dedicated;
+    }
+
+    const fieldHost = checkbox.closest('[data-ngx-valid-field]') as HTMLElement | null;
+    if (fieldHost) {
+      return fieldHost;
+    }
+
+    return checkbox.parentElement ?? checkbox;
+  }
+
+  private insertAfterElement(reference: HTMLElement, element: HTMLElement, renderer: Renderer2): void {
+    const parent = reference.parentElement;
+    if (!parent) {
+      return;
+    }
+
+    if (reference.nextSibling) {
+      renderer.insertBefore(parent, element, reference.nextSibling);
+    } else {
+      renderer.appendChild(parent, element);
+    }
   }
 
   private ensureRadioGroupErrorContainer(parent: HTMLElement, renderer: Renderer2): HTMLElement {

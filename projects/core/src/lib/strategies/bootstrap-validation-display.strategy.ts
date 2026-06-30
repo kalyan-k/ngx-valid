@@ -4,6 +4,7 @@ import {
   ValidationDisplayStrategy
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
+import { addClasses, removeClasses } from '../utils/dom.util';
 
 const ERROR_CONTAINER_CLASS = 'ngx-valid-error-container';
 const ERROR_MESSAGE_CLASS = 'ngx-valid-error';
@@ -75,13 +76,13 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
 
     errors.forEach((validationError) => {
       const errorElement = renderer.createElement(this.errorElementTag);
-      renderer.addClass(errorElement, this.errorClass);
+      addClasses(renderer, errorElement, this.errorClass);
       const text = renderer.createText(validationError.error.message);
       renderer.appendChild(errorElement, text);
       renderer.appendChild(container, errorElement);
     });
 
-    renderer.addClass(context.hostElement, this.invalidClass);
+    addClasses(renderer, context.hostElement, this.invalidClass);
   }
 
   clearErrors(context: ValidationDisplayContext, renderer: Renderer2): void {
@@ -89,7 +90,7 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
     if (container) {
       renderer.setProperty(container, 'innerHTML', '');
     }
-    renderer.removeClass(context.hostElement, this.invalidClass);
+    removeClasses(renderer, context.hostElement, this.invalidClass);
   }
 
   renderRequiredIndicator(
@@ -102,12 +103,12 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
       return;
     }
 
-    const existingMarkers = label.querySelectorAll(`.${this.requiredMarkerClass}`);
+    const existingMarkers = label.querySelectorAll('[data-ngx-valid-required="true"]');
     existingMarkers.forEach((marker) => renderer.removeChild(label, marker));
 
     if (requiredResult.isRequired) {
       const marker = renderer.createElement('span');
-      renderer.addClass(marker, this.requiredMarkerClass);
+      addClasses(renderer, marker, this.requiredMarkerClass);
       renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
       renderer.appendChild(marker, renderer.createText(this.requiredMarker));
       renderer.appendChild(label, marker);
