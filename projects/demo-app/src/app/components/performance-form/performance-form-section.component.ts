@@ -11,8 +11,9 @@ import {
   Output,
   SimpleChanges
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ValidationProviderService } from 'core';
-import { PerformanceFieldDef, PerformanceFormModel, PerformanceSectionMeta } from '../../models/performance-form.model';
+import { PerformanceFieldDef, PerformanceFormGroupStatus, PerformanceFormModel, PerformanceSectionMeta } from '../../models/performance-form.model';
 import { PerformanceFormBuilderService } from './performance-form-builder.service';
 
 const FIELD_BATCH_SIZE = 15;
@@ -47,10 +48,12 @@ export class PerformanceFormSectionComponent implements OnInit, OnChanges, OnDes
 
   @Output() sectionRendered = new EventEmitter<string>();
 
+  sectionErrorsCollapsed = false;
   visibleFields: PerformanceFieldDef[] = [];
   private activeGeneration = 0;
   private cancelled = false;
   private batchHandle = 0;
+  private refreshSubscription?: Subscription;
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef,
@@ -67,12 +70,34 @@ export class PerformanceFormSectionComponent implements OnInit, OnChanges, OnDes
     return this.sectionComplete && !this.actionsDisabled;
   }
 
+  get sectionErrorsVisible(): boolean {
+    const status = this.sectionStatus;
+    return !!status?.isEvaluated && (status.errors?.length ?? 0) > 0;
+  }
+
+  get sectionErrorCount(): number {
+    return this.sectionStatus?.errors?.length ?? 0;
+  }
+
+  get sectionStatus(): PerformanceFormGroupStatus | undefined {
+    return this.model[this.section.groupName] as PerformanceFormGroupStatus | undefined;
+  }
+
+  get sectionErrors(): Array<{ propertyName: string; error: { message: string } }> {
+    return this.sectionStatus?.errors ?? [];
+  }
+
   ngOnInit(): void {
     this.activeGeneration = this.renderGeneration;
+    this.bindValidationRefresh();
     this.scheduleNextBatch();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    if (changes['model']) {
+      this.bindValidationRefresh();
+    }
+
     if (changes['renderGeneration'] && !changes['renderGeneration'].firstChange) {
       this.cancel();
     }
@@ -80,6 +105,7 @@ export class PerformanceFormSectionComponent implements OnInit, OnChanges, OnDes
 
   ngOnDestroy(): void {
     this.cancel();
+    this.refreshSubscription?.unsubscribe();
   }
 
   trackField(_index: number, field: PerformanceFieldDef): string {
@@ -90,13 +116,37 @@ export class PerformanceFormSectionComponent implements OnInit, OnChanges, OnDes
     this.collapsedChange.emit();
   }
 
+  toggleSectionErrorsCollapsed(): void {
+    this.sectionErrorsCollapsed = !this.sectionErrorsCollapsed;
+  }
+
   onFillSection(): void {
     if (!this.canUseSectionActions) {
       return;
     }
 
     this.builder.fillSection(this.model, this.section);
+    this.evaluateSectionBadge();
+  }
+
+  onClearSection(): void {
+    if (!this.canUseSectionActions) {
+      return;
+    }
+
+    this.builder.clearSection(this.model, this.section);
     this.changeDetectorRef.markForCheck();
+  }
+
+  private bindValidationRefresh(): void {
+    this.refreshSubscription?.unsubscribe();
+
+    if (!this.model) {
+      return;
+    }
+
+    this.refreshSubscription = this.validationProvider.onValidationRefresh(this.model)
+      .subscribe(() => this.changeDetectorRef.markForCheck());
   }
 
   onValidateSection(): void {
@@ -110,7 +160,9 @@ export class PerformanceFormSectionComponent implements OnInit, OnChanges, OnDes
       evaluateGroups: true
     }).subscribe({
       next: () => {
+        this.validationProvider.evaluateFormGroup(this.model, this.section.groupName, this.section.policyName);
         this.validationProvider.updatePolicyGroupStatus(this.model, this.policyGroupName);
+        this.validationProvider.notifyValidationRefresh(this.model);
         const duration = performance.now() - start;
         const errorCount = (this.model.validationResults || []).filter((result) =>
           result.propertyName.startsWith(`sections.${this.section.id}.`)
@@ -120,6 +172,20 @@ export class PerformanceFormSectionComponent implements OnInit, OnChanges, OnDes
           errorCount,
           durationMs: duration
         });
+        this.changeDetectorRef.markForCheck();
+      }
+    });
+  }
+
+  private evaluateSectionBadge(): void {
+    this.validationProvider.validateAll(this.model, this.section.policyName, {
+      showAllErrors: true,
+      evaluateGroups: true
+    }).subscribe({
+      next: () => {
+        this.validationProvider.evaluateFormGroup(this.model, this.section.groupName, this.section.policyName);
+        this.validationProvider.updatePolicyGroupStatus(this.model, this.policyGroupName);
+        this.validationProvider.notifyValidationRefresh(this.model);
         this.changeDetectorRef.markForCheck();
       }
     });

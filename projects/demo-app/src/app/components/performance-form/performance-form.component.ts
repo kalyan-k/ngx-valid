@@ -3,8 +3,10 @@ import {
   ChangeDetectorRef,
   Component,
   NgZone,
-  OnDestroy
+  OnDestroy,
+  OnInit
 } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { ValidationProviderService } from 'core';
 import {
   PerformanceFormModel,
@@ -22,9 +24,10 @@ import { PerformanceBuildResult, PerformanceFormBuilderService } from './perform
   providers: [PerformanceFormBuilderService],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PerformanceFormComponent implements OnDestroy {
+export class PerformanceFormComponent implements OnInit, OnDestroy {
   model = new PerformanceFormModel();
   renderedSections: PerformanceSectionMeta[] = [];
+  allSectionMetas: PerformanceSectionMeta[] = [];
   metrics: PerformanceMetrics | null = null;
   renderProgress: PerformanceRenderProgress | null = null;
   submitMessage = '';
@@ -37,11 +40,11 @@ export class PerformanceFormComponent implements OnDestroy {
   readonly policyGroupName = 'performance';
 
   private sectionPolicyNames: string[] = [];
-  private allSectionMetas: PerformanceSectionMeta[] = [];
   private awaitingSectionId: string | null = null;
   private renderStartMs = 0;
   private pendingBuild: PerformanceBuildResult | null = null;
   private controlsPerSection = 0;
+  private refreshSubscription?: Subscription;
 
   constructor(
     private validationProvider: ValidationProviderService,
@@ -50,7 +53,12 @@ export class PerformanceFormComponent implements OnDestroy {
     private changeDetectorRef: ChangeDetectorRef
   ) {}
 
+  ngOnInit(): void {
+    this.bindValidationRefresh();
+  }
+
   ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
     this.cancelActiveOperation();
     this.builder.teardown();
   }
@@ -135,6 +143,7 @@ export class PerformanceFormComponent implements OnDestroy {
           this.metrics = { ...this.metrics, lastValidateAllMs: duration };
         }
         this.phase = 'complete';
+        this.commitBadgeState();
         this.submitMessage = this.model.validationResults?.length
           ? `Validate all completed with ${this.model.validationResults.length} error(s) in ${duration.toFixed(1)} ms.`
           : `Validate all completed — no errors in ${duration.toFixed(1)} ms.`;
@@ -168,6 +177,7 @@ export class PerformanceFormComponent implements OnDestroy {
         }
         this.phase = 'complete';
 
+        this.commitBadgeState();
         const hasErrors = !!this.model.validationResults?.length;
         this.submitMessage = hasErrors
           ? `Submit validation finished in ${duration.toFixed(1)} ms with ${this.model.validationResults?.length} error(s).`
@@ -197,6 +207,7 @@ export class PerformanceFormComponent implements OnDestroy {
     this.model = new PerformanceFormModel();
     this.validationProvider.resetFormGroups();
     this.validationProvider.clearValidationState(this.model, [this.configPolicyName]);
+    this.bindValidationRefresh();
     this.changeDetectorRef.markForCheck();
   }
 
@@ -261,7 +272,16 @@ export class PerformanceFormComponent implements OnDestroy {
     }
 
     this.builder.fillAllSections(this.model, this.allSectionMetas);
-    this.submitMessage = `Filled all ${this.allSectionMetas.length} sections with sample values.`;
+    this.evaluateAllSectionBadges('Filled all sections and evaluated badges.');
+  }
+
+  onClearAllSections(): void {
+    if (!this.canRunFormActions || this.isBusy) {
+      return;
+    }
+
+    this.builder.clearAllSections(this.model, this.allSectionMetas);
+    this.submitMessage = `Cleared all ${this.allSectionMetas.length} sections and reset their validation state.`;
     this.changeDetectorRef.markForCheck();
   }
 
@@ -441,5 +461,47 @@ export class PerformanceFormComponent implements OnDestroy {
     }
     this.awaitingSectionId = null;
     this.pendingBuild = null;
+  }
+
+  private evaluateAllSectionBadges(successMessage: string): void {
+    this.runFullValidation(() => {
+      const errorCount = this.model.validationResults?.length ?? 0;
+      this.submitMessage = errorCount
+        ? `${successMessage} ${errorCount} error(s) found.`
+        : `${successMessage} No errors found.`;
+      this.changeDetectorRef.markForCheck();
+    });
+  }
+
+  private runFullValidation(onComplete?: () => void): void {
+    this.validationProvider.evaluatePolicies(
+      this.model,
+      this.sectionPolicyNames,
+      this.policyGroupName
+    ).subscribe({
+      next: () => {
+        this.commitBadgeState();
+        onComplete?.();
+      }
+    });
+  }
+
+  private commitBadgeState(): void {
+    this.allSectionMetas.forEach((section) => {
+      this.validationProvider.evaluateFormGroup(this.model, section.groupName, section.policyName);
+    });
+    this.validationProvider.updatePolicyGroupStatus(this.model, this.policyGroupName);
+    this.validationProvider.notifyValidationRefresh(this.model);
+  }
+
+  private bindValidationRefresh(): void {
+    this.refreshSubscription?.unsubscribe();
+
+    if (!this.model) {
+      return;
+    }
+
+    this.refreshSubscription = this.validationProvider.onValidationRefresh(this.model)
+      .subscribe(() => this.changeDetectorRef.markForCheck());
   }
 }

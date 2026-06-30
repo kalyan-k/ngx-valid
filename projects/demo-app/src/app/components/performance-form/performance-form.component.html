@@ -201,15 +201,30 @@
             pendingTooltip="Run Validate all or Submit to evaluate every generated section."
             evaluatedTooltip="Combined validation result across all dynamically generated sections."
           ></ngx-validation-policy-group-status>
-          <ngx-validation-policy-group-summary
+          <app-performance-form-error-summary
             [model]="model"
-            [policyGroupName]="policyGroupName"
-          ></ngx-validation-policy-group-summary>
-          <ngx-validation-summary [model]="model" title="All errors on this page:"></ngx-validation-summary>
+            [sections]="allSectionMetas"
+            title="All errors on this page:"
+          ></app-performance-form-error-summary>
         </div>
       </section>
 
       <div class="d-flex flex-wrap gap-2 mb-3" *ngIf="isGenerated">
+        <button
+          type="button"
+          class="btn btn-outline-primary"
+          (click)="onValidateAll()"
+          [disabled]="!canRunFormActions || isBusy"
+        >
+          Validate all (benchmark)
+        </button>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="!canRunFormActions || isBusy"
+        >
+          Submit
+        </button>
         <button
           type="button"
           class="btn btn-outline-secondary btn-sm"
@@ -217,6 +232,14 @@
           [disabled]="!canRunFormActions || isBusy"
         >
           Fill all sections
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="onClearAllSections()"
+          [disabled]="!canRunFormActions || isBusy"
+        >
+          Clear all sections
         </button>
         <button
           type="button"
@@ -254,14 +277,6 @@
         ></app-performance-form-section>
       </section>
 
-      <div class="d-flex flex-wrap gap-2 mb-4" *ngIf="isGenerated">
-        <button type="button" class="btn btn-outline-primary" (click)="onValidateAll()" [disabled]="!canRunFormActions || isBusy">
-          Validate all (benchmark)
-        </button>
-        <button type="submit" class="btn btn-success" [disabled]="!canRunFormActions || isBusy">
-          Submit
-        </button>
-      </div>
     </ng-container>
 
     <div

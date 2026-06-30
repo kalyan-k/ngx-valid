@@ -219,6 +219,70 @@ export class PerformanceFormBuilderService {
     sections.forEach((section) => this.fillSection(model, section));
   }
 
+  clearSection(model: PerformanceFormModel, section: PerformanceSectionMeta): void {
+    const data = model.sections[section.id];
+    if (!data) {
+      return;
+    }
+
+    for (const field of section.fields) {
+      data[field.id] = this.emptyValueFor(field);
+    }
+
+    this.clearSectionValidationState(model, section);
+  }
+
+  clearAllSections(model: PerformanceFormModel, sections: PerformanceSectionMeta[]): void {
+    sections.forEach((section) => {
+      const data = model.sections[section.id];
+      if (!data) {
+        return;
+      }
+
+      for (const field of section.fields) {
+        data[field.id] = this.emptyValueFor(field);
+      }
+
+      this.clearSectionValidationState(model, section);
+    });
+  }
+
+  private emptyValueFor(field: PerformanceFieldDef): unknown {
+    switch (field.type) {
+      case 'checkbox':
+        return false;
+      case 'number':
+        return '';
+      default:
+        return '';
+    }
+  }
+
+  private clearSectionValidationState(
+    model: PerformanceFormModel,
+    section: PerformanceSectionMeta
+  ): void {
+    const prefix = `sections.${section.id}.`;
+
+    if (model.validationResults?.length) {
+      model.validationResults = model.validationResults.filter(
+        (result) => !result.propertyName.startsWith(prefix)
+      );
+    }
+
+    if (model.requiredResults?.length) {
+      model.requiredResults = model.requiredResults.filter(
+        (result) => !result.propertyName.startsWith(prefix)
+      );
+    }
+
+    delete model[section.groupName];
+    delete model.performance;
+
+    this.validationProvider.getPolicy(section.policyName).updateConditionalRequiredFields(model);
+    this.validationProvider.notifyValidationRefresh(model);
+  }
+
   private sampleValueFor(field: PerformanceFieldDef): unknown {
     switch (field.type) {
       case 'text':

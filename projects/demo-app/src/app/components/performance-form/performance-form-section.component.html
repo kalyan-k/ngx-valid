@@ -32,6 +32,14 @@
     </button>
     <button
       type="button"
+      class="btn btn-sm btn-outline-secondary"
+      (click)="onClearSection()"
+      [disabled]="!canUseSectionActions"
+    >
+      Clear section
+    </button>
+    <button
+      type="button"
       class="btn btn-sm btn-outline-primary"
       (click)="onValidateSection()"
       [disabled]="!canUseSectionActions"
@@ -47,7 +55,23 @@
   </div>
 </div>
 <div class="card-body" *ngIf="!collapsed">
-  <ngx-validation-group-summary [model]="model" [groupName]="section.groupName"></ngx-validation-group-summary>
+  <div *ngIf="sectionErrorsVisible" class="perf-section-error-summary mb-3">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary perf-section-toggle"
+        (click)="toggleSectionErrorsCollapsed()"
+        [attr.aria-expanded]="!sectionErrorsCollapsed"
+      >
+        {{ sectionErrorsCollapsed ? '▶' : '▼' }}
+      </button>
+      <span class="small fw-semibold text-danger">Errors in this section</span>
+      <span class="badge bg-danger">{{ sectionErrorCount }}</span>
+    </div>
+    <ul *ngIf="!sectionErrorsCollapsed" class="mb-0 ps-3 small">
+      <li *ngFor="let err of sectionErrors">{{ err.error.message }}</li>
+    </ul>
+  </div>
 
   <div class="row">
     <ng-container *ngFor="let field of visibleFields; trackBy: trackField">

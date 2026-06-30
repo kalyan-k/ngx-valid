@@ -71,6 +71,13 @@ export interface PerformanceRenderProgress {
   controlsTotal: number;
 }
 
+export interface PerformanceFormGroupStatus {
+  isValid: boolean;
+  isInValid: boolean;
+  isEvaluated?: boolean;
+  errors?: Array<{ propertyName: string; error: { message: string } }>;
+}
+
 export class PerformanceFormModel {
   config: PerformanceConfig = {
     sectionCount: null,
@@ -82,6 +89,8 @@ export class PerformanceFormModel {
 
   validationResults?: Array<{ propertyName: string; error: { message: string } }>;
   requiredResults?: Array<{ propertyName: string; isRequired: boolean; hasRequiredError: boolean }>;
-  perfConfig?: { isValid: boolean; isInValid: boolean; isEvaluated?: boolean };
-  performance?: { isValid: boolean; isInValid: boolean; isEvaluated?: boolean; errors?: unknown[] };
+  perfConfig?: PerformanceFormGroupStatus;
+  performance?: PerformanceFormGroupStatus;
+
+  [groupName: string]: unknown;
 }
