@@ -24,6 +24,7 @@ export {
   ControlType
 } from './lib/interfaces/validation-result.interface';
 export { VALIDATION_DISPLAY_CONFIG } from './lib/tokens/validation-display.token';
+export { VALIDATION_DISPLAY_STRATEGY } from './lib/tokens/validation-display-strategy.token';
 export { BootstrapValidationDisplayStrategy } from './lib/strategies/bootstrap-validation-display.strategy';
 export { MaterialValidationDisplayStrategy } from './lib/strategies/material-validation-display.strategy';
 export { GenericValidationDisplayStrategy } from './lib/strategies/generic-validation-display.strategy';

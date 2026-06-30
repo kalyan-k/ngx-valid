@@ -249,7 +249,10 @@
       </div>
     </section>
 
-    <button type="submit" class="btn btn-primary">Submit All Forms</button>
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <button type="submit" class="btn btn-primary">Submit All Forms</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="onClear()">Clear</button>
+    </div>
 
     <div *ngIf="submitMessage" class="alert mt-3" [class.alert-danger]="model.validationResults?.length" [class.alert-success]="!model.validationResults?.length">
       {{ submitMessage }}

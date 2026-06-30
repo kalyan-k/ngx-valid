@@ -5,9 +5,12 @@ import {
   ValidationDisplayStrategy
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
+import { addClasses, removeClasses } from '../utils/dom.util';
 
 const ERROR_ATTR = 'data-ngx-valid-error';
 const ERROR_CONTAINER_ATTR = 'data-ngx-valid-error-container';
+const BASE_INVALID_CLASS = 'ngx-valid-invalid';
+const BASE_ERROR_CLASS = 'ngx-valid-error';
 
 /**
  * Framework-agnostic display strategy. Uses configurable CSS classes so consumers
@@ -22,8 +25,8 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
   private readonly errorContainerClass: string;
 
   constructor(config: ValidationDisplayConfig = {}) {
-    this.invalidClass = config.invalidClass ?? 'ngx-valid-invalid';
-    this.errorClass = config.errorClass ?? 'ngx-valid-error';
+    this.invalidClass = config.invalidClass ?? BASE_INVALID_CLASS;
+    this.errorClass = config.errorClass ?? BASE_ERROR_CLASS;
     this.errorElementTag = config.errorElementTag ?? 'div';
     this.requiredMarker = config.requiredMarker ?? ' *';
     this.requiredMarkerClass = config.requiredMarkerClass ?? 'ngx-valid-required-marker';
@@ -55,17 +58,13 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
 
   getErrorContainer(context: ValidationDisplayContext): HTMLElement | null {
     const host = context.hostElement;
+    const containerId = this.containerId(context);
     const parent = host.parentElement;
     if (!parent) {
       return null;
     }
 
-    const next = host.nextElementSibling;
-    if (next?.hasAttribute(ERROR_CONTAINER_ATTR)) {
-      return next as HTMLElement;
-    }
-
-    return null;
+    return parent.querySelector(`[${ERROR_CONTAINER_ATTR}="${containerId}"]`) as HTMLElement | null;
   }
 
   renderErrors(
@@ -86,28 +85,24 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
 
     errors.forEach((validationError) => {
       const errorElement = renderer.createElement(this.errorElementTag);
-      renderer.addClass(errorElement, this.errorClass);
+      addClasses(renderer, errorElement, `${this.errorClass} ${BASE_ERROR_CLASS}`);
       renderer.setAttribute(errorElement, ERROR_ATTR, 'true');
       renderer.setAttribute(errorElement, 'role', 'alert');
       renderer.appendChild(errorElement, renderer.createText(validationError.error.message));
       renderer.appendChild(container, errorElement);
     });
 
-    renderer.addClass(context.hostElement, this.invalidClass);
+    addClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
     renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
   }
 
   clearErrors(context: ValidationDisplayContext, renderer: Renderer2): void {
     const container = this.getErrorContainer(context);
-    if (container) {
+    if (container?.parentElement) {
       renderer.removeChild(container.parentElement, container);
     }
 
-    this.getOrphanedErrors(context).forEach((node) => {
-      renderer.removeChild(node.parentElement, node);
-    });
-
-    renderer.removeClass(context.hostElement, this.invalidClass);
+    removeClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
     renderer.removeAttribute(context.hostElement, 'aria-invalid');
   }
 
@@ -121,12 +116,12 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
       return;
     }
 
-    const existingMarkers = label.querySelectorAll(`[data-ngx-valid-required="true"]`);
+    const existingMarkers = label.querySelectorAll('[data-ngx-valid-required="true"]');
     existingMarkers.forEach((marker) => renderer.removeChild(label, marker));
 
     if (requiredResult.isRequired) {
       const marker = renderer.createElement('span');
-      renderer.addClass(marker, this.requiredMarkerClass);
+      addClasses(renderer, marker, this.requiredMarkerClass);
       renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
       renderer.setAttribute(marker, 'aria-hidden', 'true');
       renderer.appendChild(marker, renderer.createText(this.requiredMarker));
@@ -141,27 +136,15 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
     }
 
     const container = renderer.createElement('div');
-    renderer.addClass(container, this.errorContainerClass);
-    renderer.setAttribute(container, ERROR_CONTAINER_ATTR, 'true');
+    addClasses(renderer, container, this.errorContainerClass);
+    renderer.setAttribute(container, ERROR_CONTAINER_ATTR, this.containerId(context));
     renderer.insertBefore(parent, container, context.hostElement.nextSibling);
     return container;
   }
 
-  /** Legacy error nodes inserted without a container (backward compatibility). */
-  private getOrphanedErrors(context: ValidationDisplayContext): HTMLElement[] {
-    const host = context.hostElement;
-    const parent = host.parentElement;
-    if (!parent) {
-      return [];
-    }
-
-    const orphans: HTMLElement[] = [];
-    let sibling = host.nextElementSibling;
-    while (sibling?.hasAttribute(ERROR_ATTR)) {
-      orphans.push(sibling as HTMLElement);
-      sibling = sibling.nextElementSibling;
-    }
-    return orphans;
+  private containerId(context: ValidationDisplayContext): string {
+    const hostId = context.hostElement.getAttribute('id');
+    return hostId ?? context.propertyPath;
   }
 
   private findLabel(context: ValidationDisplayContext): HTMLElement | null {
@@ -179,9 +162,10 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
       return parentLabel as HTMLElement;
     }
 
-    const fieldWrapper = host.closest('[data-ngx-valid-field], .form-group, .form-check, .field, .mb-3');
+    const fieldWrapper = host.closest('[data-ngx-valid-field], .form-group, .form-check, fieldset, .field, .mb-3');
     if (fieldWrapper) {
-      return fieldWrapper.querySelector('label, legend') as HTMLElement | null;
+      const label = fieldWrapper.querySelector('label, legend');
+      return label as HTMLElement | null;
     }
 
     return null;

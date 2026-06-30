@@ -12,15 +12,25 @@ export class SampleFormComponent {
   submitMessage = '';
   showSummary = false;
 
+  private readonly policyName = 'SampleForm';
+
   constructor(private validationProvider: ValidationProviderService) {}
 
   onSubmit(): void {
-    this.validationProvider.validateAll(this.model, 'SampleForm').subscribe(() => {
+    this.validationProvider.validateAll(this.model, this.policyName).subscribe(() => {
       const hasErrors = !!this.model.validationResults?.length;
       this.showSummary = hasErrors;
       this.submitMessage = hasErrors
         ? 'Please fix validation errors before submitting.'
         : 'Form submitted successfully!';
     });
+  }
+
+  onClear(): void {
+    Object.assign(this.model, new SampleForm());
+    this.validationProvider.resetFormGroups();
+    this.validationProvider.clearValidationState(this.model, [this.policyName]);
+    this.showSummary = false;
+    this.submitMessage = '';
   }
 }

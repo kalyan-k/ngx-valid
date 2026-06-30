@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ValidationProviderService } from 'core';
 import { from } from 'rxjs';
 import { concatMap, last } from 'rxjs/operators';
-import { ComplexFormModel } from '../../models/complex-form.model';
+import { AddressInfo, BillingInfo, ComplexFormModel, PersonalInfo } from '../../models/complex-form.model';
 
 @Component({
   selector: 'app-complex-form',
@@ -14,7 +14,7 @@ export class ComplexFormComponent {
   submitMessage = '';
   showSummary = false;
 
-  private readonly policies = ['PersonalInfo', 'ShippingAddress', 'BillingAddress'];
+  readonly policies = ['PersonalInfo', 'ShippingAddress', 'BillingAddress'];
 
   constructor(private validationProvider: ValidationProviderService) {}
 
@@ -29,5 +29,19 @@ export class ComplexFormComponent {
         ? 'Please fix validation errors in all sections before submitting.'
         : 'All forms submitted successfully!';
     });
+  }
+
+  onClear(): void {
+    Object.assign(this.model.personal, new PersonalInfo());
+    Object.assign(this.model.shipping, new AddressInfo());
+    Object.assign(this.model.billing, new BillingInfo());
+    delete this.model.personalInfo;
+    delete this.model.shippingInfo;
+    delete this.model.billingInfo;
+
+    this.validationProvider.resetFormGroups();
+    this.validationProvider.clearValidationState(this.model, this.policies);
+    this.showSummary = false;
+    this.submitMessage = '';
   }
 }

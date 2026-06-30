@@ -3,7 +3,11 @@
 .ngx-valid-invalid,
 input.ngx-valid-invalid,
 select.ngx-valid-invalid,
-textarea.ngx-valid-invalid {
+textarea.ngx-valid-invalid,
+.form-control.ngx-valid-invalid,
+.form-control.is-invalid,
+.form-select.is-invalid,
+.form-check-input.is-invalid {
   border-color: #dc3545 !important;
   box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.15);
 }
@@ -12,15 +16,18 @@ textarea.ngx-valid-invalid {
   margin-top: 0.25rem;
 }
 
-.ngx-valid-error {
-  display: block;
+.ngx-valid-error,
+.ngx-valid-error-container .invalid-feedback {
+  display: block !important;
   color: #dc3545;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+  width: 100%;
 }
 
-.ngx-valid-required-marker {
-  color: #dc3545;
+.ngx-valid-required-marker,
+.text-danger.ngx-valid-required-marker {
+  color: #dc3545 !important;
   font-weight: bold;
 }
 
@@ -43,18 +50,11 @@ textarea.ngx-valid-invalid {
   padding-left: 1.25rem;
 }
 
-/* Bootstrap compatibility: when using is-invalid + invalid-feedback classes */
-.is-invalid {
-  border-color: #dc3545;
+.invalid-feedback {
+  display: none;
 }
 
-.invalid-feedback.d-block {
-  display: block;
-  color: #dc3545;
-  font-size: 0.875em;
-  margin-top: 0.25rem;
-}
-
+.invalid-feedback.d-block,
 .ngx-valid-error-container .invalid-feedback {
-  display: block;
+  display: block !important;
 }

@@ -8,6 +8,7 @@ import {
   Input,
   IterableChangeRecord,
   IterableDiffers,
+  NgZone,
   OnDestroy,
   OnInit,
   Optional,
@@ -16,11 +17,13 @@ import {
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import * as _ from 'underscore';
-import { ValidationDisplayConfig, ValidationDisplayContext, ValidationDisplayStrategy } from '../interfaces/validation-display.interface';
+import { ValidationDisplayContext, ValidationDisplayStrategy } from '../interfaces/validation-display.interface';
 import { RequiredResult } from '../interfaces/validation-result.interface';
 import { ValidationProviderService } from '../services/validation-provider.service';
 import { DefaultValidationDisplayStrategy } from '../strategies/default-validation-display.strategy';
 import { VALIDATION_DISPLAY_CONFIG } from '../tokens/validation-display.token';
+import { VALIDATION_DISPLAY_STRATEGY } from '../tokens/validation-display-strategy.token';
+import { ValidationDisplayConfig } from '../interfaces/validation-display.interface';
 
 @Directive({
   selector: '[ngxValidator], [libValidatorDirective]'
@@ -57,9 +60,11 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
     private elementRef: ElementRef,
     private renderer2: Renderer2,
     private changeDetectorRef: ChangeDetectorRef,
+    private ngZone: NgZone,
+    @Optional() @Inject(VALIDATION_DISPLAY_STRATEGY) displayStrategy: ValidationDisplayStrategy | null,
     @Optional() @Inject(VALIDATION_DISPLAY_CONFIG) displayConfig: ValidationDisplayConfig | null
   ) {
-    this.displayStrategy = displayConfig?.strategy
+    this.displayStrategy = displayStrategy
       ?? new DefaultValidationDisplayStrategy(displayConfig ?? { framework: 'auto' });
   }
 
@@ -74,20 +79,32 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
     };
 
     if (this.groupName) {
-      if (!this.validationService.formGroup.hasOwnProperty(this.groupName)) {
-        this.validationService.formGroup[this.groupName] = [];
-      }
-
-      if (!this.validationService.formGroup[this.groupName].includes(this.modelInfo.propertyPath)) {
-        this.validationService.formGroup[this.groupName].push(this.modelInfo.propertyPath);
-      }
-      if (!this.actualModel[this.groupName]) {
-        this.actualModel[this.groupName] = {};
-      }
+      this.registerFormGroup();
     }
 
     this.refreshSubscription = this.validationService.onValidationRefresh(this.actualModel)
-      .subscribe(() => this.refreshUi());
+      .subscribe(() => {
+        this.registerFormGroup();
+        this.refreshUi();
+      });
+  }
+
+  private registerFormGroup(): void {
+    if (!this.groupName) {
+      return;
+    }
+
+    if (!this.validationService.formGroup.hasOwnProperty(this.groupName)) {
+      this.validationService.formGroup[this.groupName] = [];
+    }
+
+    if (!this.validationService.formGroup[this.groupName].includes(this.modelInfo.propertyPath)) {
+      this.validationService.formGroup[this.groupName].push(this.modelInfo.propertyPath);
+    }
+
+    if (!this.actualModel[this.groupName]) {
+      this.actualModel[this.groupName] = {};
+    }
   }
 
   ngDoCheck(): void {
@@ -135,11 +152,10 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   ngAfterViewInit(): void {
-    this.policy.initializeRequiredFields(this.actualModel);
-    this.syncRequiredUi();
+    this.initializeRequiredMarkers();
 
     const event = this.validateOnEvent
-      ?? ((this.controlType === 'radio' || this.controlType === 'checkbox') ? 'click' : 'blur');
+      ?? ((this.controlType === 'radio' || this.controlType === 'checkbox') ? 'change' : 'blur');
 
     this.unlisten = this.renderer2.listen(this.elementRef.nativeElement, event, () => {
       const delay = (this.controlType === 'radio' || this.controlType === 'checkbox') ? 200 : 0;
@@ -165,6 +181,18 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       entityPath: paths.shift(),
       propertyPath: paths.join('.')
     };
+  }
+
+  private initializeRequiredMarkers(): void {
+    this.ngZone.runOutsideAngular(() => {
+      window.setTimeout(() => {
+        this.ngZone.run(() => {
+          this.policy.initializeRequiredFields(this.actualModel);
+          this.syncRequiredUi();
+          this.changeDetectorRef.markForCheck();
+        });
+      });
+    });
   }
 
   private refreshUi(): void {
@@ -200,10 +228,20 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
 
     window.setTimeout(() => {
       this.policy.validate(this.actualModel, this.modelInfo.propertyPath).pipe(take(1))
-        .subscribe(() => this.syncValidationUi());
+        .subscribe(() => {
+          this.ngZone.run(() => {
+            this.syncValidationUi();
+            this.changeDetectorRef.detectChanges();
+          });
+        });
     }, delayByMs);
 
     this.policy.checkModelRequired(this.actualModel, this.modelInfo.propertyPath).pipe(take(1))
-      .subscribe(() => this.syncRequiredUi());
+      .subscribe(() => {
+        this.ngZone.run(() => {
+          this.syncRequiredUi();
+          this.changeDetectorRef.detectChanges();
+        });
+      });
   }
 }

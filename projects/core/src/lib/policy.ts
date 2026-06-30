@@ -4,6 +4,7 @@ import { map, take } from 'rxjs/operators';
 import * as _ from 'underscore';
 import { $parse } from './parser/expression-parser';
 import { Validator } from './validator';
+import { isValidationFailure } from './utils/dom.util';
 
 export class Policy {
     // tslint:disable:no-unused-variable
@@ -18,7 +19,7 @@ export class Policy {
         // Check for duplicate error messages since the policy validate method can be called multiple times
         // before async validation resolves.
         // Only record actual validation failures (not the `true` success sentinel)
-        if (error && typeof error === 'object' && error.message
+        if (isValidationFailure(error)
             && !this.isDuplicate(model, propertyName, error.message) && !!model.validationResults) {
             model.validationResults.push({
                 'propertyName': propertyName,
@@ -29,17 +30,19 @@ export class Policy {
 
     private handleAsyncCallForRequiredCheck = (model: any, validator: any, checkIsRequired: any, errorMsg: any) => {
         const propertyName = this.validators[validator].propertyName;
+        const hasRequiredError = isValidationFailure(errorMsg);
 
         if (model.requiredResults) {
             const reqResultIdx = _.findIndex(model.requiredResults, { 'propertyName': propertyName });
 
             if (reqResultIdx > -1) {
 
-                if (model.requiredResults[reqResultIdx].hasRequiredError !== !!errorMsg) {
+                if (model.requiredResults[reqResultIdx].hasRequiredError !== hasRequiredError
+                    || !model.requiredResults[reqResultIdx].isRequired) {
                     model.requiredResults[reqResultIdx] = {
                         'propertyName': propertyName,
                         'isRequired': checkIsRequired,
-                        'hasRequiredError': !!errorMsg
+                        'hasRequiredError': hasRequiredError
                     };
                 }
 
@@ -47,7 +50,7 @@ export class Policy {
                 model.requiredResults.push({
                     'propertyName': propertyName,
                     'isRequired': checkIsRequired,
-                    'hasRequiredError': !!errorMsg
+                    'hasRequiredError': hasRequiredError
                 });
             }
         }
@@ -177,8 +180,6 @@ export class Policy {
             })
         );
 
-        observable.subscribe();
-
         return observable;
     }
 
@@ -253,23 +254,9 @@ export class Policy {
             // Here Key is the Group Name.
             // Here this.validationService.formGroup[key] is the array of properties which fall under the "key".
             if (!!groupName) {
-                const hasValidationError = _.some(formGroupList[groupName], function (element) {
-                    // Here element is nothing but the property of the field.
-                    const foundRequiredFields = _.where(model.requiredResults, { 'propertyName': element });
-                    const foundValidationErrorFields = _.where(model.validationResults, { 'propertyName': element });
-                    let hasAnyRequiredFieldErrors = false;
-
-                    if (foundRequiredFields && !_.isEmpty(foundRequiredFields)) {
-                        hasAnyRequiredFieldErrors = _.some(foundRequiredFields, function (element2) {
-                            return !!element2.hasRequiredError;
-                        });
-                    }
-
-                    return hasAnyRequiredFieldErrors || (!!foundValidationErrorFields && !_.isEmpty(foundValidationErrorFields));
-
-                    // if (foundValidationError && !_.isEmpty(foundValidationError)) {
-                    //   this.actualModel.formGroup[key]
-                    // }
+                const hasValidationError = _.some(formGroupList[groupName], function (propertyPath) {
+                    const foundValidationErrorFields = _.where(model.validationResults || [], { 'propertyName': propertyPath });
+                    return !!foundValidationErrorFields && !_.isEmpty(foundValidationErrorFields);
                 });
 
                 model[groupName] = { isValid: !hasValidationError, isInValid: hasValidationError };

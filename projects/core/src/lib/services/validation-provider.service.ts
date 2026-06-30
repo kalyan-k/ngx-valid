@@ -79,4 +79,23 @@ export class ValidationProviderService {
 	resetFormGroups(): void {
 		this.formGroup = {};
 	}
+
+	/**
+	 * Clears validation state on a model and re-applies required-field markers.
+	 * Use when resetting a form to its initial state.
+	 */
+	clearValidationState(model: any, policyNames: string[]): void {
+		delete model.validationResults;
+		delete model.requiredResults;
+
+		Object.keys(this.formGroup).forEach((groupName) => {
+			delete model[groupName];
+		});
+
+		policyNames.forEach((policyName) => {
+			this.getPolicy(policyName).initializeRequiredFields(model);
+		});
+
+		this.notifyValidationRefresh(model);
+	}
 }

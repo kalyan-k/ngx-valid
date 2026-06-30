@@ -21,7 +21,7 @@
       />
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group mb-3" data-ngx-valid-field>
       <label for="emailInput">Email Input</label>
       <input
         type="email"
@@ -37,7 +37,7 @@
       />
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group mb-3" data-ngx-valid-field>
       <label for="passwordInput">Password Input</label>
       <input
         type="password"
@@ -53,7 +53,7 @@
       />
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group mb-3" data-ngx-valid-field>
       <label for="numberInput">Number Input (1–100)</label>
       <input
         type="number"
@@ -69,7 +69,7 @@
       />
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group mb-3" data-ngx-valid-field>
       <label for="dateInput">Date Input</label>
       <input
         type="date"
@@ -85,7 +85,7 @@
       />
     </div>
 
-    <div class="form-check mb-3">
+    <div class="form-check mb-3" data-ngx-valid-field>
       <input
         type="checkbox"
         class="form-check-input"
@@ -102,7 +102,7 @@
       <label class="form-check-label" for="checkboxInput">I accept the terms and conditions</label>
     </div>
 
-    <fieldset class="mb-3">
+    <fieldset class="mb-3" data-ngx-valid-field>
       <legend class="form-label">Radio Group</legend>
       <div class="form-check">
         <input
@@ -133,7 +133,7 @@
       </div>
     </fieldset>
 
-    <div class="form-group mb-3">
+    <div class="form-group mb-3" data-ngx-valid-field>
       <label for="selectInput">Select</label>
       <select
         class="form-control"
@@ -153,7 +153,7 @@
       </select>
     </div>
 
-    <div class="form-group mb-3">
+    <div class="form-group mb-3" data-ngx-valid-field>
       <label for="textareaInput">Textarea</label>
       <textarea
         class="form-control"
@@ -169,8 +169,9 @@
       ></textarea>
     </div>
 
-    <div class="d-flex align-items-center gap-3">
-      <button type="submit" class="btn btn-primary" [disabled]="model.mainForm?.isInValid">Submit</button>
+    <div class="d-flex align-items-center gap-3 mt-3">
+      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="onClear()">Clear</button>
       <span *ngIf="model.mainForm" [class.text-danger]="model.mainForm.isInValid" [class.text-success]="model.mainForm.isValid">
         Form status: {{ model.mainForm.isValid ? 'Valid' : 'Invalid' }}
       </span>
