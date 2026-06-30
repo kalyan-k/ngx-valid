@@ -13,10 +13,12 @@ export interface PerformanceFieldDef {
   type: PerformanceControlType;
   label: string;
   propertyPath: string;
+  validateModel: string;
+  elementId: string;
   groupName: string;
   policyName: string;
-  selectOptions?: string[];
-  radioOptions?: { value: string; label: string }[];
+  selectOptions?: readonly string[];
+  radioOptions?: readonly { value: string; label: string }[];
   dependsOn?: string;
 }
 
@@ -45,6 +47,28 @@ export interface PerformanceMetrics {
   lastValidateAllMs?: number;
   lastSubmitMs?: number;
   controlsPerSecond?: number;
+}
+
+export type PerformanceFormPhase =
+  | 'idle'
+  | 'validating-config'
+  | 'building'
+  | 'rendering'
+  | 'validating'
+  | 'complete'
+  | 'failed';
+
+export interface PerformanceRenderProgress {
+  phase: 'building' | 'rendering';
+  message: string;
+  percent: number;
+  sectionsTotal: number;
+  sectionsComplete: number;
+  currentSection: number;
+  fieldsInSection: number;
+  fieldsRenderedInSection: number;
+  controlsRendered: number;
+  controlsTotal: number;
 }
 
 export class PerformanceFormModel {

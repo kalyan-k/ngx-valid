@@ -5,384 +5,274 @@
     <strong>How this demo works</strong>
     <ul class="mb-0 mt-2">
       <li><strong>Configure</strong> the number of sections (1–50) and controls per section (1–200), then click <em>Generate form</em>.</li>
-      <li><strong>Random controls</strong> — each slot gets a random HTML control type (text, email, number, date, checkbox, select, textarea, radio).</li>
-      <li><strong>Grouped validation</strong> — each section is its own policy and form group, aggregated by the <code>performance</code> policy group (same pattern as the complex form).</li>
+      <li><strong>Incremental render</strong> — sections and controls are mounted in batches so large forms (e.g. 2,500 controls) stay responsive.</li>
+      <li><strong>Grouped validation</strong> — each section is its own policy and form group, aggregated by the <code>performance</code> policy group.</li>
       <li><strong>Benchmarks</strong> — generation, render, validate-all, and submit timings are captured below.</li>
-      <li><strong>Seed</strong> — use the same seed to reproduce the same random control layout across runs.</li>
     </ul>
   </div>
 
+  <!-- Loader overlay -->
+  <div *ngIf="isBusy" class="perf-loader-overlay" role="status" aria-live="polite" aria-busy="true">
+    <div class="perf-loader-card card shadow">
+      <div class="card-body text-center p-4">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading…</span>
+        </div>
+        <h5 class="mb-2">{{ renderProgress?.message || 'Working…' }}</h5>
+        <div *ngIf="renderProgress" class="progress mb-3" style="height: 1.25rem;">
+          <div
+            class="progress-bar progress-bar-striped progress-bar-animated"
+            role="progressbar"
+            [style.width.%]="renderProgress.percent"
+            [attr.aria-valuenow]="renderProgress.percent"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {{ renderProgress.percent }}%
+          </div>
+        </div>
+        <div *ngIf="renderProgress" class="small text-muted">
+          <span *ngIf="renderProgress.phase === 'building'">Preparing policies and model…</span>
+          <span *ngIf="renderProgress.phase === 'rendering'">
+            Sections: {{ renderProgress.sectionsComplete }}/{{ renderProgress.sectionsTotal }} ·
+            Controls: {{ renderProgress.controlsRendered | number }}/{{ renderProgress.controlsTotal | number }}
+          </span>
+          <span *ngIf="phase === 'validating-config'">Validating configuration…</span>
+          <span *ngIf="phase === 'validating'">Running validation benchmark…</span>
+        </div>
+        <p class="small text-muted mb-0 mt-3">Please wait — buttons are disabled until this operation completes.</p>
+      </div>
+    </div>
+  </div>
+
   <form (ngSubmit)="onSubmit()">
-  <!-- Configuration -->
-  <section class="card mb-4 border-primary">
-    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <div>
-        <h5 class="mb-0">Form configuration</h5>
-        <small class="text-muted">Policy: <code>PerformanceConfig</code> · Group: <code>perfConfig</code></small>
-      </div>
-      <ngx-validation-group-status
-        [model]="model"
-        groupName="perfConfig"
-        pendingTooltip="Configure sections and controls per section, then generate the form."
-        evaluatedTooltip="Configuration inputs are valid."
-      ></ngx-validation-group-status>
-    </div>
-    <div class="card-body">
-      <ngx-validation-group-summary [model]="model" groupName="perfConfig"></ngx-validation-group-summary>
-
-      <div class="row g-3 align-items-end">
-        <div class="col-md-3 form-group" data-ngx-valid-field>
-          <label for="sectionCount">Sections / components</label>
-          <input
-            type="number"
-            class="form-control"
-            id="sectionCount"
-            name="sectionCount"
-            min="1"
-            max="50"
-            [(ngModel)]="model.config.sectionCount"
-            ngxValidator
-            [validateModel]="'form.config.sectionCount'"
-            [actualModel]="model"
-            [withPolicy]="configPolicyName"
-            [groupName]="configGroupName"
-          />
-          <small class="text-muted">Range: 1–50</small>
-        </div>
-        <div class="col-md-3 form-group" data-ngx-valid-field>
-          <label for="controlsPerSection">Controls per section</label>
-          <input
-            type="number"
-            class="form-control"
-            id="controlsPerSection"
-            name="controlsPerSection"
-            min="1"
-            max="200"
-            [(ngModel)]="model.config.controlsPerSection"
-            ngxValidator
-            [validateModel]="'form.config.controlsPerSection'"
-            [actualModel]="model"
-            [withPolicy]="configPolicyName"
-            [groupName]="configGroupName"
-          />
-          <small class="text-muted">Range: 1–200</small>
-        </div>
-        <div class="col-md-2 form-group">
-          <label for="seed">Random seed</label>
-          <input
-            type="number"
-            class="form-control"
-            id="seed"
-            name="seed"
-            [(ngModel)]="model.config.seed"
-          />
-        </div>
-        <div class="col-md-4 d-flex flex-wrap gap-2">
-          <button type="button" class="btn btn-primary" (click)="onGenerate()" [disabled]="isGenerating">
-            {{ isGenerating ? 'Generating…' : 'Generate form' }}
-          </button>
-          <button type="button" class="btn btn-outline-secondary" (click)="onClear()">Clear all</button>
-        </div>
-      </div>
-
-      <div *ngIf="isLargeForm && !isGenerated" class="alert alert-warning mt-3 mb-0">
-        Estimated <strong>{{ totalControlEstimate | number }}</strong> validated controls.
-        Large forms may take several seconds to render and validate.
-      </div>
-    </div>
-  </section>
-
-  <!-- Performance statistics -->
-  <section class="card mb-4 performance-stats-card" *ngIf="metrics">
-    <div class="card-header">
-      <h5 class="mb-0">Performance statistics</h5>
-      <small class="text-muted" *ngIf="metrics.generatedAt">Last generated: {{ metrics.generatedAt | date:'medium' }}</small>
-    </div>
-    <div class="card-body">
-      <div class="row g-3">
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">Sections</span>
-            <span class="stat-value">{{ metrics.totalSections | number }}</span>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">Controls</span>
-            <span class="stat-value">{{ metrics.totalControls | number }}</span>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">Validators</span>
-            <span class="stat-value">{{ metrics.totalValidators | number }}</span>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">ngxValidator directives</span>
-            <span class="stat-value">{{ metrics.estimatedDirectives | number }}</span>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">Generation</span>
-            <span class="stat-value">{{ metrics.generationMs | number:'1.1-1' }} ms</span>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">Render (onStable)</span>
-            <span class="stat-value">{{ metrics.renderMs | number:'1.1-1' }} ms</span>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">Last validate all</span>
-            <span class="stat-value">{{ metrics.lastValidateAllMs != null ? (metrics.lastValidateAllMs | number:'1.1-1') + ' ms' : '—' }}</span>
-          </div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-tile">
-            <span class="stat-label">Last submit</span>
-            <span class="stat-value">{{ metrics.lastSubmitMs != null ? (metrics.lastSubmitMs | number:'1.1-1') + ' ms' : '—' }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Generated form -->
-  <ng-container *ngIf="isGenerated">
-    <section class="card mb-4 border-primary">
-      <div class="card-body">
-        <ngx-validation-policy-group-status
-          [model]="model"
-          [policyGroupName]="policyGroupName"
-          label="Entire performance form"
-          pendingTooltip="Run Validate all or Submit to evaluate every generated section."
-          evaluatedTooltip="Combined validation result across all dynamically generated sections."
-        ></ngx-validation-policy-group-status>
-        <ngx-validation-policy-group-summary
-          [model]="model"
-          [policyGroupName]="policyGroupName"
-        ></ngx-validation-policy-group-summary>
-        <ngx-validation-summary [model]="model" title="All errors on this page:"></ngx-validation-summary>
-      </div>
-    </section>
-
-    <section
-      class="card mb-4"
-      *ngFor="let section of sectionMetas; trackBy: trackSection"
-    >
+    <!-- Configuration -->
+    <section class="card mb-4 border-primary" [class.perf-disabled-panel]="isBusy">
       <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
-          <h5 class="mb-0">{{ section.title }}</h5>
-          <small class="text-muted">
-            Policy: <code>{{ section.policyName }}</code> ·
-            Group: <code>{{ section.groupName }}</code> ·
-            {{ section.fields.length }} controls
-          </small>
+          <h5 class="mb-0">Form configuration</h5>
+          <small class="text-muted">Policy: <code>PerformanceConfig</code> · Group: <code>perfConfig</code></small>
         </div>
         <ngx-validation-group-status
           [model]="model"
-          [groupName]="section.groupName"
-          pendingTooltip="Section fields validate on blur/change; badge updates after submit or validate all."
-          evaluatedTooltip="All controls in this section pass validation."
+          groupName="perfConfig"
+          pendingTooltip="Configure sections and controls per section, then generate the form."
+          evaluatedTooltip="Configuration inputs are valid."
         ></ngx-validation-group-status>
       </div>
       <div class="card-body">
-        <ngx-validation-group-summary [model]="model" [groupName]="section.groupName"></ngx-validation-group-summary>
+        <ngx-validation-group-summary [model]="model" groupName="perfConfig"></ngx-validation-group-summary>
 
-        <div class="row">
-          <ng-container *ngFor="let field of section.fields; trackBy: trackField">
-            <!-- Text -->
-            <div
-              *ngIf="field.type === 'text'"
-              class="col-md-6 form-group mb-3"
-              data-ngx-valid-field
-            >
-              <label [for]="section.id + '_' + field.id">{{ field.label }}</label>
-              <input
-                type="text"
-                class="form-control"
-                [id]="section.id + '_' + field.id"
-                [name]="section.id + '_' + field.id"
-                [(ngModel)]="model.sections[section.id][field.id]"
-                ngxValidator
-                [validateModel]="'form.' + field.propertyPath"
-                [actualModel]="model"
-                [withPolicy]="field.policyName"
-                [groupName]="field.groupName"
-              />
-            </div>
-
-            <!-- Email -->
-            <div
-              *ngIf="field.type === 'email'"
-              class="col-md-6 form-group mb-3"
-              data-ngx-valid-field
-            >
-              <label [for]="section.id + '_' + field.id">{{ field.label }}</label>
-              <input
-                type="email"
-                class="form-control"
-                [id]="section.id + '_' + field.id"
-                [name]="section.id + '_' + field.id"
-                [(ngModel)]="model.sections[section.id][field.id]"
-                ngxValidator
-                [validateModel]="'form.' + field.propertyPath"
-                [actualModel]="model"
-                [withPolicy]="field.policyName"
-                [groupName]="field.groupName"
-              />
-            </div>
-
-            <!-- Number -->
-            <div
-              *ngIf="field.type === 'number'"
-              class="col-md-6 form-group mb-3"
-              data-ngx-valid-field
-            >
-              <label [for]="section.id + '_' + field.id">{{ field.label }}</label>
-              <input
-                type="number"
-                class="form-control"
-                [id]="section.id + '_' + field.id"
-                [name]="section.id + '_' + field.id"
-                [(ngModel)]="model.sections[section.id][field.id]"
-                ngxValidator
-                [validateModel]="'form.' + field.propertyPath"
-                [actualModel]="model"
-                [withPolicy]="field.policyName"
-                [groupName]="field.groupName"
-              />
-            </div>
-
-            <!-- Date -->
-            <div
-              *ngIf="field.type === 'date'"
-              class="col-md-6 form-group mb-3"
-              data-ngx-valid-field
-            >
-              <label [for]="section.id + '_' + field.id">{{ field.label }}</label>
-              <input
-                type="date"
-                class="form-control"
-                [id]="section.id + '_' + field.id"
-                [name]="section.id + '_' + field.id"
-                [(ngModel)]="model.sections[section.id][field.id]"
-                ngxValidator
-                [validateModel]="'form.' + field.propertyPath"
-                [actualModel]="model"
-                [withPolicy]="field.policyName"
-                [groupName]="field.groupName"
-              />
-            </div>
-
-            <!-- Checkbox -->
-            <div
-              *ngIf="field.type === 'checkbox'"
-              class="col-md-6 form-check mb-3"
-              data-ngx-valid-field
-            >
-              <input
-                type="checkbox"
-                class="form-check-input"
-                [id]="section.id + '_' + field.id"
-                [name]="section.id + '_' + field.id"
-                [(ngModel)]="model.sections[section.id][field.id]"
-                ngxValidator
-                [validateModel]="'form.' + field.propertyPath"
-                [actualModel]="model"
-                [withPolicy]="field.policyName"
-                [groupName]="field.groupName"
-              />
-              <label class="form-check-label" [for]="section.id + '_' + field.id">{{ field.label }}</label>
-            </div>
-
-            <!-- Select -->
-            <div
-              *ngIf="field.type === 'select'"
-              class="col-md-6 form-group mb-3"
-              data-ngx-valid-field
-            >
-              <label [for]="section.id + '_' + field.id">{{ field.label }}</label>
-              <select
-                class="form-control"
-                [id]="section.id + '_' + field.id"
-                [name]="section.id + '_' + field.id"
-                [(ngModel)]="model.sections[section.id][field.id]"
-                ngxValidator
-                [validateModel]="'form.' + field.propertyPath"
-                [actualModel]="model"
-                [withPolicy]="field.policyName"
-                [groupName]="field.groupName"
-              >
-                <option value="">— Select —</option>
-                <option *ngFor="let opt of field.selectOptions" [value]="opt">{{ opt }}</option>
-              </select>
-            </div>
-
-            <!-- Textarea -->
-            <div
-              *ngIf="field.type === 'textarea'"
-              class="col-md-12 form-group mb-3"
-              data-ngx-valid-field
-            >
-              <label [for]="section.id + '_' + field.id">{{ field.label }}</label>
-              <textarea
-                class="form-control"
-                rows="2"
-                [id]="section.id + '_' + field.id"
-                [name]="section.id + '_' + field.id"
-                [(ngModel)]="model.sections[section.id][field.id]"
-                ngxValidator
-                [validateModel]="'form.' + field.propertyPath"
-                [actualModel]="model"
-                [withPolicy]="field.policyName"
-                [groupName]="field.groupName"
-              ></textarea>
-              <small *ngIf="field.dependsOn" class="text-muted">Required when the section's anchor text field has a value.</small>
-            </div>
-
-            <!-- Radio group -->
-            <fieldset
-              *ngIf="field.type === 'radio'"
-              class="col-md-6 mb-3"
-              data-ngx-valid-field
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3 form-group" data-ngx-valid-field>
+            <label for="sectionCount">Sections / components</label>
+            <input
+              type="number"
+              class="form-control"
+              id="sectionCount"
+              name="sectionCount"
+              min="1"
+              max="50"
+              [(ngModel)]="model.config.sectionCount"
+              [disabled]="isBusy"
               ngxValidator
-              [validateModel]="'form.' + field.propertyPath"
+              [validateModel]="'form.config.sectionCount'"
               [actualModel]="model"
-              [withPolicy]="field.policyName"
-              [groupName]="field.groupName"
-            >
-              <legend class="form-label fs-6">{{ field.label }}</legend>
-              <div class="form-check" *ngFor="let opt of field.radioOptions">
-                <input
-                  type="radio"
-                  class="form-check-input"
-                  [id]="section.id + '_' + field.id + '_' + opt.value"
-                  [name]="section.id + '_' + field.id"
-                  [value]="opt.value"
-                  [(ngModel)]="model.sections[section.id][field.id]"
-                />
-                <label class="form-check-label" [for]="section.id + '_' + field.id + '_' + opt.value">{{ opt.label }}</label>
-              </div>
-            </fieldset>
-          </ng-container>
+              [withPolicy]="configPolicyName"
+              [groupName]="configGroupName"
+            />
+            <small class="text-muted">Range: 1–50</small>
+          </div>
+          <div class="col-md-3 form-group" data-ngx-valid-field>
+            <label for="controlsPerSection">Controls per section</label>
+            <input
+              type="number"
+              class="form-control"
+              id="controlsPerSection"
+              name="controlsPerSection"
+              min="1"
+              max="200"
+              [(ngModel)]="model.config.controlsPerSection"
+              [disabled]="isBusy"
+              ngxValidator
+              [validateModel]="'form.config.controlsPerSection'"
+              [actualModel]="model"
+              [withPolicy]="configPolicyName"
+              [groupName]="configGroupName"
+            />
+            <small class="text-muted">Range: 1–200</small>
+          </div>
+          <div class="col-md-2 form-group">
+            <label for="seed">Random seed</label>
+            <input
+              type="number"
+              class="form-control"
+              id="seed"
+              name="seed"
+              [(ngModel)]="model.config.seed"
+              [disabled]="isBusy"
+            />
+          </div>
+          <div class="col-md-4 d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-primary" (click)="onGenerate()" [disabled]="isBusy">
+              Generate form
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="onClear()" [disabled]="isBusy">
+              Clear all
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="isLargeForm && !isGenerated" class="alert alert-warning mt-3 mb-0">
+          Estimated <strong>{{ totalControlEstimate | number }}</strong> validated controls.
+          Rendering is incremental — expect a progress indicator and allow time for large forms.
         </div>
       </div>
     </section>
 
-    <div class="d-flex flex-wrap gap-2 mb-4">
-      <button type="button" class="btn btn-outline-primary" (click)="onValidateAll()">Validate all (benchmark)</button>
-      <button type="submit" class="btn btn-success">Submit</button>
-    </div>
-  </ng-container>
+    <!-- Performance statistics -->
+    <section class="card mb-4 performance-stats-card" *ngIf="metrics">
+      <div class="card-header">
+        <h5 class="mb-0">Performance statistics</h5>
+        <small class="text-muted" *ngIf="metrics.generatedAt">Last generated: {{ metrics.generatedAt | date:'medium' }}</small>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">Sections</span>
+              <span class="stat-value">{{ metrics.totalSections | number }}</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">Controls</span>
+              <span class="stat-value">{{ metrics.totalControls | number }}</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">Validators</span>
+              <span class="stat-value">{{ metrics.totalValidators | number }}</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">ngxValidator directives</span>
+              <span class="stat-value">{{ metrics.estimatedDirectives | number }}</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">Generation</span>
+              <span class="stat-value">{{ metrics.generationMs | number:'1.1-1' }} ms</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">Render (incremental)</span>
+              <span class="stat-value">{{ metrics.renderMs | number:'1.1-1' }} ms</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">Last validate all</span>
+              <span class="stat-value">{{ metrics.lastValidateAllMs != null ? (metrics.lastValidateAllMs | number:'1.1-1') + ' ms' : '—' }}</span>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <span class="stat-label">Last submit</span>
+              <span class="stat-value">{{ metrics.lastSubmitMs != null ? (metrics.lastSubmitMs | number:'1.1-1') + ' ms' : '—' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <div *ngIf="submitMessage" class="alert" [ngClass]="submitMessage.includes('error') || submitMessage.includes('Fix') ? 'alert-warning' : 'alert-success'">
-    {{ submitMessage }}
-  </div>
+    <!-- Generated form -->
+    <ng-container *ngIf="isGenerated || phase === 'rendering'">
+      <section class="card mb-4 border-primary" *ngIf="isGenerated">
+        <div class="card-body">
+          <ngx-validation-policy-group-status
+            [model]="model"
+            [policyGroupName]="policyGroupName"
+            label="Entire performance form"
+            pendingTooltip="Run Validate all or Submit to evaluate every generated section."
+            evaluatedTooltip="Combined validation result across all dynamically generated sections."
+          ></ngx-validation-policy-group-status>
+          <ngx-validation-policy-group-summary
+            [model]="model"
+            [policyGroupName]="policyGroupName"
+          ></ngx-validation-policy-group-summary>
+          <ngx-validation-summary [model]="model" title="All errors on this page:"></ngx-validation-summary>
+        </div>
+      </section>
+
+      <div class="d-flex flex-wrap gap-2 mb-3" *ngIf="isGenerated">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="onFillAll()"
+          [disabled]="!canRunFormActions || isBusy"
+        >
+          Fill all sections
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="collapseAll()"
+          [disabled]="!canRunFormActions"
+        >
+          Collapse all
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          (click)="expandAll()"
+          [disabled]="!canRunFormActions"
+        >
+          Expand all
+        </button>
+      </div>
+
+      <section
+        class="card mb-4"
+        *ngFor="let section of renderedSections; trackBy: trackSection"
+      >
+        <app-performance-form-section
+          [section]="section"
+          [model]="model"
+          [renderGeneration]="renderGeneration"
+          [collapsed]="isSectionCollapsed(section.id)"
+          [actionsDisabled]="isBusy"
+          [policyGroupName]="policyGroupName"
+          (collapsedChange)="toggleSection(section.id)"
+          (sectionValidated)="onSectionValidated($event)"
+          (sectionProgress)="onSectionProgress($event)"
+          (sectionRendered)="onSectionRendered($event)"
+        ></app-performance-form-section>
+      </section>
+
+      <div class="d-flex flex-wrap gap-2 mb-4" *ngIf="isGenerated">
+        <button type="button" class="btn btn-outline-primary" (click)="onValidateAll()" [disabled]="!canRunFormActions || isBusy">
+          Validate all (benchmark)
+        </button>
+        <button type="submit" class="btn btn-success" [disabled]="!canRunFormActions || isBusy">
+          Submit
+        </button>
+      </div>
+    </ng-container>
+
+    <div
+      *ngIf="submitMessage"
+      class="alert"
+      [ngClass]="{
+        'alert-warning': phase === 'failed' || submitMessage.includes('error') || submitMessage.includes('Fix'),
+        'alert-success': phase !== 'failed' && !submitMessage.includes('error') && !submitMessage.includes('Fix')
+      }"
+    >
+      {{ submitMessage }}
+    </div>
   </form>
 </div>

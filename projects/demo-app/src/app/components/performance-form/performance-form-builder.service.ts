@@ -104,6 +104,8 @@ export class PerformanceFormBuilderService {
           type,
           label,
           propertyPath,
+          validateModel: `form.${propertyPath}`,
+          elementId: `${sectionId}_${fieldId}`,
           groupName,
           policyName
         };
@@ -192,6 +194,51 @@ export class PerformanceFormBuilderService {
         controlsPerSecond: totalControls / (generationMs / 1000 || 1)
       }
     };
+  }
+
+  fillSection(model: PerformanceFormModel, section: PerformanceSectionMeta): void {
+    const data = model.sections[section.id];
+    if (!data) {
+      return;
+    }
+
+    const anchor = section.fields.find((field) => field.type === 'text' && !field.dependsOn);
+    if (anchor) {
+      data[anchor.id] = 'Sample text';
+    }
+
+    for (const field of section.fields) {
+      if (field === anchor) {
+        continue;
+      }
+      data[field.id] = this.sampleValueFor(field);
+    }
+  }
+
+  fillAllSections(model: PerformanceFormModel, sections: PerformanceSectionMeta[]): void {
+    sections.forEach((section) => this.fillSection(model, section));
+  }
+
+  private sampleValueFor(field: PerformanceFieldDef): unknown {
+    switch (field.type) {
+      case 'text':
+      case 'textarea':
+        return 'Sample text';
+      case 'email':
+        return 'user@example.com';
+      case 'number':
+        return 42;
+      case 'date':
+        return '2024-06-15';
+      case 'checkbox':
+        return true;
+      case 'select':
+        return field.selectOptions?.[0] ?? 'Alpha';
+      case 'radio':
+        return field.radioOptions?.[0]?.value ?? 'a';
+      default:
+        return '';
+    }
   }
 
   private formatControlLabel(type: PerformanceControlType): string {

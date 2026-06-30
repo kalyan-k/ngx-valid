@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { SampleFormComponent } from './components/sample-form/sample-form.component';
 import { ComplexFormComponent } from './components/complex-form/complex-form.component';
 import { PerformanceFormComponent } from './components/performance-form/performance-form.component';
+import { PerformanceFormSectionComponent } from './components/performance-form/performance-form-section.component';
 import { ValidationModule } from 'core';
 import { validationProviders } from './validation.providers';
 
@@ -15,7 +16,8 @@ import { validationProviders } from './validation.providers';
     AppComponent,
     SampleFormComponent,
     ComplexFormComponent,
-    PerformanceFormComponent
+    PerformanceFormComponent,
+    PerformanceFormSectionComponent
   ],
   imports: [
     BrowserModule,
