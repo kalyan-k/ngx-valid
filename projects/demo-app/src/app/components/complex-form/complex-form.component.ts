@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { ValidationProviderService } from 'core';
+import { from } from 'rxjs';
+import { concatMap, last } from 'rxjs/operators';
 import { ComplexFormModel } from '../../models/complex-form.model';
 
 @Component({
@@ -10,33 +12,22 @@ import { ComplexFormModel } from '../../models/complex-form.model';
 export class ComplexFormComponent {
   model = new ComplexFormModel();
   submitMessage = '';
+  showSummary = false;
+
+  private readonly policies = ['PersonalInfo', 'ShippingAddress', 'BillingAddress'];
 
   constructor(private validationProvider: ValidationProviderService) {}
 
   onSubmit(): void {
-    const policies = [
-      this.validationProvider.getPolicy('PersonalInfo'),
-      this.validationProvider.getPolicy('ShippingAddress'),
-      this.validationProvider.getPolicy('BillingAddress')
-    ];
-
-    let completed = 0;
-    policies.forEach((policy) => {
-      policy.validate(this.model).subscribe(() => {
-        policy.checkModelRequired(this.model).subscribe(() => {
-          completed++;
-          if (completed === policies.length) {
-            this.validationProvider.getPolicy('PersonalInfo').checkFormValid(
-              this.model,
-              this.validationProvider.formGroup
-            );
-            const hasErrors = !!this.model.validationResults?.length;
-            this.submitMessage = hasErrors
-              ? 'Please fix validation errors in all sections before submitting.'
-              : 'All forms submitted successfully!';
-          }
-        });
-      });
+    from(this.policies).pipe(
+      concatMap((name) => this.validationProvider.validateAll(this.model, name)),
+      last()
+    ).subscribe(() => {
+      const hasErrors = !!this.model.validationResults?.length;
+      this.showSummary = hasErrors;
+      this.submitMessage = hasErrors
+        ? 'Please fix validation errors in all sections before submitting.'
+        : 'All forms submitted successfully!';
     });
   }
 }

@@ -1,18 +1,21 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ValidationSummaryComponent } from './components/validation-summary.component';
 import { ValidatorDirective } from './directives/validator.directive';
 import { ValidationDisplayConfig } from './interfaces/validation-display.interface';
 import { VALIDATION_DISPLAY_CONFIG } from './tokens/validation-display.token';
 
 @NgModule({
   declarations: [
-    ValidatorDirective
+    ValidatorDirective,
+    ValidationSummaryComponent
   ],
   imports: [
     CommonModule
   ],
   exports: [
-    ValidatorDirective
+    ValidatorDirective,
+    ValidationSummaryComponent
   ]
 })
 export class ValidationModule {

@@ -17,7 +17,9 @@ export class Policy {
 
         // Check for duplicate error messages since the policy validate method can be called multiple times
         // before async validation resolves.
-        if (error && !this.isDuplicate(model, propertyName, error.message) && !!model.validationResults) {
+        // Only record actual validation failures (not the `true` success sentinel)
+        if (error && typeof error === 'object' && error.message
+            && !this.isDuplicate(model, propertyName, error.message) && !!model.validationResults) {
             model.validationResults.push({
                 'propertyName': propertyName,
                 'error': error
@@ -127,8 +129,17 @@ export class Policy {
             }
 
         } else {
-            // Remove all errors if validating the whole object
-            model.validationResults = [];
+            // Remove only this policy's property errors (supports multiple policies on one model)
+            const policyProperties = _.uniq(this.validators.map((v) => v.propertyName));
+            if (model.validationResults) {
+                model.validationResults = model.validationResults.filter(
+                    (result: { propertyName: string }) => !policyProperties.includes(result.propertyName)
+                );
+                if (model.validationResults.length <= 0) {
+                    delete model.validationResults;
+                }
+            }
+            model.validationResults = model.validationResults || [];
         }
 
         for (let validator = 0; validator < this.validators.length; validator++) {
@@ -204,6 +215,33 @@ export class Policy {
             delete model.requiredResults;
         }
         return observableOf(model.requiredResults).pipe(take(1));
+    }
+
+    /** Populates requiredResults with isRequired markers for all required rules (for initial asterisk display). */
+    public initializeRequiredFields = (model: any) => {
+        model.requiredResults = model.requiredResults || [];
+
+        for (let validator = 0; validator < this.validators.length; validator++) {
+            const propertyName = this.validators[validator].propertyName;
+            const hasRequiredRule = this.validators[validator].validatorsToRun.some((rule) => rule.checkIsRequired);
+
+            if (hasRequiredRule && propertyName) {
+                const reqResultIdx = _.findIndex(model.requiredResults, { 'propertyName': propertyName });
+                if (reqResultIdx === -1) {
+                    model.requiredResults.push({
+                        'propertyName': propertyName,
+                        'isRequired': true,
+                        'hasRequiredError': false
+                    });
+                } else if (!model.requiredResults[reqResultIdx].isRequired) {
+                    model.requiredResults[reqResultIdx].isRequired = true;
+                }
+            }
+        }
+
+        if (model.requiredResults.length <= 0) {
+            delete model.requiredResults;
+        }
     }
 
     // model: The is the model passed in (the actualModel parameter passed to the validator directive).

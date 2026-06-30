@@ -37,6 +37,8 @@ export interface ValidationDisplayConfig {
   requiredMarkerClass?: string;
   /** Override the default display strategy entirely */
   strategy?: ValidationDisplayStrategy;
-  /** Preferred UI framework hint: 'bootstrap' | 'material' | 'auto' */
-  framework?: 'bootstrap' | 'material' | 'auto';
+  /** Use Material-specific DOM integration when true; otherwise framework-agnostic */
+  framework?: 'material' | 'auto';
+  /** CSS class for the error message container wrapper */
+  errorContainerClass?: string;
 }

@@ -26,4 +26,6 @@ export {
 export { VALIDATION_DISPLAY_CONFIG } from './lib/tokens/validation-display.token';
 export { BootstrapValidationDisplayStrategy } from './lib/strategies/bootstrap-validation-display.strategy';
 export { MaterialValidationDisplayStrategy } from './lib/strategies/material-validation-display.strategy';
+export { GenericValidationDisplayStrategy } from './lib/strategies/generic-validation-display.strategy';
 export { DefaultValidationDisplayStrategy } from './lib/strategies/default-validation-display.strategy';
+export { ValidationSummaryComponent } from './lib/components/validation-summary.component';

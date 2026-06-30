@@ -5,23 +5,17 @@ import {
   ValidationDisplayStrategy
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
-import { BootstrapValidationDisplayStrategy } from './bootstrap-validation-display.strategy';
+import { GenericValidationDisplayStrategy } from './generic-validation-display.strategy';
 import { MaterialValidationDisplayStrategy } from './material-validation-display.strategy';
 
 export class DefaultValidationDisplayStrategy implements ValidationDisplayStrategy {
-  private readonly bootstrapStrategy: BootstrapValidationDisplayStrategy;
+  private readonly genericStrategy: GenericValidationDisplayStrategy;
   private readonly materialStrategy: MaterialValidationDisplayStrategy;
-  private readonly framework: 'bootstrap' | 'material' | 'auto';
+  private readonly framework: 'material' | 'auto';
 
   constructor(config: ValidationDisplayConfig = {}) {
-    this.framework = config.framework ?? 'auto';
-    this.bootstrapStrategy = new BootstrapValidationDisplayStrategy(
-      config.invalidClass,
-      config.errorClass,
-      config.errorElementTag,
-      config.requiredMarker,
-      config.requiredMarkerClass
-    );
+    this.framework = config.framework === 'material' ? 'material' : 'auto';
+    this.genericStrategy = new GenericValidationDisplayStrategy(config);
     this.materialStrategy = new MaterialValidationDisplayStrategy();
   }
 
@@ -58,18 +52,10 @@ export class DefaultValidationDisplayStrategy implements ValidationDisplayStrate
   }
 
   private resolveStrategy(element: HTMLElement): ValidationDisplayStrategy {
-    if (this.framework === 'bootstrap') {
-      return this.bootstrapStrategy;
-    }
-    if (this.framework === 'material') {
+    if (this.framework === 'material' || this.isMaterialElement(element)) {
       return this.materialStrategy;
     }
-
-    if (this.isMaterialElement(element)) {
-      return this.materialStrategy;
-    }
-
-    return this.bootstrapStrategy;
+    return this.genericStrategy;
   }
 
   private isMaterialElement(element: HTMLElement): boolean {

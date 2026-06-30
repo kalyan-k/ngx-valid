@@ -10,19 +10,17 @@ import { SampleForm } from '../../models/sample-form.model';
 export class SampleFormComponent {
   model = new SampleForm();
   submitMessage = '';
+  showSummary = false;
 
   constructor(private validationProvider: ValidationProviderService) {}
 
   onSubmit(): void {
-    const policy = this.validationProvider.getPolicy('SampleForm');
-    policy.validate(this.model).subscribe(() => {
-      policy.checkModelRequired(this.model).subscribe(() => {
-        policy.checkFormValid(this.model, this.validationProvider.formGroup);
-        const hasErrors = !!this.model.validationResults?.length;
-        this.submitMessage = hasErrors
-          ? 'Please fix validation errors before submitting.'
-          : 'Form submitted successfully!';
-      });
+    this.validationProvider.validateAll(this.model, 'SampleForm').subscribe(() => {
+      const hasErrors = !!this.model.validationResults?.length;
+      this.showSummary = hasErrors;
+      this.submitMessage = hasErrors
+        ? 'Please fix validation errors before submitting.'
+        : 'Form submitted successfully!';
     });
   }
 }

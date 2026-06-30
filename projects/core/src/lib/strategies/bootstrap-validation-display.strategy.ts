@@ -105,9 +105,10 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
     const existingMarkers = label.querySelectorAll(`.${this.requiredMarkerClass}`);
     existingMarkers.forEach((marker) => renderer.removeChild(label, marker));
 
-    if (requiredResult.hasRequiredError) {
+    if (requiredResult.isRequired) {
       const marker = renderer.createElement('span');
       renderer.addClass(marker, this.requiredMarkerClass);
+      renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
       renderer.appendChild(marker, renderer.createText(this.requiredMarker));
       renderer.appendChild(label, marker);
     }

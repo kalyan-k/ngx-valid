@@ -105,13 +105,14 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
 
     const labelElements = this.getLabelElements(context, parent);
     labelElements.forEach((labelElement) => {
-      const existingMarkers = labelElement.querySelectorAll('.mat-placeholder-required');
+      const existingMarkers = labelElement.querySelectorAll('.mat-placeholder-required, [data-ngx-valid-required]');
       existingMarkers.forEach((marker) => renderer.removeChild(labelElement, marker));
 
-      if (requiredResult.hasRequiredError) {
+      if (requiredResult.isRequired) {
         const marker = renderer.createElement('span');
         renderer.addClass(marker, 'mat-placeholder-required');
         renderer.addClass(marker, 'mat-form-field-required-marker');
+        renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
         renderer.appendChild(marker, renderer.createText(' *'));
         renderer.appendChild(labelElement, marker);
         renderer.addClass(labelElement, 'label-required');

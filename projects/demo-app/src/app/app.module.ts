@@ -20,10 +20,10 @@ import { validationProviders } from './validation.providers';
     FormsModule,
     AppRoutingModule,
     ValidationModule.forRoot({
-      framework: 'bootstrap',
       invalidClass: 'is-invalid',
       errorClass: 'invalid-feedback d-block',
-      requiredMarkerClass: 'text-danger'
+      errorContainerClass: 'ngx-valid-error-container',
+      requiredMarkerClass: 'ngx-valid-required-marker text-danger'
     })
   ],
   providers: [...validationProviders],

@@ -5,6 +5,8 @@
   </p>
 
   <form (ngSubmit)="onSubmit()">
+    <ngx-validation-summary *ngIf="showSummary" [model]="model"></ngx-validation-summary>
+
     <!-- Personal Information -->
     <section class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center">

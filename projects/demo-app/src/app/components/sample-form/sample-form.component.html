@@ -3,7 +3,9 @@
   <p class="text-muted">Single form demonstrating ngx-valid with Bootstrap styling and policy-based rules.</p>
 
   <form (ngSubmit)="onSubmit()" #sampleForm="ngForm">
-    <div class="form-group mb-3">
+    <ngx-validation-summary *ngIf="showSummary" [model]="model"></ngx-validation-summary>
+
+    <div class="form-group mb-3" data-ngx-valid-field>
       <label for="textInput">Text Input</label>
       <input
         type="text"

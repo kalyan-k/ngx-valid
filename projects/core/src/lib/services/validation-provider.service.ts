@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { filter, switchMap, tap } from 'rxjs/operators';
 import { Validator } from '../validator';
 import { ValidationPolicy } from '../interface/validation-policy.interface';
 import { Policy } from '../policy';
@@ -13,6 +15,7 @@ export class ValidationProviderService {
 	policies: { [key: string]: Validator[] } = {};
 	validatorHelper: ValidatorHelper;
 	formGroup: { [key: string]: Array<string> } = {};
+	private validationRefreshSource = new Subject<any>();
 
 	constructor() {
 		this.validatorHelper = new ValidatorHelper();
@@ -42,10 +45,38 @@ export class ValidationProviderService {
 		policy.setPolicyVariables(name, this.policies[registeredName]);
 
 		return {
-			validate: policy.validate,
-			checkModelRequired: policy.checkModelRequired,
-			checkFormValid: policy.checkFormGroupValid
+			validate: policy.validate.bind(policy),
+			checkModelRequired: policy.checkModelRequired.bind(policy),
+			checkFormValid: policy.checkFormGroupValid.bind(policy),
+			initializeRequiredFields: policy.initializeRequiredFields.bind(policy)
 		};
 	}
 
+	/** Notifies all ngxValidator directives bound to this model to refresh their UI. */
+	notifyValidationRefresh(model: any): void {
+		this.validationRefreshSource.next(model);
+	}
+
+	/** Observable stream for directives to listen for full-form validation refresh. */
+	onValidationRefresh(model: any): Observable<any> {
+		return this.validationRefreshSource.asObservable().pipe(
+			filter((refreshedModel) => refreshedModel === model)
+		);
+	}
+
+	/** Validates an entire model, refreshes required markers, updates form groups, and notifies UI. */
+	validateAll(model: any, policyName: string): Observable<any> {
+		const policy = this.getPolicy(policyName);
+		return policy.validate(model).pipe(
+			switchMap(() => policy.checkModelRequired(model)),
+			tap(() => {
+				policy.checkFormValid(model, this.formGroup);
+				this.notifyValidationRefresh(model);
+			})
+		);
+	}
+
+	resetFormGroups(): void {
+		this.formGroup = {};
+	}
 }
