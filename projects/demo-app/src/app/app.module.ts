@@ -6,6 +6,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SampleFormComponent } from './components/sample-form/sample-form.component';
 import { ComplexFormComponent } from './components/complex-form/complex-form.component';
+import { PerformanceFormComponent } from './components/performance-form/performance-form.component';
 import { ValidationModule } from 'core';
 import { validationProviders } from './validation.providers';
 
@@ -13,7 +14,8 @@ import { validationProviders } from './validation.providers';
   declarations: [
     AppComponent,
     SampleFormComponent,
-    ComplexFormComponent
+    ComplexFormComponent,
+    PerformanceFormComponent
   ],
   imports: [
     BrowserModule,

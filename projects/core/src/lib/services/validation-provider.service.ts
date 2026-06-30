@@ -32,9 +32,26 @@ export class ValidationProviderService {
 			console.log(`Policy with the name '${name}' already registred. Hence skipping the regiser part.`);
 			return;
 		}
-		const validators = validationPolicy.addValidations(this.validatorHelper);
+		this.policies[registeredName] = validationPolicy.addValidations(this.validatorHelper);
+	}
 
-		this.policies[registeredName] = validators;
+	/** Replaces an existing policy or registers a new one (for dynamically generated forms). */
+	replacePolicy = (name: string, validationPolicy: ValidationPolicy) => {
+		const registeredName = name.toLowerCase() + this.fileSuffix;
+		this.policies[registeredName] = validationPolicy.addValidations(this.validatorHelper);
+	}
+
+	unregisterPolicy = (name: string) => {
+		const registeredName = name.toLowerCase() + this.fileSuffix;
+		delete this.policies[registeredName];
+	}
+
+	unregisterFormGroupPolicy = (groupName: string) => {
+		delete this.formGroupPolicies[groupName];
+	}
+
+	unregisterPolicyGroup = (groupKey: string) => {
+		delete this.policyGroups[groupKey];
 	}
 
 	registerPolicyGroup = (groupKey: string, config: PolicyGroupConfig) => {

@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { APP_INITIALIZER } from '@angular/core';
 import { ValidationProviderService } from 'core';
 import { SampleFormValidationPolicy } from './components/sample-form/sample-form.validation.policy';
 import {
@@ -6,6 +6,7 @@ import {
   PersonalInfoValidationPolicy,
   ShippingAddressValidationPolicy
 } from './components/complex-form/complex-form.validation.policy';
+import { PerformanceConfigValidationPolicy } from './components/performance-form/performance-form.validation.policy';
 
 export function registerValidationPolicies(validationProvider: ValidationProviderService): () => void {
   return () => {
@@ -13,11 +14,13 @@ export function registerValidationPolicies(validationProvider: ValidationProvide
     validationProvider.register('PersonalInfo', new PersonalInfoValidationPolicy());
     validationProvider.register('ShippingAddress', new ShippingAddressValidationPolicy());
     validationProvider.register('BillingAddress', new BillingAddressValidationPolicy());
+    validationProvider.register('PerformanceConfig', new PerformanceConfigValidationPolicy());
 
     validationProvider.registerFormGroupPolicy('mainForm', 'SampleForm');
     validationProvider.registerFormGroupPolicy('personalInfo', 'PersonalInfo');
     validationProvider.registerFormGroupPolicy('shippingInfo', 'ShippingAddress');
     validationProvider.registerFormGroupPolicy('billingInfo', 'BillingAddress');
+    validationProvider.registerFormGroupPolicy('perfConfig', 'PerformanceConfig');
 
     validationProvider.registerPolicyGroup('checkout', {
       policies: ['PersonalInfo', 'ShippingAddress', 'BillingAddress'],
