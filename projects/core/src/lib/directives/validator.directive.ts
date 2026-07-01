@@ -54,6 +54,7 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   private unlistenFns: Array<() => void> = [];
   private refreshSubscription?: Subscription;
   private readonly displayStrategy: ValidationDisplayStrategy;
+  private lastSyncedValidationKey = '';
 
   constructor(
     private validationService: ValidationProviderService,
@@ -107,7 +108,6 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   ngDoCheck(): void {
     this.runcheck();
     this.policy.updateConditionalRequiredFields(this.actualModel, this.modelInfo.propertyPath);
-    this.syncRequiredUi();
   }
 
   runcheck(): void {
@@ -252,6 +252,7 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   private refreshUi(): void {
+    this.lastSyncedValidationKey = '';
     this.policy.updateConditionalRequiredFields(this.actualModel);
     this.syncValidationUi();
     this.syncRequiredUi();
@@ -259,6 +260,10 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
 
   private syncValidationUi(): void {
     if (!shouldShowFieldErrors(this.actualModel, this.modelInfo.propertyPath)) {
+      if (this.lastSyncedValidationKey === '') {
+        return;
+      }
+      this.lastSyncedValidationKey = '';
       this.displayStrategy.clearErrors(this.displayContext, this.renderer2);
       return;
     }
@@ -267,11 +272,24 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       propertyName: this.modelInfo.propertyPath
     });
 
+    const validationKey = filteredResults.length
+      ? filteredResults.map((result) => result.error.message).join('\u0000')
+      : '';
+
     if (filteredResults.length > 0) {
+      if (validationKey === this.lastSyncedValidationKey) {
+        return;
+      }
+      this.lastSyncedValidationKey = validationKey;
       this.displayStrategy.renderErrors(this.displayContext, filteredResults, this.renderer2);
-    } else {
-      this.displayStrategy.clearErrors(this.displayContext, this.renderer2);
+      return;
     }
+
+    if (this.lastSyncedValidationKey === '') {
+      return;
+    }
+    this.lastSyncedValidationKey = '';
+    this.displayStrategy.clearErrors(this.displayContext, this.renderer2);
   }
 
   private syncRequiredUi(): void {

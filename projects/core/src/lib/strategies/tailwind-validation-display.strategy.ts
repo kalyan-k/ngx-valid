@@ -60,14 +60,7 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
   }
 
   getErrorContainer(context: ValidationDisplayContext): HTMLElement | null {
-    const root = this.getDisplayRoot(context);
-    if (!root) {
-      return null;
-    }
-
-    return root.querySelector(
-      `[${ERROR_CONTAINER_ATTR}="${this.escapeSelectorValue(this.containerId(context))}"]`
-    ) as HTMLElement | null;
+    return this.findErrorContainer(this.getDisplayRoot(context), this.containerId(context));
   }
 
   renderErrors(
@@ -80,8 +73,32 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
       return;
     }
 
-    const container = this.ensureErrorContainer(context, renderer);
+    const root = this.getDisplayRoot(context);
+    if (!root) {
+      return;
+    }
+
+    const containerId = this.containerId(context);
+    const existingContainers = this.findAllErrorContainers(root, containerId);
+    const container = existingContainers[0] ?? this.createErrorContainer(context, renderer);
     if (!container) {
+      return;
+    }
+
+    // Remove duplicate containers left from prior renders
+    existingContainers.slice(1).forEach((duplicate) => {
+      if (duplicate.parentElement) {
+        renderer.removeChild(duplicate.parentElement, duplicate);
+      }
+    });
+
+    const nextMessages = errors.map((entry) => entry.error.message).join('\u0000');
+    const currentMessages = Array.from(container.querySelectorAll('[role="alert"]'))
+      .map((node) => node.textContent ?? '')
+      .join('\u0000');
+
+    if (nextMessages === currentMessages) {
+      this.applyInvalidState(context, renderer);
       return;
     }
 
@@ -100,13 +117,14 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
 
   clearErrors(context: ValidationDisplayContext, renderer: Renderer2): void {
     const root = this.getDisplayRoot(context);
+    const containerId = this.containerId(context);
+
     if (root) {
-      root.querySelectorAll(`[${ERROR_CONTAINER_ATTR}="${this.escapeSelectorValue(this.containerId(context))}"]`)
-        .forEach((container) => {
-          if (container.parentElement) {
-            renderer.removeChild(container.parentElement, container);
-          }
-        });
+      this.findAllErrorContainers(root, containerId).forEach((container) => {
+        if (container.parentElement) {
+          renderer.removeChild(container.parentElement, container);
+        }
+      });
     }
 
     this.clearInvalidState(context, renderer);
@@ -122,18 +140,25 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
       return;
     }
 
-    label.querySelectorAll('[data-ngx-valid-required="true"]').forEach((marker) => {
-      renderer.removeChild(label, marker);
-    });
+    const existingMarker = label.querySelector('[data-ngx-valid-required="true"]');
 
-    if (requiredResult.isRequired) {
-      const marker = renderer.createElement('span');
-      addClasses(renderer, marker, this.requiredMarkerClass);
-      renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
-      renderer.setAttribute(marker, 'aria-hidden', 'true');
-      renderer.appendChild(marker, renderer.createText(this.requiredMarker));
-      renderer.appendChild(label, marker);
+    if (!requiredResult.isRequired) {
+      if (existingMarker) {
+        renderer.removeChild(label, existingMarker);
+      }
+      return;
     }
+
+    if (existingMarker) {
+      return;
+    }
+
+    const marker = renderer.createElement('span');
+    addClasses(renderer, marker, this.requiredMarkerClass);
+    renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
+    renderer.setAttribute(marker, 'aria-hidden', 'true');
+    renderer.appendChild(marker, renderer.createText(this.requiredMarker));
+    renderer.appendChild(label, marker);
   }
 
   private createErrorContainer(context: ValidationDisplayContext, renderer: Renderer2): HTMLElement | null {
@@ -150,9 +175,7 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
   }
 
   private clearErrorMessages(container: HTMLElement, renderer: Renderer2): void {
-    while (container.firstChild) {
-      renderer.removeChild(container, container.firstChild);
-    }
+    renderer.setProperty(container, 'innerHTML', '');
   }
 
   private applyInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
@@ -220,8 +243,18 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
     return context.propertyPath;
   }
 
-  private escapeSelectorValue(value: string): string {
-    return typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/"/g, '\\"');
+  private findErrorContainer(root: HTMLElement | null, containerId: string): HTMLElement | null {
+    if (!root) {
+      return null;
+    }
+
+    const matches = this.findAllErrorContainers(root, containerId);
+    return matches[0] ?? null;
+  }
+
+  private findAllErrorContainers(root: HTMLElement, containerId: string): HTMLElement[] {
+    return Array.from(root.querySelectorAll(`[${ERROR_CONTAINER_ATTR}]`))
+      .filter((node) => node.getAttribute(ERROR_CONTAINER_ATTR) === containerId) as HTMLElement[];
   }
 
   private getRadioInputs(context: ValidationDisplayContext): HTMLInputElement[] {

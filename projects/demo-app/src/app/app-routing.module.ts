@@ -4,6 +4,7 @@ import { DemoShellComponent } from './layout/demo-shell.component';
 import { HomeComponent } from './pages/home/home.component';
 import { DocsComponent } from './pages/docs/docs.component';
 import { FrameworkDemoComponent } from './pages/framework-demo/framework-demo.component';
+import { provideDemoFrameworkDisplay } from './demo/demo-framework.providers';
 
 const routes: Routes = [
   {
@@ -15,17 +16,20 @@ const routes: Routes = [
       {
         path: 'demos/bootstrap',
         component: FrameworkDemoComponent,
-        data: { framework: 'bootstrap' }
+        data: { framework: 'bootstrap' },
+        providers: provideDemoFrameworkDisplay('bootstrap')
       },
       {
         path: 'demos/material',
         component: FrameworkDemoComponent,
-        data: { framework: 'material' }
+        data: { framework: 'material' },
+        providers: provideDemoFrameworkDisplay('material')
       },
       {
         path: 'demos/tailwind',
         component: FrameworkDemoComponent,
-        data: { framework: 'tailwind' }
+        data: { framework: 'tailwind' },
+        providers: provideDemoFrameworkDisplay('tailwind')
       },
       { path: 'demos', redirectTo: 'demos/bootstrap', pathMatch: 'full' },
       { path: 'sample-form', redirectTo: 'demos/bootstrap', pathMatch: 'full' },
