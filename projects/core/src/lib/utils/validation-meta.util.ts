@@ -37,6 +37,19 @@ export function shouldShowFieldErrors(model: any, propertyPath: string): boolean
   return meta.showAllErrors || !!meta.touchedFields[propertyPath];
 }
 
+export function clearTouchedFieldsForPrefix(model: any, prefix: string): void {
+  const meta = model[NGX_VALID_META] as ValidationMeta | undefined;
+  if (!meta?.touchedFields) {
+    return;
+  }
+
+  for (const key of Object.keys(meta.touchedFields)) {
+    if (key.startsWith(prefix)) {
+      delete meta.touchedFields[key];
+    }
+  }
+}
+
 export function resetValidationMeta(model: any): void {
   delete model[NGX_VALID_META];
 }

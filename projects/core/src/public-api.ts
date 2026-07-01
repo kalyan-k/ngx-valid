@@ -28,8 +28,10 @@ export { VALIDATION_DISPLAY_CONFIG } from './lib/tokens/validation-display.token
 export { VALIDATION_DISPLAY_STRATEGY } from './lib/tokens/validation-display-strategy.token';
 export { BootstrapValidationDisplayStrategy } from './lib/strategies/bootstrap-validation-display.strategy';
 export { MaterialValidationDisplayStrategy } from './lib/strategies/material-validation-display.strategy';
+export { TailwindValidationDisplayStrategy } from './lib/strategies/tailwind-validation-display.strategy';
 export { GenericValidationDisplayStrategy } from './lib/strategies/generic-validation-display.strategy';
 export { DefaultValidationDisplayStrategy } from './lib/strategies/default-validation-display.strategy';
+export { clearTouchedFieldsForPrefix } from './lib/utils/validation-meta.util';
 export { ValidationSummaryComponent } from './lib/components/validation-summary.component';
 export { ValidationGroupStatusComponent } from './lib/components/validation-group-status.component';
 export { ValidationGroupSummaryComponent } from './lib/components/validation-group-summary.component';

@@ -5,13 +5,13 @@ import {
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
 
+const STANDALONE_ERROR_ATTR = 'data-ngx-valid-mat-errors-for';
 const CHECKBOX_ERROR_CLASS = 'ngx-valid-mat-checkbox-errors';
 const RADIO_ERROR_CLASS = 'ngx-valid-mat-radio-errors';
 
 /**
  * Display strategy for Angular Material (MDC-based, v15+).
- * Injects mat-error elements into the form-field subscript area and
- * applies Material invalid / required-marker classes.
+ * Form-field controls use mat-error; checkbox/radio use standalone containers in wrapper divs.
  */
 export class MaterialValidationDisplayStrategy implements ValidationDisplayStrategy {
   detectControlType(element: HTMLElement): ControlType {
@@ -59,38 +59,37 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
   }
 
   ensureErrorContainer(context: ValidationDisplayContext, renderer: Renderer2): HTMLElement | null {
-    const parent = this.findParentFormField(context);
+    if (context.controlType === 'checkbox') {
+      return this.ensureStandaloneErrorContainer(context, CHECKBOX_ERROR_CLASS, renderer);
+    }
+
+    if (context.controlType === 'radio') {
+      return this.ensureStandaloneErrorContainer(context, RADIO_ERROR_CLASS, renderer);
+    }
+
+    const parent = this.findMatFormField(context);
     if (!parent) {
       return null;
-    }
-
-    if (context.controlType === 'checkbox') {
-      return this.ensureCheckboxErrorContainer(parent, renderer);
-    }
-
-    if (context.controlType === 'radio' && parent.tagName.toUpperCase() === 'MAT-RADIO-GROUP') {
-      return this.ensureRadioGroupErrorContainer(parent, renderer);
     }
 
     return this.ensureFormFieldErrorWrapper(parent, renderer);
   }
 
   getErrorContainer(context: ValidationDisplayContext): HTMLElement | null {
-    const parent = this.findParentFormField(context);
-    if (!parent) {
-      return null;
-    }
-
-    if (context.controlType === 'checkbox') {
-      const checkbox = this.findParentFormField(context);
-      if (!checkbox) {
+    if (context.controlType === 'checkbox' || context.controlType === 'radio') {
+      const root = this.getStandaloneDisplayRoot(context);
+      if (!root) {
         return null;
       }
-      return this.findCheckboxDisplayRoot(checkbox).querySelector(`.${CHECKBOX_ERROR_CLASS}`);
+
+      return root.querySelector(
+        `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`
+      ) as HTMLElement | null;
     }
 
-    if (context.controlType === 'radio' && parent.tagName.toUpperCase() === 'MAT-RADIO-GROUP') {
-      return parent.querySelector(`.${RADIO_ERROR_CLASS}`);
+    const parent = this.findMatFormField(context);
+    if (!parent) {
+      return null;
     }
 
     return (
@@ -105,35 +104,53 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
     errors: ValidationResult[],
     renderer: Renderer2
   ): void {
-    const container = this.getErrorContainer(context) ?? this.ensureErrorContainer(context, renderer);
-    const parent = this.findParentFormField(context);
-    if (!container || !parent) {
+    if (!errors.length) {
+      this.clearErrors(context, renderer);
       return;
     }
 
-    this.clearErrors(context, renderer);
+    const container = this.ensureErrorContainer(context, renderer);
+    const invalidTarget = this.getInvalidTarget(context);
+    if (!container || !invalidTarget) {
+      return;
+    }
+
+    this.clearErrorMessages(container, renderer);
 
     errors.forEach((validationError) => {
-      const errorElement = renderer.createElement('mat-error');
-      renderer.addClass(errorElement, 'mat-mdc-form-field-error');
-      renderer.addClass(errorElement, 'mat-error');
-      renderer.setAttribute(errorElement, 'role', 'alert');
+      const errorElement = this.createErrorElement(context.controlType, renderer);
       renderer.appendChild(errorElement, renderer.createText(validationError.error.message));
       renderer.appendChild(container, errorElement);
     });
 
-    this.applyInvalidState(parent, context.controlType, renderer);
+    this.applyInvalidState(invalidTarget, context.controlType, renderer);
   }
 
   clearErrors(context: ValidationDisplayContext, renderer: Renderer2): void {
-    const container = this.getErrorContainer(context);
-    const parent = this.findParentFormField(context);
-    if (!container || !parent) {
+    const invalidTarget = this.getInvalidTarget(context);
+    if (!invalidTarget) {
       return;
     }
 
-    container.querySelectorAll('mat-error').forEach((node) => renderer.removeChild(container, node));
-    this.clearInvalidState(parent, context.controlType, renderer);
+    if (context.controlType === 'checkbox' || context.controlType === 'radio') {
+      const root = this.getStandaloneDisplayRoot(context);
+      if (root) {
+        root.querySelectorAll(
+          `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`
+        ).forEach((node) => {
+          if (node.parentElement) {
+            renderer.removeChild(node.parentElement, node);
+          }
+        });
+      }
+    } else {
+      const container = this.getErrorContainer(context);
+      if (container) {
+        this.clearErrorMessages(container, renderer);
+      }
+    }
+
+    this.clearInvalidState(invalidTarget, context.controlType, renderer);
   }
 
   renderRequiredIndicator(
@@ -141,7 +158,7 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
     requiredResult: RequiredResult,
     renderer: Renderer2
   ): void {
-    const parent = this.findParentFormField(context);
+    const parent = this.getInvalidTarget(context);
     if (!parent) {
       return;
     }
@@ -168,30 +185,26 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
     });
   }
 
-  private findParentFormField(context: ValidationDisplayContext): HTMLElement | null {
-    let node: HTMLElement | null = context.hostElement;
-    const targetNames = this.getParentNodeNames(context.controlType);
-
-    for (let i = 0; i < 8 && node; i++) {
-      const tag = node.tagName.toUpperCase();
-      if (targetNames.includes(tag) || node.classList.contains('mat-mdc-form-field')) {
-        return node;
-      }
-      node = node.parentElement;
+  private ensureStandaloneErrorContainer(
+    context: ValidationDisplayContext,
+    containerClass: string,
+    renderer: Renderer2
+  ): HTMLElement | null {
+    const root = this.getStandaloneDisplayRoot(context);
+    if (!root) {
+      return null;
     }
 
-    return context.hostElement.parentElement;
-  }
-
-  private getParentNodeNames(controlType: ControlType): string[] {
-    switch (controlType) {
-      case 'checkbox':
-        return ['MAT-CHECKBOX'];
-      case 'radio':
-        return ['MAT-RADIO-GROUP', 'MAT-RADIO-BUTTON'];
-      default:
-        return ['MAT-FORM-FIELD'];
+    const selector = `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`;
+    let container = root.querySelector(selector) as HTMLElement | null;
+    if (!container) {
+      container = renderer.createElement('div') as HTMLElement;
+      renderer.addClass(container, containerClass);
+      renderer.setAttribute(container, STANDALONE_ERROR_ATTR, context.propertyPath);
+      renderer.appendChild(root, container);
     }
+
+    return container;
   }
 
   private ensureFormFieldErrorWrapper(parent: HTMLElement, renderer: Renderer2): HTMLElement {
@@ -220,64 +233,111 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
     return wrapper;
   }
 
-  private ensureCheckboxErrorContainer(checkbox: HTMLElement, renderer: Renderer2): HTMLElement {
-    const root = this.findCheckboxDisplayRoot(checkbox);
-    let container = root.querySelector(`.${CHECKBOX_ERROR_CLASS}`) as HTMLElement | null;
-    if (!container) {
-      container = renderer.createElement('div') as HTMLElement;
-      renderer.addClass(container, CHECKBOX_ERROR_CLASS);
-      renderer.addClass(container, 'mat-mdc-form-field-error-wrapper');
-      this.insertAfterElement(checkbox, container, renderer);
+  private getStandaloneDisplayRoot(context: ValidationDisplayContext): HTMLElement | null {
+    const host = context.hostElement;
+
+    if (context.controlType === 'checkbox') {
+      const checkbox = this.findMatCheckbox(context);
+      return checkbox?.closest('.mat-checkbox-field, [data-ngx-valid-field]') as HTMLElement | null
+        ?? checkbox?.parentElement
+        ?? null;
     }
-    return container;
+
+    if (context.controlType === 'radio') {
+      const radioGroup = this.findMatRadioGroup(context);
+      return radioGroup?.closest('.mat-radio-block, [data-ngx-valid-field]') as HTMLElement | null
+        ?? radioGroup?.parentElement
+        ?? null;
+    }
+
+    return host.parentElement;
   }
 
-  private findCheckboxDisplayRoot(checkbox: HTMLElement): HTMLElement {
-    const dedicated = checkbox.closest('.mat-checkbox-field') as HTMLElement | null;
-    if (dedicated) {
-      return dedicated;
+  private getInvalidTarget(context: ValidationDisplayContext): HTMLElement | null {
+    if (context.controlType === 'checkbox') {
+      return this.findMatCheckbox(context);
     }
 
-    const fieldHost = checkbox.closest('[data-ngx-valid-field]') as HTMLElement | null;
-    if (fieldHost) {
-      return fieldHost;
+    if (context.controlType === 'radio') {
+      return this.findMatRadioGroup(context);
     }
 
-    return checkbox.parentElement ?? checkbox;
+    return this.findMatFormField(context);
   }
 
-  private insertAfterElement(reference: HTMLElement, element: HTMLElement, renderer: Renderer2): void {
-    const parent = reference.parentElement;
-    if (!parent) {
-      return;
+  private findMatFormField(context: ValidationDisplayContext): HTMLElement | null {
+    let node: HTMLElement | null = context.hostElement;
+
+    for (let i = 0; i < 8 && node; i++) {
+      if (node.tagName.toUpperCase() === 'MAT-FORM-FIELD' || node.classList.contains('mat-mdc-form-field')) {
+        return node;
+      }
+      node = node.parentElement;
     }
 
-    if (reference.nextSibling) {
-      renderer.insertBefore(parent, element, reference.nextSibling);
-    } else {
-      renderer.appendChild(parent, element);
-    }
+    return null;
   }
 
-  private ensureRadioGroupErrorContainer(parent: HTMLElement, renderer: Renderer2): HTMLElement {
-    let container = parent.querySelector(`.${RADIO_ERROR_CLASS}`) as HTMLElement | null;
-    if (!container) {
-      container = renderer.createElement('div') as HTMLElement;
-      renderer.addClass(container, RADIO_ERROR_CLASS);
-      renderer.addClass(container, 'mat-mdc-form-field-error-wrapper');
-      renderer.appendChild(parent, container);
+  private findMatCheckbox(context: ValidationDisplayContext): HTMLElement | null {
+    const host = context.hostElement;
+    if (host.tagName.toUpperCase() === 'MAT-CHECKBOX') {
+      return host;
     }
-    return container;
+
+    return host.closest('mat-checkbox') as HTMLElement | null;
+  }
+
+  private findMatRadioGroup(context: ValidationDisplayContext): HTMLElement | null {
+    const host = context.hostElement;
+    if (host.tagName.toUpperCase() === 'MAT-RADIO-GROUP') {
+      return host;
+    }
+
+    return host.closest('mat-radio-group') as HTMLElement | null;
+  }
+
+  private clearErrorMessages(container: HTMLElement, renderer: Renderer2): void {
+    container.querySelectorAll('mat-error, .ngx-valid-mat-field-error').forEach((node) => {
+      renderer.removeChild(container, node);
+    });
   }
 
   private applyInvalidState(parent: HTMLElement, controlType: ControlType, renderer: Renderer2): void {
     this.getInvalidClasses(controlType).forEach((cls) => renderer.addClass(parent, cls));
     renderer.setAttribute(parent, 'aria-invalid', 'true');
+
+    if (controlType === 'radio') {
+      const wrapper = parent.closest('.mat-radio-block, [data-ngx-valid-field]') as HTMLElement | null;
+      if (wrapper) {
+        renderer.addClass(wrapper, 'ngx-valid-mat-radio-invalid');
+      }
+    }
+
+    if (controlType === 'checkbox') {
+      const wrapper = parent.closest('.mat-checkbox-field, [data-ngx-valid-field]') as HTMLElement | null;
+      if (wrapper) {
+        renderer.addClass(wrapper, 'ngx-valid-mat-checkbox-invalid');
+      }
+    }
   }
 
   private clearInvalidState(parent: HTMLElement, controlType: ControlType, renderer: Renderer2): void {
     this.getInvalidClasses(controlType).forEach((cls) => renderer.removeClass(parent, cls));
     renderer.removeAttribute(parent, 'aria-invalid');
+
+    if (controlType === 'radio') {
+      const wrapper = parent.closest('.mat-radio-block, [data-ngx-valid-field]') as HTMLElement | null;
+      if (wrapper) {
+        renderer.removeClass(wrapper, 'ngx-valid-mat-radio-invalid');
+      }
+    }
+
+    if (controlType === 'checkbox') {
+      const wrapper = parent.closest('.mat-checkbox-field, [data-ngx-valid-field]') as HTMLElement | null;
+      if (wrapper) {
+        renderer.removeClass(wrapper, 'ngx-valid-mat-checkbox-invalid');
+      }
+    }
   }
 
   private getInvalidClasses(controlType: ControlType): string[] {
@@ -307,12 +367,32 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
     }
 
     if (context.controlType === 'radio') {
-      const groupLabel = parent.querySelector('.mat-group-label, legend, mat-label');
+      const root = parent.closest('.mat-radio-block, [data-ngx-valid-field]') ?? parent.parentElement;
+      const groupLabel = root?.querySelector('.mat-group-label, legend, mat-label');
       if (groupLabel) {
         return [groupLabel as HTMLElement];
       }
     }
 
     return [];
+  }
+
+  private createErrorElement(controlType: ControlType, renderer: Renderer2): HTMLElement {
+    if (controlType === 'checkbox' || controlType === 'radio') {
+      const errorElement = renderer.createElement('div');
+      renderer.addClass(errorElement, 'ngx-valid-mat-field-error');
+      renderer.setAttribute(errorElement, 'role', 'alert');
+      return errorElement;
+    }
+
+    const errorElement = renderer.createElement('mat-error');
+    renderer.addClass(errorElement, 'mat-mdc-form-field-error');
+    renderer.addClass(errorElement, 'mat-error');
+    renderer.setAttribute(errorElement, 'role', 'alert');
+    return errorElement;
+  }
+
+  private escapeSelectorValue(value: string): string {
+    return typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/"/g, '\\"');
   }
 }

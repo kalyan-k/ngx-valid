@@ -88,3 +88,35 @@ fieldset.ngx-valid-radio-group-invalid {
 .ngx-valid-error-container .invalid-feedback {
   display: block !important;
 }
+
+/* Bootstrap demo field errors */
+.bootstrap-form-page .ngx-valid-bootstrap-error-container,
+.ngx-valid-bootstrap-error-container {
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+.bootstrap-form-page .ngx-valid-bootstrap-field-error,
+.ngx-valid-bootstrap-field-error {
+  display: block !important;
+  width: 100%;
+  margin-top: 0.25rem;
+  color: #dc3545;
+  font-size: 0.875rem;
+}
+
+/* Material checkbox/radio errors live outside mat-form-field — keep in normal document flow */
+.ngx-valid-mat-checkbox-errors,
+.ngx-valid-mat-radio-errors {
+  position: static;
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+.ngx-valid-mat-field-error {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: #f44336;
+}

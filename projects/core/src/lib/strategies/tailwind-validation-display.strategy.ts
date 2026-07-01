@@ -1,24 +1,35 @@
 import { Renderer2 } from '@angular/core';
 import {
+  ValidationDisplayConfig,
   ValidationDisplayContext,
   ValidationDisplayStrategy
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
 import { addClasses, removeClasses } from '../utils/dom.util';
 
-const ERROR_CONTAINER_CLASS = 'ngx-valid-bootstrap-error-container';
-const ERROR_CONTAINER_ATTR = 'data-ngx-valid-bootstrap-errors-for';
-const ERROR_MESSAGE_CLASS = 'ngx-valid-bootstrap-field-error';
-const REQUIRED_MARKER_CLASS = 'ngx-valid-required-marker';
+const ERROR_CONTAINER_ATTR = 'data-ngx-valid-tailwind-errors-for';
+const CHECKBOX_RADIO_INVALID_CLASS = 'tw-choice-invalid';
 
-export class BootstrapValidationDisplayStrategy implements ValidationDisplayStrategy {
-  constructor(
-    private readonly invalidClass = 'is-invalid',
-    private readonly errorClass = ERROR_MESSAGE_CLASS,
-    private readonly errorElementTag = 'div',
-    private readonly requiredMarker = ' *',
-    private readonly requiredMarkerClass = REQUIRED_MARKER_CLASS
-  ) {}
+/**
+ * Tailwind-specific display strategy for the demo app.
+ * Keeps checkbox/radio error placement and invalid styling isolated from Bootstrap/Material.
+ */
+export class TailwindValidationDisplayStrategy implements ValidationDisplayStrategy {
+  private readonly invalidClass: string;
+  private readonly errorClass: string;
+  private readonly errorElementTag: string;
+  private readonly requiredMarker: string;
+  private readonly requiredMarkerClass: string;
+  private readonly errorContainerClass: string;
+
+  constructor(config: ValidationDisplayConfig = {}) {
+    this.invalidClass = config.invalidClass ?? 'tw-input-invalid';
+    this.errorClass = config.errorClass ?? 'tw-field-error';
+    this.errorElementTag = config.errorElementTag ?? 'div';
+    this.requiredMarker = config.requiredMarker ?? ' *';
+    this.requiredMarkerClass = config.requiredMarkerClass ?? 'tw-required-marker';
+    this.errorContainerClass = config.errorContainerClass ?? 'tw-error-container';
+  }
 
   detectControlType(element: HTMLElement): ControlType {
     const tag = element.tagName.toUpperCase();
@@ -78,7 +89,7 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
 
     errors.forEach((validationError) => {
       const errorElement = renderer.createElement(this.errorElementTag);
-      addClasses(renderer, errorElement, `${this.errorClass} invalid-feedback d-block`);
+      addClasses(renderer, errorElement, this.errorClass);
       renderer.setAttribute(errorElement, 'role', 'alert');
       renderer.appendChild(errorElement, renderer.createText(validationError.error.message));
       renderer.appendChild(container, errorElement);
@@ -88,9 +99,14 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
   }
 
   clearErrors(context: ValidationDisplayContext, renderer: Renderer2): void {
-    const container = this.getErrorContainer(context);
-    if (container?.parentElement) {
-      renderer.removeChild(container.parentElement, container);
+    const root = this.getDisplayRoot(context);
+    if (root) {
+      root.querySelectorAll(`[${ERROR_CONTAINER_ATTR}="${this.escapeSelectorValue(this.containerId(context))}"]`)
+        .forEach((container) => {
+          if (container.parentElement) {
+            renderer.removeChild(container.parentElement, container);
+          }
+        });
     }
 
     this.clearInvalidState(context, renderer);
@@ -114,6 +130,7 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
       const marker = renderer.createElement('span');
       addClasses(renderer, marker, this.requiredMarkerClass);
       renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
+      renderer.setAttribute(marker, 'aria-hidden', 'true');
       renderer.appendChild(marker, renderer.createText(this.requiredMarker));
       renderer.appendChild(label, marker);
     }
@@ -126,30 +143,36 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
     }
 
     const container = renderer.createElement('div');
-    addClasses(renderer, container, ERROR_CONTAINER_CLASS);
+    addClasses(renderer, container, this.errorContainerClass);
     renderer.setAttribute(container, ERROR_CONTAINER_ATTR, this.containerId(context));
     renderer.appendChild(root, container);
     return container;
   }
 
   private clearErrorMessages(container: HTMLElement, renderer: Renderer2): void {
-    container.querySelectorAll(`.${ERROR_MESSAGE_CLASS}, .invalid-feedback`).forEach((node) => {
-      renderer.removeChild(container, node);
-    });
+    while (container.firstChild) {
+      renderer.removeChild(container, container.firstChild);
+    }
   }
 
   private applyInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio-group') {
       const fieldset = context.hostElement;
-      addClasses(renderer, fieldset, 'ngx-valid-radio-group-invalid');
+      addClasses(renderer, fieldset, CHECKBOX_RADIO_INVALID_CLASS);
       renderer.setAttribute(fieldset, 'aria-invalid', 'true');
       this.getRadioInputs(context).forEach((radio) => {
         addClasses(renderer, radio, this.invalidClass);
-        const formCheck = radio.closest('.form-check');
-        if (formCheck) {
-          addClasses(renderer, formCheck as Element, 'ngx-valid-radio-group-invalid');
-        }
       });
+      return;
+    }
+
+    if (context.controlType === 'checkbox') {
+      addClasses(renderer, context.hostElement, this.invalidClass);
+      const root = this.getDisplayRoot(context);
+      if (root) {
+        addClasses(renderer, root, CHECKBOX_RADIO_INVALID_CLASS);
+      }
+      renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
       return;
     }
 
@@ -160,15 +183,21 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
   private clearInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio-group') {
       const fieldset = context.hostElement;
-      removeClasses(renderer, fieldset, 'ngx-valid-radio-group-invalid');
+      removeClasses(renderer, fieldset, CHECKBOX_RADIO_INVALID_CLASS);
       renderer.removeAttribute(fieldset, 'aria-invalid');
       this.getRadioInputs(context).forEach((radio) => {
         removeClasses(renderer, radio, this.invalidClass);
-        const formCheck = radio.closest('.form-check');
-        if (formCheck) {
-          removeClasses(renderer, formCheck as Element, 'ngx-valid-radio-group-invalid');
-        }
       });
+      return;
+    }
+
+    if (context.controlType === 'checkbox') {
+      removeClasses(renderer, context.hostElement, this.invalidClass);
+      const root = this.getDisplayRoot(context);
+      if (root) {
+        removeClasses(renderer, root, CHECKBOX_RADIO_INVALID_CLASS);
+      }
+      renderer.removeAttribute(context.hostElement, 'aria-invalid');
       return;
     }
 
@@ -183,7 +212,7 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
       return host;
     }
 
-    return host.closest('.form-group, .form-check, [data-ngx-valid-field]') as HTMLElement | null
+    return host.closest('[data-ngx-valid-field], .tw-field') as HTMLElement | null
       ?? host.parentElement;
   }
 
@@ -220,14 +249,12 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
       }
     }
 
-    const parentLabel = host.closest('label');
-    if (parentLabel) {
-      return parentLabel as HTMLElement;
-    }
-
-    const formGroup = host.closest('.form-group, .form-check');
-    if (formGroup) {
-      return formGroup.querySelector('label') as HTMLElement | null;
+    const fieldWrapper = host.closest('[data-ngx-valid-field], .tw-field') as HTMLElement | null;
+    if (fieldWrapper) {
+      const twLabel = fieldWrapper.querySelector('.tw-label, .tw-check-label');
+      if (twLabel) {
+        return twLabel as HTMLElement;
+      }
     }
 
     return null;

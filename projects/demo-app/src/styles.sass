@@ -32,6 +32,18 @@
 .demo-form-page code
   font-size: 0.875em
 
+.bootstrap-form-page
+  .ngx-valid-bootstrap-error-container
+    margin-top: 0.25rem
+    width: 100%
+
+  .ngx-valid-bootstrap-field-error
+    display: block !important
+    width: 100%
+    color: #dc3545
+    font-size: 0.875rem
+    margin-top: 0.25rem
+
 .demo-page
   padding: 2rem
   max-width: 72rem
@@ -94,9 +106,12 @@ mat-error.mat-error
 
 .ngx-valid-mat-checkbox-errors,
 .ngx-valid-mat-radio-errors
+  position: static
+  display: block
+  width: 100%
   margin-top: 0.25rem
 
-  mat-error
+  .ngx-valid-mat-field-error
     display: block
     font-size: 0.75rem
     color: #f44336
@@ -106,6 +121,12 @@ mat-error.mat-error
   display: flex
   flex-direction: column
   align-items: flex-start
+
+.mat-radio-block
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  margin-bottom: 1rem
 
 .mat-mdc-checkbox-invalid .mdc-checkbox__background,
 .mat-checkbox-invalid .mdc-checkbox__background
@@ -119,6 +140,14 @@ mat-error.mat-error
 .mat-placeholder-required,
 .mat-mdc-form-field-required-marker
   color: #f44336
+
+.material-form-page
+  mat-radio-group.mat-mdc-radio-invalid .mdc-radio__outer-circle,
+  mat-radio-group.mat-mdc-radio-invalid .mdc-radio__outer-circle
+    border-color: #f44336 !important
+
+  .ngx-valid-mat-radio-invalid mat-radio-group .mdc-radio__outer-circle
+    border-color: #f44336 !important
 
 // Shared demo layout utilities (Material + Tailwind forms)
 .material-form-page,
@@ -177,8 +206,25 @@ mat-error.mat-error
 
   .tw-check
     display: flex
+    flex-wrap: wrap
     align-items: center
     gap: 0.5rem
+
+  .tw-field.tw-check
+    .tw-error-container
+      flex: 0 0 100%
+      width: 100%
+      margin-top: 0.25rem
+
+  .tw-choice-invalid
+    border-color: #ef4444
+
+  .tw-field.tw-check.tw-choice-invalid .tw-checkbox
+    outline: 2px solid #ef4444
+    outline-offset: 1px
+
+  .tw-fieldset.tw-choice-invalid
+    border-color: #ef4444
 
   .tw-checkbox
     width: 1rem

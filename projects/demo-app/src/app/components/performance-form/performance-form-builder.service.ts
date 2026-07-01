@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ValidationProviderService } from 'core';
+import { clearTouchedFieldsForPrefix, ValidationProviderService } from 'core';
 import {
   PerformanceControlType,
   PerformanceFieldDef,
@@ -278,6 +278,8 @@ export class PerformanceFormBuilderService {
 
     delete model[section.groupName];
     delete model.performance;
+
+    clearTouchedFieldsForPrefix(model, prefix);
 
     this.validationProvider.getPolicy(section.policyName).updateConditionalRequiredFields(model);
     this.validationProvider.notifyValidationRefresh(model);
