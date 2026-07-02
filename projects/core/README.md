@@ -122,4 +122,4 @@ Routes: `/demos/bootstrap`, `/demos/material`, `/demos/tailwind`
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE) in this package (or the repository root).

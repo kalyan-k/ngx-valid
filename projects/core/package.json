@@ -9,6 +9,7 @@
     "ngx-valid"
   ],
   "license": "MIT",
+  "author": "Kalyan K <kalyan411@gmail.com>",
   "peerDependencies": {
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",

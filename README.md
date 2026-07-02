@@ -42,4 +42,4 @@ See [projects/core/README.md](projects/core/README.md) for API documentation and
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
