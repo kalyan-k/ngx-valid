@@ -1,12 +1,20 @@
 import { Renderer2 } from '@angular/core';
 
-export function addClasses(renderer: Renderer2, element: Element, classNames: string): void {
+export function addClasses(renderer: Renderer2, element: Element, classNames?: string | null): void {
+  if (!classNames) {
+    return;
+  }
+
   classNames.split(/\s+/).filter(Boolean).forEach((className) => {
     renderer.addClass(element, className);
   });
 }
 
-export function removeClasses(renderer: Renderer2, element: Element, classNames: string): void {
+export function removeClasses(renderer: Renderer2, element: Element, classNames?: string | null): void {
+  if (!classNames) {
+    return;
+  }
+
   classNames.split(/\s+/).filter(Boolean).forEach((className) => {
     renderer.removeClass(element, className);
   });

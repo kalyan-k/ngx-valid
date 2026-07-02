@@ -33,7 +33,18 @@ export function mergeDisplayClasses(
   base: CompleteValidationDisplayClassMap,
   overrides?: Partial<ValidationDisplayClassMap>
 ): CompleteValidationDisplayClassMap {
-  return { ...base, ...overrides };
+  if (!overrides) {
+    return { ...base };
+  }
+
+  const merged = { ...base };
+  (Object.keys(overrides) as Array<keyof ValidationDisplayClassMap>).forEach((key) => {
+    const value = overrides[key];
+    if (value !== undefined && value !== null && value !== '') {
+      merged[key] = value;
+    }
+  });
+  return merged;
 }
 
 /** Maps legacy flat config fields onto the typed class map. */
@@ -41,13 +52,22 @@ export function classesFromLegacyConfig(
   config: ValidationDisplayConfig,
   defaults: CompleteValidationDisplayClassMap
 ): CompleteValidationDisplayClassMap {
-  return mergeDisplayClasses(defaults, {
-    invalid: config.invalidClass,
-    error: config.errorClass,
-    errorContainer: config.errorContainerClass,
-    requiredMarker: config.requiredMarkerClass,
-    ...config.classes
-  });
+  const legacyOverrides: Partial<ValidationDisplayClassMap> = {};
+
+  if (config.invalidClass !== undefined) {
+    legacyOverrides.invalid = config.invalidClass;
+  }
+  if (config.errorClass !== undefined) {
+    legacyOverrides.error = config.errorClass;
+  }
+  if (config.errorContainerClass !== undefined) {
+    legacyOverrides.errorContainer = config.errorContainerClass;
+  }
+  if (config.requiredMarkerClass !== undefined) {
+    legacyOverrides.requiredMarker = config.requiredMarkerClass;
+  }
+
+  return mergeDisplayClasses(defaults, { ...legacyOverrides, ...config.classes });
 }
 
 export function resolveRequiredIndicator(

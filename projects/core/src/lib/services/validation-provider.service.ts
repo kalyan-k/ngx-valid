@@ -73,6 +73,11 @@ export class ValidationProviderService {
 		getActivePropertyPaths: policy.getActivePropertyPaths.bind(policy)
 	});
 
+	hasPolicy(name: string): boolean {
+		const registeredName = name.toLowerCase() + this.fileSuffix;
+		return _.contains(Object.keys(this.policies), registeredName);
+	}
+
 	getPolicy = (name: string) => {
 		const registeredName = name.toLowerCase() + this.fileSuffix;
 		const policyRegistered = _.contains(Object.keys(this.policies), registeredName);
@@ -100,7 +105,7 @@ export class ValidationProviderService {
 	/** Evaluates a single form group badge (e.g. after blur when section becomes complete). */
 	evaluateFormGroup(model: any, groupName: string, policyName?: string): void {
 		const resolvedPolicyName = policyName ?? this.formGroupPolicies[groupName];
-		if (!resolvedPolicyName) {
+		if (!resolvedPolicyName || !this.hasPolicy(resolvedPolicyName)) {
 			return;
 		}
 
@@ -218,7 +223,9 @@ export class ValidationProviderService {
 		});
 
 		policyNames.forEach((policyName) => {
-			this.getPolicy(policyName).updateConditionalRequiredFields(model);
+			if (this.hasPolicy(policyName)) {
+				this.getPolicy(policyName).updateConditionalRequiredFields(model);
+			}
 		});
 
 		this.notifyValidationRefresh(model);

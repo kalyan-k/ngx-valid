@@ -72,7 +72,9 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
 
   ngOnInit(): void {
     this.modelInfo = this.parseDottedPath(this.validateModel);
-    this.policy = this.validationService.getPolicy(this.withPolicy);
+    if (!this.bindPolicy()) {
+      return;
+    }
     this.controlType = this.displayStrategy.detectControlType(this.elementRef.nativeElement);
     this.displayContext = {
       hostElement: this.elementRef.nativeElement,
@@ -106,6 +108,10 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   ngDoCheck(): void {
+    if (!this.isPolicyActive()) {
+      return;
+    }
+
     this.runcheck();
     this.policy.updateConditionalRequiredFields(this.actualModel, this.modelInfo.propertyPath);
   }
@@ -144,6 +150,10 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   ngAfterViewInit(): void {
+    if (!this.displayContext || !this.isPolicyActive()) {
+      return;
+    }
+
     this.initializeRequiredMarkers();
     this.bindValidationEvents();
   }
@@ -252,15 +262,18 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   private refreshUi(): void {
-    this.lastSyncedValidationKey = '';
+    if (!this.isPolicyActive()) {
+      return;
+    }
+
     this.policy.updateConditionalRequiredFields(this.actualModel);
-    this.syncValidationUi();
+    this.syncValidationUi(true);
     this.syncRequiredUi();
   }
 
-  private syncValidationUi(): void {
+  private syncValidationUi(force = false): void {
     if (!shouldShowFieldErrors(this.actualModel, this.modelInfo.propertyPath)) {
-      if (this.lastSyncedValidationKey === '') {
+      if (!force && this.lastSyncedValidationKey === '') {
         return;
       }
       this.lastSyncedValidationKey = '';
@@ -277,7 +290,7 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       : '';
 
     if (filteredResults.length > 0) {
-      if (validationKey === this.lastSyncedValidationKey) {
+      if (!force && validationKey === this.lastSyncedValidationKey) {
         return;
       }
       this.lastSyncedValidationKey = validationKey;
@@ -285,7 +298,7 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
       return;
     }
 
-    if (this.lastSyncedValidationKey === '') {
+    if (!force && this.lastSyncedValidationKey === '') {
       return;
     }
     this.lastSyncedValidationKey = '';
@@ -307,7 +320,10 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   private validateModelWithPolicy(delayByMs = 0): void {
-    this.policy = this.validationService.getPolicy(this.withPolicy);
+    if (!this.bindPolicy()) {
+      return;
+    }
+
     markFieldTouched(this.actualModel, this.modelInfo.propertyPath);
 
     window.setTimeout(() => {
@@ -335,8 +351,21 @@ export class ValidatorDirective implements OnInit, AfterViewInit, DoCheck, OnDes
   }
 
   private evaluateGroupBadge(): void {
-    if (this.groupName) {
+    if (this.groupName && this.isPolicyActive()) {
       this.validationService.evaluateFormGroup(this.actualModel, this.groupName, this.withPolicy);
     }
+  }
+
+  private bindPolicy(): boolean {
+    if (!this.withPolicy || !this.validationService.hasPolicy(this.withPolicy)) {
+      return false;
+    }
+
+    this.policy = this.validationService.getPolicy(this.withPolicy);
+    return true;
+  }
+
+  private isPolicyActive(): boolean {
+    return !!this.withPolicy && this.validationService.hasPolicy(this.withPolicy);
   }
 }

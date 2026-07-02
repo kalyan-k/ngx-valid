@@ -6,6 +6,7 @@ import {
   ValidationDisplayContext
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
+import { addClasses } from '../utils/dom.util';
 
 const STANDALONE_ERROR_ATTR = NGX_VALID_DOM.materialErrorsFor;
 
@@ -119,13 +120,17 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
       return;
     }
 
+    if (context.controlType === 'checkbox' || context.controlType === 'radio') {
+      this.removeDuplicateStandaloneContainers(context, renderer);
+    }
+
     const container = this.ensureErrorContainer(context, renderer);
     const invalidTarget = this.getInvalidTarget(context);
     if (!container || !invalidTarget) {
       return;
     }
 
-    this.clearErrorMessages(container, renderer);
+    this.clearErrorMessages(container, renderer, context.controlType);
 
     errors.forEach((validationError) => {
       const errorElement = this.createErrorElement(context.controlType, renderer);
@@ -143,20 +148,11 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
     }
 
     if (context.controlType === 'checkbox' || context.controlType === 'radio') {
-      const root = this.getStandaloneDisplayRoot(context);
-      if (root) {
-        root.querySelectorAll(
-          `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`
-        ).forEach((node) => {
-          if (node.parentElement) {
-            renderer.removeChild(node.parentElement, node);
-          }
-        });
-      }
+      this.removeAllStandaloneErrorContainers(context, renderer);
     } else {
       const container = this.getErrorContainer(context);
       if (container) {
-        this.clearErrorMessages(container, renderer);
+        this.clearErrorMessages(container, renderer, context.controlType);
       }
     }
 
@@ -306,10 +302,54 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
     return host.closest('mat-radio-group') as HTMLElement | null;
   }
 
-  private clearErrorMessages(container: HTMLElement, renderer: Renderer2): void {
-    container.querySelectorAll('mat-error, .ngx-valid-mat-field-error').forEach((node) => {
-      renderer.removeChild(container, node);
+  private clearErrorMessages(
+    container: HTMLElement,
+    renderer: Renderer2,
+    controlType: ControlType
+  ): void {
+    if (controlType === 'checkbox' || controlType === 'radio') {
+      renderer.setProperty(container, 'innerHTML', '');
+      return;
+    }
+
+    Array.from(container.querySelectorAll('mat-error')).forEach((node) => {
+      if (node.parentElement === container) {
+        renderer.removeChild(container, node);
+      }
     });
+  }
+
+  private removeDuplicateStandaloneContainers(
+    context: ValidationDisplayContext,
+    renderer: Renderer2
+  ): void {
+    const containers = this.findStandaloneErrorContainers(context);
+    containers.slice(1).forEach((container) => {
+      if (container.parentElement) {
+        renderer.removeChild(container.parentElement, container);
+      }
+    });
+  }
+
+  private removeAllStandaloneErrorContainers(
+    context: ValidationDisplayContext,
+    renderer: Renderer2
+  ): void {
+    this.findStandaloneErrorContainers(context).forEach((container) => {
+      if (container.parentElement) {
+        renderer.removeChild(container.parentElement, container);
+      }
+    });
+  }
+
+  private findStandaloneErrorContainers(context: ValidationDisplayContext): HTMLElement[] {
+    const root = this.getStandaloneDisplayRoot(context);
+    if (!root) {
+      return [];
+    }
+
+    const selector = `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`;
+    return Array.from(root.querySelectorAll(selector)) as HTMLElement[];
   }
 
   private applyInvalidState(parent: HTMLElement, controlType: ControlType, renderer: Renderer2): void {
@@ -390,7 +430,11 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
   private createErrorElement(controlType: ControlType, renderer: Renderer2): HTMLElement {
     if (controlType === 'checkbox' || controlType === 'radio') {
       const errorElement = renderer.createElement('div');
-      renderer.addClass(errorElement, this.standaloneErrorClass);
+      renderer.addClass(errorElement, 'ngx-valid-mat-field-error');
+      if (this.standaloneErrorClass !== 'ngx-valid-mat-field-error') {
+        addClasses(renderer, errorElement, this.standaloneErrorClass);
+      }
+      renderer.setAttribute(errorElement, NGX_VALID_DOM.error, 'true');
       renderer.setAttribute(errorElement, 'role', 'alert');
       return errorElement;
     }

@@ -281,7 +281,9 @@ export class PerformanceFormBuilderService {
 
     clearTouchedFieldsForPrefix(model, prefix);
 
-    this.validationProvider.getPolicy(section.policyName).updateConditionalRequiredFields(model);
+    if (this.validationProvider.hasPolicy(section.policyName)) {
+      this.validationProvider.getPolicy(section.policyName).updateConditionalRequiredFields(model);
+    }
     this.validationProvider.notifyValidationRefresh(model);
   }
 
