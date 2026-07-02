@@ -1,37 +1,42 @@
 import { Renderer2 } from '@angular/core';
+import { AbstractValidationDisplayStrategy } from '../display/abstract-validation-display.strategy';
 import {
+  DEFAULT_ERROR_ELEMENT_TAG,
+  DEFAULT_REQUIRED_MARKER,
+  GENERIC_DISPLAY_CLASSES,
+  NGX_VALID_DOM
+} from '../display/validation-display.constants';
+import {
+  DEFAULT_REQUIRED_INDICATOR,
+  getResolvedClassMap,
+  resolveRequiredIndicator
+} from '../display/validation-display.config-resolver';
+import {
+  CompleteValidationDisplayClassMap,
+  RequiredIndicatorConfig,
   ValidationDisplayConfig,
-  ValidationDisplayContext,
-  ValidationDisplayStrategy
+  ValidationDisplayContext
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
 import { addClasses, removeClasses } from '../utils/dom.util';
-
-const ERROR_ATTR = 'data-ngx-valid-error';
-const ERROR_CONTAINER_ATTR = 'data-ngx-valid-error-container';
-const BASE_INVALID_CLASS = 'ngx-valid-invalid';
-const BASE_ERROR_CLASS = 'ngx-valid-error';
-const RADIO_GROUP_INVALID_CLASS = 'ngx-valid-radio-group-invalid';
 
 /**
  * Framework-agnostic display strategy. Uses configurable CSS classes so consumers
  * can map to Bootstrap, Tailwind, Material, or custom styles.
  */
-export class GenericValidationDisplayStrategy implements ValidationDisplayStrategy {
-  private readonly invalidClass: string;
-  private readonly errorClass: string;
+export class GenericValidationDisplayStrategy extends AbstractValidationDisplayStrategy {
+  private readonly classes: CompleteValidationDisplayClassMap;
+  private readonly requiredIndicator: RequiredIndicatorConfig;
   private readonly errorElementTag: string;
-  private readonly requiredMarker: string;
-  private readonly requiredMarkerClass: string;
-  private readonly errorContainerClass: string;
 
   constructor(config: ValidationDisplayConfig = {}) {
-    this.invalidClass = config.invalidClass ?? BASE_INVALID_CLASS;
-    this.errorClass = config.errorClass ?? BASE_ERROR_CLASS;
-    this.errorElementTag = config.errorElementTag ?? 'div';
-    this.requiredMarker = config.requiredMarker ?? ' *';
-    this.requiredMarkerClass = config.requiredMarkerClass ?? 'ngx-valid-required-marker';
-    this.errorContainerClass = config.errorContainerClass ?? 'ngx-valid-error-container';
+    super();
+    this.classes = getResolvedClassMap({ preset: 'generic', ...config });
+    this.requiredIndicator = resolveRequiredIndicator(
+      { preset: 'generic', ...config },
+      DEFAULT_REQUIRED_INDICATOR
+    );
+    this.errorElementTag = config.errorElementTag ?? DEFAULT_ERROR_ELEMENT_TAG;
   }
 
   detectControlType(element: HTMLElement): ControlType {
@@ -68,7 +73,7 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
       return null;
     }
 
-    return root.querySelector(`[${ERROR_CONTAINER_ATTR}="${this.containerId(context)}"]`) as HTMLElement | null;
+    return root.querySelector(`[${NGX_VALID_DOM.errorContainer}="${this.containerId(context)}"]`) as HTMLElement | null;
   }
 
   renderErrors(
@@ -89,8 +94,8 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
 
     errors.forEach((validationError) => {
       const errorElement = renderer.createElement(this.errorElementTag);
-      addClasses(renderer, errorElement, `${this.errorClass} ${BASE_ERROR_CLASS}`);
-      renderer.setAttribute(errorElement, ERROR_ATTR, 'true');
+      addClasses(renderer, errorElement, `${this.classes.error} ${GENERIC_DISPLAY_CLASSES.error}`);
+      renderer.setAttribute(errorElement, NGX_VALID_DOM.error, 'true');
       renderer.setAttribute(errorElement, 'role', 'alert');
       renderer.appendChild(errorElement, renderer.createText(validationError.error.message));
       renderer.appendChild(container, errorElement);
@@ -118,15 +123,16 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
       return;
     }
 
-    const existingMarkers = label.querySelectorAll('[data-ngx-valid-required="true"]');
-    existingMarkers.forEach((marker) => renderer.removeChild(label, marker));
+    label.querySelectorAll(`[${NGX_VALID_DOM.required}="true"]`).forEach((marker) => {
+      renderer.removeChild(label, marker);
+    });
 
-    if (requiredResult.isRequired) {
+    if (requiredResult.isRequired && this.requiredIndicator.mode !== 'none') {
       const marker = renderer.createElement('span');
-      addClasses(renderer, marker, this.requiredMarkerClass);
-      renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
+      addClasses(renderer, marker, this.requiredIndicator.markerClass ?? this.classes.requiredMarker);
+      renderer.setAttribute(marker, NGX_VALID_DOM.required, 'true');
       renderer.setAttribute(marker, 'aria-hidden', 'true');
-      renderer.appendChild(marker, renderer.createText(this.requiredMarker));
+      renderer.appendChild(marker, renderer.createText(this.requiredIndicator.marker ?? DEFAULT_REQUIRED_MARKER));
       renderer.appendChild(label, marker);
     }
   }
@@ -134,63 +140,63 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
   private applyInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio' || context.controlType === 'radio-group') {
       this.getRadioInputs(context).forEach((radio) => {
-        addClasses(renderer, radio, BASE_INVALID_CLASS);
+        addClasses(renderer, radio, this.classes.baseInvalid);
         const formCheck = radio.closest('.form-check');
         if (formCheck) {
-          addClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+          addClasses(renderer, formCheck as Element, this.classes.radioGroupInvalid);
         }
       });
       const fieldset = this.getFieldset(context);
       if (fieldset) {
-        addClasses(renderer, fieldset, RADIO_GROUP_INVALID_CLASS);
+        addClasses(renderer, fieldset, this.classes.radioGroupInvalid);
         renderer.setAttribute(fieldset, 'aria-invalid', 'true');
       }
       return;
     }
 
     if (context.controlType === 'checkbox') {
-      addClasses(renderer, context.hostElement, `${BASE_INVALID_CLASS}`);
+      addClasses(renderer, context.hostElement, this.classes.baseInvalid);
       const formCheck = context.hostElement.closest('.form-check');
       if (formCheck) {
-        addClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+        addClasses(renderer, formCheck as Element, this.classes.radioGroupInvalid);
       }
       renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
       return;
     }
 
-    addClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
+    addClasses(renderer, context.hostElement, `${this.classes.invalid} ${this.classes.baseInvalid}`);
     renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
   }
 
   private clearInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio' || context.controlType === 'radio-group') {
       this.getRadioInputs(context).forEach((radio) => {
-        removeClasses(renderer, radio, BASE_INVALID_CLASS);
-        removeClasses(renderer, radio, this.invalidClass);
+        removeClasses(renderer, radio, this.classes.baseInvalid);
+        removeClasses(renderer, radio, this.classes.invalid);
         const formCheck = radio.closest('.form-check');
         if (formCheck) {
-          removeClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+          removeClasses(renderer, formCheck as Element, this.classes.radioGroupInvalid);
         }
       });
       const fieldset = this.getFieldset(context);
       if (fieldset) {
-        removeClasses(renderer, fieldset, RADIO_GROUP_INVALID_CLASS);
+        removeClasses(renderer, fieldset, this.classes.radioGroupInvalid);
         renderer.removeAttribute(fieldset, 'aria-invalid');
       }
       return;
     }
 
     if (context.controlType === 'checkbox') {
-      removeClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
+      removeClasses(renderer, context.hostElement, `${this.classes.invalid} ${this.classes.baseInvalid}`);
       const formCheck = context.hostElement.closest('.form-check');
       if (formCheck) {
-        removeClasses(renderer, formCheck as Element, RADIO_GROUP_INVALID_CLASS);
+        removeClasses(renderer, formCheck as Element, this.classes.radioGroupInvalid);
       }
       renderer.removeAttribute(context.hostElement, 'aria-invalid');
       return;
     }
 
-    removeClasses(renderer, context.hostElement, `${this.invalidClass} ${BASE_INVALID_CLASS}`);
+    removeClasses(renderer, context.hostElement, `${this.classes.invalid} ${this.classes.baseInvalid}`);
     renderer.removeAttribute(context.hostElement, 'aria-invalid');
   }
 
@@ -201,8 +207,8 @@ export class GenericValidationDisplayStrategy implements ValidationDisplayStrate
     }
 
     const container = renderer.createElement('div');
-    addClasses(renderer, container, this.errorContainerClass);
-    renderer.setAttribute(container, ERROR_CONTAINER_ATTR, this.containerId(context));
+    addClasses(renderer, container, this.classes.errorContainer);
+    renderer.setAttribute(container, NGX_VALID_DOM.errorContainer, this.containerId(context));
 
     if (context.controlType === 'radio' || context.controlType === 'radio-group') {
       renderer.appendChild(root, container);

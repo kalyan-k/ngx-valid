@@ -1,34 +1,42 @@
 import { Renderer2 } from '@angular/core';
+import { AbstractValidationDisplayStrategy } from '../display/abstract-validation-display.strategy';
 import {
+  DEFAULT_ERROR_ELEMENT_TAG,
+  DEFAULT_REQUIRED_MARKER,
+  NGX_VALID_DOM,
+  TAILWIND_DISPLAY_CLASSES
+} from '../display/validation-display.constants';
+import {
+  DEFAULT_REQUIRED_INDICATOR,
+  getResolvedClassMap,
+  resolveRequiredIndicator
+} from '../display/validation-display.config-resolver';
+import {
+  CompleteValidationDisplayClassMap,
+  RequiredIndicatorConfig,
   ValidationDisplayConfig,
-  ValidationDisplayContext,
-  ValidationDisplayStrategy
+  ValidationDisplayContext
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
 import { addClasses, removeClasses } from '../utils/dom.util';
 
-const ERROR_CONTAINER_ATTR = 'data-ngx-valid-tailwind-errors-for';
-const CHECKBOX_RADIO_INVALID_CLASS = 'tw-choice-invalid';
-
 /**
- * Tailwind-specific display strategy for the demo app.
+ * Tailwind-specific display strategy (example preset).
  * Keeps checkbox/radio error placement and invalid styling isolated from Bootstrap/Material.
  */
-export class TailwindValidationDisplayStrategy implements ValidationDisplayStrategy {
-  private readonly invalidClass: string;
-  private readonly errorClass: string;
+export class TailwindValidationDisplayStrategy extends AbstractValidationDisplayStrategy {
+  private readonly classes: CompleteValidationDisplayClassMap;
+  private readonly requiredIndicator: RequiredIndicatorConfig;
   private readonly errorElementTag: string;
-  private readonly requiredMarker: string;
-  private readonly requiredMarkerClass: string;
-  private readonly errorContainerClass: string;
 
   constructor(config: ValidationDisplayConfig = {}) {
-    this.invalidClass = config.invalidClass ?? 'tw-input-invalid';
-    this.errorClass = config.errorClass ?? 'tw-field-error';
-    this.errorElementTag = config.errorElementTag ?? 'div';
-    this.requiredMarker = config.requiredMarker ?? ' *';
-    this.requiredMarkerClass = config.requiredMarkerClass ?? 'tw-required-marker';
-    this.errorContainerClass = config.errorContainerClass ?? 'tw-error-container';
+    super();
+    this.classes = getResolvedClassMap({ preset: 'tailwind', ...config });
+    this.requiredIndicator = resolveRequiredIndicator(
+      { preset: 'tailwind', ...config },
+      DEFAULT_REQUIRED_INDICATOR
+    );
+    this.errorElementTag = config.errorElementTag ?? DEFAULT_ERROR_ELEMENT_TAG;
   }
 
   detectControlType(element: HTMLElement): ControlType {
@@ -85,7 +93,6 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
       return;
     }
 
-    // Remove duplicate containers left from prior renders
     existingContainers.slice(1).forEach((duplicate) => {
       if (duplicate.parentElement) {
         renderer.removeChild(duplicate.parentElement, duplicate);
@@ -106,7 +113,7 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
 
     errors.forEach((validationError) => {
       const errorElement = renderer.createElement(this.errorElementTag);
-      addClasses(renderer, errorElement, this.errorClass);
+      addClasses(renderer, errorElement, this.classes.error);
       renderer.setAttribute(errorElement, 'role', 'alert');
       renderer.appendChild(errorElement, renderer.createText(validationError.error.message));
       renderer.appendChild(container, errorElement);
@@ -140,7 +147,7 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
       return;
     }
 
-    const existingMarker = label.querySelector('[data-ngx-valid-required="true"]');
+    const existingMarker = label.querySelector(`[${NGX_VALID_DOM.required}="true"]`);
 
     if (!requiredResult.isRequired) {
       if (existingMarker) {
@@ -154,10 +161,10 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
     }
 
     const marker = renderer.createElement('span');
-    addClasses(renderer, marker, this.requiredMarkerClass);
-    renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
+    addClasses(renderer, marker, this.requiredIndicator.markerClass ?? this.classes.requiredMarker);
+    renderer.setAttribute(marker, NGX_VALID_DOM.required, 'true');
     renderer.setAttribute(marker, 'aria-hidden', 'true');
-    renderer.appendChild(marker, renderer.createText(this.requiredMarker));
+    renderer.appendChild(marker, renderer.createText(this.requiredIndicator.marker ?? DEFAULT_REQUIRED_MARKER));
     renderer.appendChild(label, marker);
   }
 
@@ -168,8 +175,8 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
     }
 
     const container = renderer.createElement('div');
-    addClasses(renderer, container, this.errorContainerClass);
-    renderer.setAttribute(container, ERROR_CONTAINER_ATTR, this.containerId(context));
+    addClasses(renderer, container, this.classes.errorContainer);
+    renderer.setAttribute(container, NGX_VALID_DOM.tailwindErrorsFor, this.containerId(context));
     renderer.appendChild(root, container);
     return container;
   }
@@ -181,50 +188,50 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
   private applyInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio-group') {
       const fieldset = context.hostElement;
-      addClasses(renderer, fieldset, CHECKBOX_RADIO_INVALID_CLASS);
+      addClasses(renderer, fieldset, this.classes.radioGroupInvalid);
       renderer.setAttribute(fieldset, 'aria-invalid', 'true');
       this.getRadioInputs(context).forEach((radio) => {
-        addClasses(renderer, radio, this.invalidClass);
+        addClasses(renderer, radio, this.classes.invalid);
       });
       return;
     }
 
     if (context.controlType === 'checkbox') {
-      addClasses(renderer, context.hostElement, this.invalidClass);
+      addClasses(renderer, context.hostElement, this.classes.invalid);
       const root = this.getDisplayRoot(context);
       if (root) {
-        addClasses(renderer, root, CHECKBOX_RADIO_INVALID_CLASS);
+        addClasses(renderer, root, this.classes.radioGroupInvalid);
       }
       renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
       return;
     }
 
-    addClasses(renderer, context.hostElement, this.invalidClass);
+    addClasses(renderer, context.hostElement, this.classes.invalid);
     renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
   }
 
   private clearInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio-group') {
       const fieldset = context.hostElement;
-      removeClasses(renderer, fieldset, CHECKBOX_RADIO_INVALID_CLASS);
+      removeClasses(renderer, fieldset, this.classes.radioGroupInvalid);
       renderer.removeAttribute(fieldset, 'aria-invalid');
       this.getRadioInputs(context).forEach((radio) => {
-        removeClasses(renderer, radio, this.invalidClass);
+        removeClasses(renderer, radio, this.classes.invalid);
       });
       return;
     }
 
     if (context.controlType === 'checkbox') {
-      removeClasses(renderer, context.hostElement, this.invalidClass);
+      removeClasses(renderer, context.hostElement, this.classes.invalid);
       const root = this.getDisplayRoot(context);
       if (root) {
-        removeClasses(renderer, root, CHECKBOX_RADIO_INVALID_CLASS);
+        removeClasses(renderer, root, this.classes.radioGroupInvalid);
       }
       renderer.removeAttribute(context.hostElement, 'aria-invalid');
       return;
     }
 
-    removeClasses(renderer, context.hostElement, this.invalidClass);
+    removeClasses(renderer, context.hostElement, this.classes.invalid);
     renderer.removeAttribute(context.hostElement, 'aria-invalid');
   }
 
@@ -235,7 +242,7 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
       return host;
     }
 
-    return host.closest('[data-ngx-valid-field], .tw-field') as HTMLElement | null
+    return host.closest(`[${NGX_VALID_DOM.field}], .tw-field`) as HTMLElement | null
       ?? host.parentElement;
   }
 
@@ -253,8 +260,8 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
   }
 
   private findAllErrorContainers(root: HTMLElement, containerId: string): HTMLElement[] {
-    return Array.from(root.querySelectorAll(`[${ERROR_CONTAINER_ATTR}]`))
-      .filter((node) => node.getAttribute(ERROR_CONTAINER_ATTR) === containerId) as HTMLElement[];
+    return Array.from(root.querySelectorAll(`[${NGX_VALID_DOM.tailwindErrorsFor}]`))
+      .filter((node) => node.getAttribute(NGX_VALID_DOM.tailwindErrorsFor) === containerId) as HTMLElement[];
   }
 
   private getRadioInputs(context: ValidationDisplayContext): HTMLInputElement[] {
@@ -282,7 +289,7 @@ export class TailwindValidationDisplayStrategy implements ValidationDisplayStrat
       }
     }
 
-    const fieldWrapper = host.closest('[data-ngx-valid-field], .tw-field') as HTMLElement | null;
+    const fieldWrapper = host.closest(`[${NGX_VALID_DOM.field}], .tw-field`) as HTMLElement | null;
     if (fieldWrapper) {
       const twLabel = fieldWrapper.querySelector('.tw-label, .tw-check-label');
       if (twLabel) {

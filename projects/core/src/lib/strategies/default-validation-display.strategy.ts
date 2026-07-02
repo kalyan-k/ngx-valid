@@ -1,4 +1,5 @@
 import { Renderer2 } from '@angular/core';
+import { AbstractValidationDisplayStrategy } from '../display/abstract-validation-display.strategy';
 import {
   ValidationDisplayConfig,
   ValidationDisplayContext,
@@ -8,15 +9,16 @@ import { ControlType, RequiredResult, ValidationResult } from '../interfaces/val
 import { GenericValidationDisplayStrategy } from './generic-validation-display.strategy';
 import { MaterialValidationDisplayStrategy } from './material-validation-display.strategy';
 
-export class DefaultValidationDisplayStrategy implements ValidationDisplayStrategy {
+export class DefaultValidationDisplayStrategy extends AbstractValidationDisplayStrategy {
   private readonly genericStrategy: GenericValidationDisplayStrategy;
   private readonly materialStrategy: MaterialValidationDisplayStrategy;
   private readonly framework: 'material' | 'auto';
 
   constructor(config: ValidationDisplayConfig = {}) {
-    this.framework = config.framework === 'material' ? 'material' : 'auto';
+    super();
+    this.framework = config.framework === 'material' || config.preset === 'material' ? 'material' : 'auto';
     this.genericStrategy = new GenericValidationDisplayStrategy(config);
-    this.materialStrategy = new MaterialValidationDisplayStrategy();
+    this.materialStrategy = new MaterialValidationDisplayStrategy(config);
   }
 
   detectControlType(element: HTMLElement): ControlType {

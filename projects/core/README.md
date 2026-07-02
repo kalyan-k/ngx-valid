@@ -2,13 +2,21 @@
 
 Policy-based validation library for Angular applications. Define validation rules as JavaScript objects and attach them to any HTML form control with a single directive.
 
+## Architecture
+
+**Standard (framework-agnostic):** policies, rules, registration, validation events (blur/click), model-level `validationResults`, required metadata, form-group status, and summary components behave the same for every consumer.
+
+**Customizable (presentation layer):** error rendering, invalid CSS classes, required-field indicators, and DOM placement are configured via typed presets or a custom `ValidationDisplayStrategy`.
+
 ## Features
 
 - **Policy-based rules** — group validations per form/component using a fluent API
 - **Nested model paths** — validate `address.city`, `personal.email`, etc.
 - **Conditional validation** — rules that run only when a dependency expression is truthy
 - **Multiple forms per page** — independent policies and form-group validity tracking
-- **Pluggable error UI** — Bootstrap, Angular Material, or fully custom display strategies
+- **Pluggable error UI** — Bootstrap, Angular Material, Tailwind, or fully custom display strategies
+- **Compile-time class maps** — `defineValidationDisplayClasses()` enforces every CSS key
+- **Abstract strategy base** — extend `AbstractValidationDisplayStrategy` to get errors for missing hooks
 - **Built-in validators** — required, email, phone, ZIP, SSN, VIN, regex, range, dates, and custom rules
 
 ## Installation
@@ -38,22 +46,22 @@ export class UserFormPolicy implements ValidationPolicy {
 validationProvider.register('UserForm', new UserFormPolicy());
 ```
 
-### 2. Import the module
+### 2. Import the module with a display preset
 
 ```typescript
 import { ValidationModule } from 'ngx-valid';
 
 @NgModule({
   imports: [
-    ValidationModule.forRoot({
-      framework: 'bootstrap',           // 'bootstrap' | 'material' | 'auto'
-      invalidClass: 'is-invalid',
-      errorClass: 'invalid-feedback d-block'
-    })
+    ValidationModule.forRoot({ preset: 'bootstrap' })
   ]
 })
 export class AppModule {}
 ```
+
+Built-in example presets: `provideBootstrapValidationDisplay()`, `provideMaterialValidationDisplay()`, `provideTailwindValidationDisplay()`, `provideGenericValidationDisplay()`, `provideAutoValidationDisplay()`.
+
+Presets can be scoped to routes or components.
 
 ### 3. Attach the directive to form controls
 
@@ -68,92 +76,49 @@ export class AppModule {}
 />
 ```
 
-### 4. Validate on submit
+## Customizing a Built-in Preset
 
 ```typescript
-const policy = this.validationProvider.getPolicy('UserForm');
-policy.validate(this.model).subscribe(() => {
-  policy.checkModelRequired(this.model).subscribe(() => {
-    policy.checkFormValid(this.model, this.validationProvider.formGroup);
-  });
+ValidationModule.forRoot({
+  preset: 'bootstrap',
+  classes: { error: 'my-app-field-error' },
+  requiredIndicator: { mode: 'tooltip', tooltipText: 'Required field' }
 });
 ```
 
-## Directive Inputs
+Required indicator modes: `inline-suffix`, `tooltip`, `label-class`, `none`.
 
-| Input | Description |
-|-------|-------------|
-| `ngxValidator` | Activates validation on the element |
-| `validateModel` | Dotted path to the property (prefix is ignored: `'form.email'` → `'email'`) |
-| `actualModel` | The model object holding field values and validation results |
-| `withPolicy` | Registered policy name |
-| `groupName` | Optional form section name for group-level validity |
-| `validateOnEvent` | Event to trigger validation (default: `blur`, or `click` for checkbox/radio) |
+## Custom UI Framework
 
-## Built-in Validators
-
-| Method | Description |
-|--------|-------------|
-| `isRequired(msg)` | Value must not be empty |
-| `isChecked(msg)` | Checkbox must be checked |
-| `isNumber(msg)` | Must be a finite number |
-| `isEmail(msg)` | Email format |
-| `isDate(msg)` | Valid date |
-| `isPhone(msg)` | US phone format |
-| `isZipCode(msg)` | US ZIP code |
-| `isSSN(msg)` | US Social Security Number |
-| `isVin(msg)` | Vehicle VIN |
-| `isAboveMin(msg, min)` | Number >= min |
-| `isBelowMax(msg, max)` | Number <= max |
-| `range(msg, min, max, type)` | Date or number range |
-| `regEx(msg, pattern)` | Regex pattern (string) |
-| `regExLiteral(msg, pattern)` | Regex pattern (RegExp) |
-| `userDefined(msg, fn)` | Custom callback `(model, value, msg) => true \| { message }` |
-
-## Conditional Validation
+Define a complete class map (TypeScript enforces every key):
 
 ```typescript
-v.validateFor('address.city', 'address.line1.length > 0').isRequired('City is required')
-v.validateFor('billing.zip', '!billing.sameAsShipping').isRequired('ZIP required')
+import { defineValidationDisplayClasses, provideValidationDisplay } from 'ngx-valid';
+
+export const MY_UI_CLASSES = defineValidationDisplayClasses({
+  invalid: 'my-invalid',
+  error: 'my-error',
+  errorContainer: 'my-error-container',
+  requiredMarker: 'my-required',
+  baseInvalid: 'ngx-valid-invalid',
+  radioGroupInvalid: 'my-radio-invalid'
+});
+
+providers: [provideValidationDisplay({ preset: 'generic', classes: MY_UI_CLASSES })]
 ```
 
-Dependencies can be expression strings (evaluated against the model) or callback functions.
+For full DOM control, extend `AbstractValidationDisplayStrategy` and register with `provideCustomValidationDisplay(MyStrategy)`.
 
-## Custom Error Display
-
-Implement `ValidationDisplayStrategy` for full control over error rendering:
-
-```typescript
-import { ValidationDisplayStrategy, VALIDATION_DISPLAY_CONFIG } from 'ngx-valid';
-
-@NgModule({
-  imports: [
-    ValidationModule.forRoot({ strategy: myCustomStrategy })
-  ]
-})
-```
-
-Or extend `BootstrapValidationDisplayStrategy` / `MaterialValidationDisplayStrategy`.
+See `lib/display/examples/prime-ng-display.example.ts` in the source for a reference.
 
 ## Demo Application
-
-This workspace includes a demo app with two examples:
-
-- **Sample Form** — all HTML control types with a single policy
-- **Complex Form** — three forms on one page with nested models and conditional rules
 
 ```bash
 npm run build-core
 npm start
 ```
 
-## Publishing
-
-```bash
-npm run build-core
-cd dist/core
-npm publish
-```
+Routes: `/demos/bootstrap`, `/demos/material`, `/demos/tailwind`
 
 ## License
 

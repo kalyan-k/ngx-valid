@@ -1,24 +1,38 @@
 import { Renderer2 } from '@angular/core';
+import { AbstractValidationDisplayStrategy } from '../display/abstract-validation-display.strategy';
 import {
-  ValidationDisplayContext,
-  ValidationDisplayStrategy
+  NGX_VALID_DOM,
+  BOOTSTRAP_DISPLAY_CLASSES,
+  DEFAULT_ERROR_ELEMENT_TAG
+} from '../display/validation-display.constants';
+import {
+  getResolvedClassMap,
+  resolveRequiredIndicator,
+  BOOTSTRAP_REQUIRED_INDICATOR
+} from '../display/validation-display.config-resolver';
+import {
+  CompleteValidationDisplayClassMap,
+  RequiredIndicatorConfig,
+  ValidationDisplayConfig,
+  ValidationDisplayContext
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
 import { addClasses, removeClasses } from '../utils/dom.util';
 
-const ERROR_CONTAINER_CLASS = 'ngx-valid-bootstrap-error-container';
-const ERROR_CONTAINER_ATTR = 'data-ngx-valid-bootstrap-errors-for';
-const ERROR_MESSAGE_CLASS = 'ngx-valid-bootstrap-field-error';
-const REQUIRED_MARKER_CLASS = 'ngx-valid-required-marker';
+export class BootstrapValidationDisplayStrategy extends AbstractValidationDisplayStrategy {
+  private readonly classes: CompleteValidationDisplayClassMap;
+  private readonly requiredIndicator: RequiredIndicatorConfig;
+  private readonly errorElementTag: string;
 
-export class BootstrapValidationDisplayStrategy implements ValidationDisplayStrategy {
-  constructor(
-    private readonly invalidClass = 'is-invalid',
-    private readonly errorClass = ERROR_MESSAGE_CLASS,
-    private readonly errorElementTag = 'div',
-    private readonly requiredMarker = ' *',
-    private readonly requiredMarkerClass = REQUIRED_MARKER_CLASS
-  ) {}
+  constructor(config: ValidationDisplayConfig = {}) {
+    super();
+    this.classes = getResolvedClassMap({ preset: 'bootstrap', ...config });
+    this.requiredIndicator = resolveRequiredIndicator(
+      { preset: 'bootstrap', ...config },
+      BOOTSTRAP_REQUIRED_INDICATOR
+    );
+    this.errorElementTag = config.errorElementTag ?? DEFAULT_ERROR_ELEMENT_TAG;
+  }
 
   detectControlType(element: HTMLElement): ControlType {
     const tag = element.tagName.toUpperCase();
@@ -55,7 +69,7 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
     }
 
     return root.querySelector(
-      `[${ERROR_CONTAINER_ATTR}="${this.escapeSelectorValue(this.containerId(context))}"]`
+      `[${NGX_VALID_DOM.bootstrapErrorsFor}="${this.escapeSelectorValue(this.containerId(context))}"]`
     ) as HTMLElement | null;
   }
 
@@ -78,7 +92,7 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
 
     errors.forEach((validationError) => {
       const errorElement = renderer.createElement(this.errorElementTag);
-      addClasses(renderer, errorElement, `${this.errorClass} invalid-feedback d-block`);
+      addClasses(renderer, errorElement, `${this.classes.error} invalid-feedback d-block`);
       renderer.setAttribute(errorElement, 'role', 'alert');
       renderer.appendChild(errorElement, renderer.createText(validationError.error.message));
       renderer.appendChild(container, errorElement);
@@ -106,17 +120,35 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
       return;
     }
 
-    label.querySelectorAll('[data-ngx-valid-required="true"]').forEach((marker) => {
+    label.querySelectorAll(`[${NGX_VALID_DOM.required}="true"]`).forEach((marker) => {
       renderer.removeChild(label, marker);
     });
 
-    if (requiredResult.isRequired) {
-      const marker = renderer.createElement('span');
-      addClasses(renderer, marker, this.requiredMarkerClass);
-      renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
-      renderer.appendChild(marker, renderer.createText(this.requiredMarker));
-      renderer.appendChild(label, marker);
+    renderer.removeAttribute(label, 'title');
+
+    if (!requiredResult.isRequired) {
+      return;
     }
+
+    if (this.requiredIndicator.mode === 'tooltip') {
+      renderer.setAttribute(label, 'title', this.requiredIndicator.tooltipText ?? 'Required field');
+      return;
+    }
+
+    if (this.requiredIndicator.mode === 'label-class') {
+      addClasses(renderer, label, this.requiredIndicator.markerClass ?? this.classes.requiredMarker);
+      return;
+    }
+
+    if (this.requiredIndicator.mode === 'none') {
+      return;
+    }
+
+    const marker = renderer.createElement('span');
+    addClasses(renderer, marker, this.requiredIndicator.markerClass ?? this.classes.requiredMarker);
+    renderer.setAttribute(marker, NGX_VALID_DOM.required, 'true');
+    renderer.appendChild(marker, renderer.createText(this.requiredIndicator.marker ?? ' *'));
+    renderer.appendChild(label, marker);
   }
 
   private createErrorContainer(context: ValidationDisplayContext, renderer: Renderer2): HTMLElement | null {
@@ -126,14 +158,14 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
     }
 
     const container = renderer.createElement('div');
-    addClasses(renderer, container, ERROR_CONTAINER_CLASS);
-    renderer.setAttribute(container, ERROR_CONTAINER_ATTR, this.containerId(context));
+    addClasses(renderer, container, this.classes.errorContainer);
+    renderer.setAttribute(container, NGX_VALID_DOM.bootstrapErrorsFor, this.containerId(context));
     renderer.appendChild(root, container);
     return container;
   }
 
   private clearErrorMessages(container: HTMLElement, renderer: Renderer2): void {
-    container.querySelectorAll(`.${ERROR_MESSAGE_CLASS}, .invalid-feedback`).forEach((node) => {
+    container.querySelectorAll(`.${BOOTSTRAP_DISPLAY_CLASSES.error}, .invalid-feedback`).forEach((node) => {
       renderer.removeChild(container, node);
     });
   }
@@ -141,38 +173,38 @@ export class BootstrapValidationDisplayStrategy implements ValidationDisplayStra
   private applyInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio-group') {
       const fieldset = context.hostElement;
-      addClasses(renderer, fieldset, 'ngx-valid-radio-group-invalid');
+      addClasses(renderer, fieldset, this.classes.radioGroupInvalid);
       renderer.setAttribute(fieldset, 'aria-invalid', 'true');
       this.getRadioInputs(context).forEach((radio) => {
-        addClasses(renderer, radio, this.invalidClass);
+        addClasses(renderer, radio, this.classes.invalid);
         const formCheck = radio.closest('.form-check');
         if (formCheck) {
-          addClasses(renderer, formCheck as Element, 'ngx-valid-radio-group-invalid');
+          addClasses(renderer, formCheck as Element, this.classes.radioGroupInvalid);
         }
       });
       return;
     }
 
-    addClasses(renderer, context.hostElement, this.invalidClass);
+    addClasses(renderer, context.hostElement, this.classes.invalid);
     renderer.setAttribute(context.hostElement, 'aria-invalid', 'true');
   }
 
   private clearInvalidState(context: ValidationDisplayContext, renderer: Renderer2): void {
     if (context.controlType === 'radio-group') {
       const fieldset = context.hostElement;
-      removeClasses(renderer, fieldset, 'ngx-valid-radio-group-invalid');
+      removeClasses(renderer, fieldset, this.classes.radioGroupInvalid);
       renderer.removeAttribute(fieldset, 'aria-invalid');
       this.getRadioInputs(context).forEach((radio) => {
-        removeClasses(renderer, radio, this.invalidClass);
+        removeClasses(renderer, radio, this.classes.invalid);
         const formCheck = radio.closest('.form-check');
         if (formCheck) {
-          removeClasses(renderer, formCheck as Element, 'ngx-valid-radio-group-invalid');
+          removeClasses(renderer, formCheck as Element, this.classes.radioGroupInvalid);
         }
       });
       return;
     }
 
-    removeClasses(renderer, context.hostElement, this.invalidClass);
+    removeClasses(renderer, context.hostElement, this.classes.invalid);
     renderer.removeAttribute(context.hostElement, 'aria-invalid');
   }
 

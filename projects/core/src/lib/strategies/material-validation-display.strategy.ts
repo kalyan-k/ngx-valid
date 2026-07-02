@@ -1,19 +1,29 @@
 import { Renderer2 } from '@angular/core';
+import { AbstractValidationDisplayStrategy } from '../display/abstract-validation-display.strategy';
+import { MATERIAL_DISPLAY_CLASSES, NGX_VALID_DOM } from '../display/validation-display.constants';
 import {
-  ValidationDisplayContext,
-  ValidationDisplayStrategy
+  ValidationDisplayConfig,
+  ValidationDisplayContext
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
 
-const STANDALONE_ERROR_ATTR = 'data-ngx-valid-mat-errors-for';
-const CHECKBOX_ERROR_CLASS = 'ngx-valid-mat-checkbox-errors';
-const RADIO_ERROR_CLASS = 'ngx-valid-mat-radio-errors';
+const STANDALONE_ERROR_ATTR = NGX_VALID_DOM.materialErrorsFor;
 
 /**
  * Display strategy for Angular Material (MDC-based, v15+).
  * Form-field controls use mat-error; checkbox/radio use standalone containers in wrapper divs.
  */
-export class MaterialValidationDisplayStrategy implements ValidationDisplayStrategy {
+export class MaterialValidationDisplayStrategy extends AbstractValidationDisplayStrategy {
+  private readonly checkboxErrorClass: string;
+  private readonly radioErrorClass: string;
+  private readonly standaloneErrorClass: string;
+
+  constructor(config: ValidationDisplayConfig = {}) {
+    super();
+    this.checkboxErrorClass = MATERIAL_DISPLAY_CLASSES.checkboxErrorContainer;
+    this.radioErrorClass = MATERIAL_DISPLAY_CLASSES.radioErrorContainer;
+    this.standaloneErrorClass = config.classes?.error ?? 'ngx-valid-mat-field-error';
+  }
   detectControlType(element: HTMLElement): ControlType {
     const tag = element.tagName.toUpperCase();
 
@@ -60,11 +70,11 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
 
   ensureErrorContainer(context: ValidationDisplayContext, renderer: Renderer2): HTMLElement | null {
     if (context.controlType === 'checkbox') {
-      return this.ensureStandaloneErrorContainer(context, CHECKBOX_ERROR_CLASS, renderer);
+      return this.ensureStandaloneErrorContainer(context, this.checkboxErrorClass, renderer);
     }
 
     if (context.controlType === 'radio') {
-      return this.ensureStandaloneErrorContainer(context, RADIO_ERROR_CLASS, renderer);
+      return this.ensureStandaloneErrorContainer(context, this.radioErrorClass, renderer);
     }
 
     const parent = this.findMatFormField(context);
@@ -380,7 +390,7 @@ export class MaterialValidationDisplayStrategy implements ValidationDisplayStrat
   private createErrorElement(controlType: ControlType, renderer: Renderer2): HTMLElement {
     if (controlType === 'checkbox' || controlType === 'radio') {
       const errorElement = renderer.createElement('div');
-      renderer.addClass(errorElement, 'ngx-valid-mat-field-error');
+      renderer.addClass(errorElement, this.standaloneErrorClass);
       renderer.setAttribute(errorElement, 'role', 'alert');
       return errorElement;
     }
