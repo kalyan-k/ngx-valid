@@ -24,3 +24,30 @@ export function isValidationFailure(result: unknown): result is { message: strin
   return !!result && typeof result === 'object' && 'message' in (result as { message?: string })
     && typeof (result as { message?: string }).message === 'string';
 }
+
+/**
+ * Finds elements with an exact attribute value without interpolating dynamic
+ * content into CSS selector strings (avoids selector injection / escaping issues).
+ */
+export function findElementByAttribute(
+  root: ParentNode,
+  attributeName: string,
+  attributeValue: string
+): HTMLElement | null {
+  const matches = findAllElementsByAttribute(root, attributeName, attributeValue);
+  return matches[0] ?? null;
+}
+
+export function findAllElementsByAttribute(
+  root: ParentNode,
+  attributeName: string,
+  attributeValue: string
+): HTMLElement[] {
+  const candidates: Element[] = root instanceof Element
+    ? [root, ...Array.from(root.querySelectorAll(`[${attributeName}]`))]
+    : Array.from(root.querySelectorAll(`[${attributeName}]`));
+
+  return candidates.filter(
+    (node) => node.getAttribute(attributeName) === attributeValue
+  ) as HTMLElement[];
+}

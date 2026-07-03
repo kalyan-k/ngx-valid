@@ -6,7 +6,7 @@ import {
   ValidationDisplayContext
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
-import { addClasses } from '../utils/dom.util';
+import { addClasses, findAllElementsByAttribute, findElementByAttribute } from '../utils/dom.util';
 
 const STANDALONE_ERROR_ATTR = NGX_VALID_DOM.materialErrorsFor;
 
@@ -93,9 +93,7 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
         return null;
       }
 
-      return root.querySelector(
-        `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`
-      ) as HTMLElement | null;
+      return findElementByAttribute(root, STANDALONE_ERROR_ATTR, context.propertyPath);
     }
 
     const parent = this.findMatFormField(context);
@@ -201,8 +199,7 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
       return null;
     }
 
-    const selector = `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`;
-    let container = root.querySelector(selector) as HTMLElement | null;
+    let container = findElementByAttribute(root, STANDALONE_ERROR_ATTR, context.propertyPath);
     if (!container) {
       container = renderer.createElement('div') as HTMLElement;
       renderer.addClass(container, containerClass);
@@ -348,8 +345,7 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
       return [];
     }
 
-    const selector = `[${STANDALONE_ERROR_ATTR}="${this.escapeSelectorValue(context.propertyPath)}"]`;
-    return Array.from(root.querySelectorAll(selector)) as HTMLElement[];
+    return findAllElementsByAttribute(root, STANDALONE_ERROR_ATTR, context.propertyPath);
   }
 
   private applyInvalidState(parent: HTMLElement, controlType: ControlType, renderer: Renderer2): void {
@@ -444,9 +440,5 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
     renderer.addClass(errorElement, 'mat-error');
     renderer.setAttribute(errorElement, 'role', 'alert');
     return errorElement;
-  }
-
-  private escapeSelectorValue(value: string): string {
-    return typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/"/g, '\\"');
   }
 }

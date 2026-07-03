@@ -17,7 +17,7 @@ import {
   ValidationDisplayContext
 } from '../interfaces/validation-display.interface';
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
-import { addClasses, removeClasses } from '../utils/dom.util';
+import { addClasses, findElementByAttribute, removeClasses } from '../utils/dom.util';
 
 export class BootstrapValidationDisplayStrategy extends AbstractValidationDisplayStrategy {
   private readonly classes: CompleteValidationDisplayClassMap;
@@ -68,9 +68,11 @@ export class BootstrapValidationDisplayStrategy extends AbstractValidationDispla
       return null;
     }
 
-    return root.querySelector(
-      `[${NGX_VALID_DOM.bootstrapErrorsFor}="${this.escapeSelectorValue(this.containerId(context))}"]`
-    ) as HTMLElement | null;
+    return findElementByAttribute(
+      root,
+      NGX_VALID_DOM.bootstrapErrorsFor,
+      this.containerId(context)
+    );
   }
 
   renderErrors(
@@ -221,10 +223,6 @@ export class BootstrapValidationDisplayStrategy extends AbstractValidationDispla
 
   private containerId(context: ValidationDisplayContext): string {
     return context.propertyPath;
-  }
-
-  private escapeSelectorValue(value: string): string {
-    return typeof CSS !== 'undefined' && CSS.escape ? CSS.escape(value) : value.replace(/"/g, '\\"');
   }
 
   private getRadioInputs(context: ValidationDisplayContext): HTMLInputElement[] {
