@@ -4,8 +4,8 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "core": [
-        "dist/core",
+      "ngx-valid": [
+        "dist/ngx-valid",
         "projects/core/src/public-api.ts"
       ]
     },

@@ -5,11 +5,22 @@
   "keywords": [
     "angular",
     "validation",
+    "angular-forms",
     "forms",
+    "validator",
+    "form-validation",
     "ngx-valid"
   ],
   "license": "MIT",
   "author": "Kalyan K <kalyan411@gmail.com>",
+  "homepage": "https://github.com/kalyan-k/ngx-valid#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:kalyan-k/ngx-valid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kalyan-k/ngx-valid/issues"
+  },
   "peerDependencies": {
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
@@ -21,5 +32,14 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false
+  "style": "styles/ngx-valid.css",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./styles/ngx-valid.css": {
+      "style": "./styles/ngx-valid.css",
+      "default": "./styles/ngx-valid.css"
+    }
+  }
 }

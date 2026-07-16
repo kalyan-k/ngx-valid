@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ValidationProviderService } from 'core';
+import { ValidationProviderService } from 'ngx-valid';
 import { SampleForm } from '../../models/sample-form.model';
 
 @Component({

@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { DemoFramework } from '../../demo/demo-framework.model';
 import { Subscription } from 'rxjs';
-import { ValidationProviderService } from 'core';
+import { ValidationProviderService } from 'ngx-valid';
 import {
   PerformanceFormModel,
   PerformanceFormPhase,

@@ -1,8 +1,12 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/core",
+  "dest": "../../dist/ngx-valid",
   "assets": [
-    "LICENSE"
+    {
+      "glob": "ngx-valid.css",
+      "input": "src/lib/styles",
+      "output": "styles"
+    }
   ],
   "lib": {
     "entryFile": "src/public-api.ts"

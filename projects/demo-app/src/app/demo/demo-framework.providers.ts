@@ -3,7 +3,7 @@ import {
   provideBootstrapValidationDisplay,
   provideMaterialValidationDisplay,
   provideTailwindValidationDisplay
-} from 'core';
+} from 'ngx-valid';
 import { DemoFramework } from './demo-framework.model';
 
 export function provideDemoFrameworkDisplay(framework: DemoFramework): Provider[] {

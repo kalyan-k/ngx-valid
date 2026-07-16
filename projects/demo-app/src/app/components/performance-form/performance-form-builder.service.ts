@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { clearTouchedFieldsForPrefix, ValidationProviderService } from 'core';
+import { clearTouchedFieldsForPrefix, ValidationProviderService } from 'ngx-valid';
 import {
   PerformanceControlType,
   PerformanceFieldDef,

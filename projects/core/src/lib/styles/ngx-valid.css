@@ -10,7 +10,7 @@ textarea.ngx-valid-invalid,
   box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.15);
 }
 
-/* Preserve native radio/checkbox appearance — use outline instead of Bootstrap is-invalid background */
+/* Preserve native radio/checkbox appearance - use outline instead of Bootstrap is-invalid background */
 .form-check-input[type="radio"].ngx-valid-invalid,
 .form-check-input[type="checkbox"].ngx-valid-invalid {
   border-color: #dc3545 !important;
@@ -105,7 +105,7 @@ fieldset.ngx-valid-radio-group-invalid {
   font-size: 0.875rem;
 }
 
-/* Material checkbox/radio errors live outside mat-form-field — keep in normal document flow */
+/* Material checkbox/radio errors live outside mat-form-field - keep in normal document flow */
 .ngx-valid-mat-checkbox-errors,
 .ngx-valid-mat-radio-errors {
   position: static;

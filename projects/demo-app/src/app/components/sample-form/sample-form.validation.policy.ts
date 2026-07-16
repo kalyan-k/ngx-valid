@@ -1,4 +1,4 @@
-import { ValidationPolicy, Validator, ValidatorHelper } from 'core';
+import { ValidationPolicy, Validator, ValidatorHelper } from 'ngx-valid';
 
 export class SampleFormValidationPolicy implements ValidationPolicy {
   addValidations(validatorHelper: ValidatorHelper): Validator[] {
