@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ValidationProviderService } from 'ngx-valid';
+import { ValidationProviderService } from '@policy-validation/angular';
 import { AddressInfo, BillingInfo, ComplexFormModel, PersonalInfo } from '../../models/complex-form.model';
 
 @Component({

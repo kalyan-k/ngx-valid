@@ -2,7 +2,7 @@
   <aside class="demo-sidebar">
     <div class="demo-sidebar-brand">
       <a routerLink="/" class="demo-brand-link">
-        <span class="demo-brand-title">ngx-valid</span>
+        <span class="demo-brand-title">Policy Validation</span>
         <span class="demo-brand-subtitle">Interactive demo</span>
       </a>
     </div>
@@ -27,7 +27,7 @@
             [attr.aria-expanded]="isFrameworksExpanded"
           >
             {{ item.label }}
-            <span class="demo-nav-chevron">{{ isFrameworksExpanded ? '▼' : '▶' }}</span>
+            <span class="demo-nav-chevron">{{ isFrameworksExpanded ? 'v' : '>' }}</span>
           </button>
           <div *ngIf="isFrameworksExpanded" class="demo-nav-children">
             <a
@@ -45,7 +45,7 @@
 
     <footer class="demo-sidebar-footer">
       <small>Policy-based validation for Angular forms</small>
-      <small class="text-muted">© {{ currentYear }}</small>
+      <small class="text-muted">(c) {{ currentYear }}</small>
     </footer>
   </aside>
 

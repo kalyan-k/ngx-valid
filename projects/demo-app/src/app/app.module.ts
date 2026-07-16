@@ -25,7 +25,7 @@ import { ComplexFormTailwindComponent } from './components/complex-form/complex-
 import { PerformanceFormComponent } from './components/performance-form/performance-form.component';
 import { PerformanceFormSectionComponent } from './components/performance-form/performance-form-section.component';
 import { PerformanceFormErrorSummaryComponent } from './components/performance-form/performance-form-error-summary.component';
-import { ValidationModule } from 'ngx-valid';
+import { ValidationModule } from '@policy-validation/angular';
 import { validationProviders } from './validation.providers';
 
 @NgModule({
@@ -60,8 +60,8 @@ import { validationProviders } from './validation.providers';
     ValidationModule.forRoot({
       invalidClass: 'is-invalid',
       errorClass: 'invalid-feedback d-block',
-      errorContainerClass: 'ngx-valid-error-container',
-      requiredMarkerClass: 'ngx-valid-required-marker text-danger'
+      errorContainerClass: 'policy-validation-error-container',
+      requiredMarkerClass: 'policy-validation-required-marker text-danger'
     })
   ],
   providers: [...validationProviders],

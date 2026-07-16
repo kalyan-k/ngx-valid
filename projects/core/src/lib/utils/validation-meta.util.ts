@@ -1,6 +1,6 @@
 import { ValidationResult } from '../interfaces/validation-result.interface';
 
-export const NGX_VALID_META = '_ngxValidMeta';
+export const POLICY_VALIDATION_META = '_policyValidationMeta';
 
 export interface ValidationMeta {
   touchedFields: Record<string, boolean>;
@@ -19,13 +19,13 @@ export interface PolicyGroupStatus extends ExtendedFormGroupStatus {
 }
 
 export function getValidationMeta(model: any): ValidationMeta {
-  if (!model[NGX_VALID_META]) {
-    model[NGX_VALID_META] = {
+  if (!model[POLICY_VALIDATION_META]) {
+    model[POLICY_VALIDATION_META] = {
       touchedFields: {},
       showAllErrors: false
     };
   }
-  return model[NGX_VALID_META];
+  return model[POLICY_VALIDATION_META];
 }
 
 export function markFieldTouched(model: any, propertyPath: string): void {
@@ -38,7 +38,7 @@ export function shouldShowFieldErrors(model: any, propertyPath: string): boolean
 }
 
 export function clearTouchedFieldsForPrefix(model: any, prefix: string): void {
-  const meta = model[NGX_VALID_META] as ValidationMeta | undefined;
+  const meta = model[POLICY_VALIDATION_META] as ValidationMeta | undefined;
   if (!meta?.touchedFields) {
     return;
   }
@@ -51,5 +51,5 @@ export function clearTouchedFieldsForPrefix(model: any, prefix: string): void {
 }
 
 export function resetValidationMeta(model: any): void {
-  delete model[NGX_VALID_META];
+  delete model[POLICY_VALIDATION_META];
 }

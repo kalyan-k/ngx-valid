@@ -1,9 +1,9 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/ngx-valid",
+  "dest": "../../dist/policy-validation",
   "assets": [
     {
-      "glob": "ngx-valid.css",
+      "glob": "policy-validation.css",
       "input": "src/lib/styles",
       "output": "styles"
     }

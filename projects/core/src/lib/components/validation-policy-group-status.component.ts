@@ -12,10 +12,10 @@ import { FormGroupStatus } from '../interfaces/validation-result.interface';
 import { ValidationProviderService } from '../services/validation-provider.service';
 
 @Component({
-  selector: 'ngx-validation-policy-group-status',
+  selector: 'policy-validation-policy-group-status',
   standalone: false,
   template: `
-    <div class="ngx-valid-policy-group-status d-flex align-items-center gap-2">
+    <div class="policy-validation-policy-group-status d-flex align-items-center gap-2">
       <span class="fw-semibold">{{ label }}</span>
       <span
         *ngIf="status?.isEvaluated; else pendingBadge"

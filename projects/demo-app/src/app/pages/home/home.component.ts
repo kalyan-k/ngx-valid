@@ -25,7 +25,7 @@ export class HomeComponent {
   {
     step: 3,
     title: 'Annotate controls',
-    detail: 'Add ngxValidator with validateModel, actualModel, withPolicy, and optional groupName.'
+    detail: 'Add policyValidator with validateModel, actualModel, withPolicy, and optional groupName.'
   },
   {
     step: 4,

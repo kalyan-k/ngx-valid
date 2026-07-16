@@ -3,7 +3,7 @@ import {
   provideBootstrapValidationDisplay,
   provideMaterialValidationDisplay,
   provideTailwindValidationDisplay
-} from 'ngx-valid';
+} from '@policy-validation/angular';
 import { DemoFramework } from './demo-framework.model';
 
 export function provideDemoFrameworkDisplay(framework: DemoFramework): Provider[] {

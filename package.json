@@ -1,7 +1,7 @@
 {
-  "name": "ngx-valid-workspace",
+  "name": "policy-validation-workspace",
   "version": "0.0.0",
-  "description": "Private Angular workspace for the ngx-valid library and demo app.",
+  "description": "Private Angular workspace for the Policy Validation library and demo app.",
   "private": true,
   "scripts": {
     "ng": "ng",
@@ -16,8 +16,8 @@
     "build-demo": "npm run build:demo",
     "watch": "npm run watch:lib",
     "watch:lib": "ng build core --configuration development --watch",
-    "pack:lib": "npm run build:lib && npm pack ./dist/ngx-valid --dry-run",
-    "publish:lib": "npm run build:lib && npm publish ./dist/ngx-valid --access public",
+    "pack:lib": "npm run build:lib && npm pack ./dist/policy-validation --dry-run",
+    "publish:lib": "npm run build:lib && npm publish ./dist/policy-validation --access public",
     "test": "ng test core",
     "test:all": "ng test",
     "lint": "ng lint core",

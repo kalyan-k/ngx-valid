@@ -58,7 +58,7 @@ export class ValidationProviderService {
 		this.policyGroups[groupKey] = config;
 	}
 
-	/** Maps a form group name (groupName on ngxValidator) to its validation policy. */
+	/** Maps a form group name (groupName on policyValidator) to its validation policy. */
 	registerFormGroupPolicy = (groupName: string, policyName: string) => {
 		this.formGroupPolicies[groupName] = policyName;
 	}

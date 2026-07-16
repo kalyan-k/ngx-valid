@@ -4,7 +4,7 @@ import {
   DEFAULT_ERROR_ELEMENT_TAG,
   DEFAULT_REQUIRED_MARKER,
   GENERIC_DISPLAY_CLASSES,
-  NGX_VALID_DOM
+  POLICY_VALIDATION_DOM
 } from '../display/validation-display.constants';
 import {
   DEFAULT_REQUIRED_INDICATOR,
@@ -73,7 +73,7 @@ export class GenericValidationDisplayStrategy extends AbstractValidationDisplayS
       return null;
     }
 
-    return root.querySelector(`[${NGX_VALID_DOM.errorContainer}="${this.containerId(context)}"]`) as HTMLElement | null;
+    return root.querySelector(`[${POLICY_VALIDATION_DOM.errorContainer}="${this.containerId(context)}"]`) as HTMLElement | null;
   }
 
   renderErrors(
@@ -95,7 +95,7 @@ export class GenericValidationDisplayStrategy extends AbstractValidationDisplayS
     errors.forEach((validationError) => {
       const errorElement = renderer.createElement(this.errorElementTag);
       addClasses(renderer, errorElement, `${this.classes.error} ${GENERIC_DISPLAY_CLASSES.error}`);
-      renderer.setAttribute(errorElement, NGX_VALID_DOM.error, 'true');
+      renderer.setAttribute(errorElement, POLICY_VALIDATION_DOM.error, 'true');
       renderer.setAttribute(errorElement, 'role', 'alert');
       renderer.appendChild(errorElement, renderer.createText(validationError.error.message));
       renderer.appendChild(container, errorElement);
@@ -123,14 +123,14 @@ export class GenericValidationDisplayStrategy extends AbstractValidationDisplayS
       return;
     }
 
-    label.querySelectorAll(`[${NGX_VALID_DOM.required}="true"]`).forEach((marker) => {
+    label.querySelectorAll(`[${POLICY_VALIDATION_DOM.required}="true"]`).forEach((marker) => {
       renderer.removeChild(label, marker);
     });
 
     if (requiredResult.isRequired && this.requiredIndicator.mode !== 'none') {
       const marker = renderer.createElement('span');
       addClasses(renderer, marker, this.requiredIndicator.markerClass ?? this.classes.requiredMarker);
-      renderer.setAttribute(marker, NGX_VALID_DOM.required, 'true');
+      renderer.setAttribute(marker, POLICY_VALIDATION_DOM.required, 'true');
       renderer.setAttribute(marker, 'aria-hidden', 'true');
       renderer.appendChild(marker, renderer.createText(this.requiredIndicator.marker ?? DEFAULT_REQUIRED_MARKER));
       renderer.appendChild(label, marker);
@@ -208,7 +208,7 @@ export class GenericValidationDisplayStrategy extends AbstractValidationDisplayS
 
     const container = renderer.createElement('div');
     addClasses(renderer, container, this.classes.errorContainer);
-    renderer.setAttribute(container, NGX_VALID_DOM.errorContainer, this.containerId(context));
+    renderer.setAttribute(container, POLICY_VALIDATION_DOM.errorContainer, this.containerId(context));
 
     if (context.controlType === 'radio' || context.controlType === 'radio-group') {
       renderer.appendChild(root, container);
@@ -286,7 +286,7 @@ export class GenericValidationDisplayStrategy extends AbstractValidationDisplayS
       return parentLabel as HTMLElement;
     }
 
-    const fieldWrapper = host.closest('[data-ngx-valid-field], .form-group, .form-check, fieldset, .field, .mb-3, .tw-field');
+    const fieldWrapper = host.closest('[data-policy-validation-field], .form-group, .form-check, fieldset, .field, .mb-3, .tw-field');
     if (fieldWrapper) {
       const twLabel = fieldWrapper.querySelector('.tw-label');
       if (twLabel) {

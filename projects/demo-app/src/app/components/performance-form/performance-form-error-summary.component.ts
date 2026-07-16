@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ValidationResult } from 'ngx-valid';
+import { ValidationResult } from '@policy-validation/angular';
 import { PerformanceFormModel, PerformanceSectionMeta } from '../../models/performance-form.model';
 
 export interface PerformanceErrorGroup {
@@ -23,7 +23,7 @@ export class PerformanceFormErrorSummaryComponent {
   private collapsedGroups = new Set<string>();
 
   get visible(): boolean {
-    const meta = (this.model as { _ngxValidMeta?: { showAllErrors: boolean } })?._ngxValidMeta;
+    const meta = (this.model as { _policyValidationMeta?: { showAllErrors: boolean } })?._policyValidationMeta;
     return !!meta?.showAllErrors && this.totalErrorCount > 0;
   }
 

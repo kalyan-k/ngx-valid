@@ -1,7 +1,7 @@
 import { Renderer2 } from '@angular/core';
 import { AbstractValidationDisplayStrategy } from '../display/abstract-validation-display.strategy';
 import {
-  NGX_VALID_DOM,
+  POLICY_VALIDATION_DOM,
   BOOTSTRAP_DISPLAY_CLASSES,
   DEFAULT_ERROR_ELEMENT_TAG
 } from '../display/validation-display.constants';
@@ -70,7 +70,7 @@ export class BootstrapValidationDisplayStrategy extends AbstractValidationDispla
 
     return findElementByAttribute(
       root,
-      NGX_VALID_DOM.bootstrapErrorsFor,
+      POLICY_VALIDATION_DOM.bootstrapErrorsFor,
       this.containerId(context)
     );
   }
@@ -122,7 +122,7 @@ export class BootstrapValidationDisplayStrategy extends AbstractValidationDispla
       return;
     }
 
-    label.querySelectorAll(`[${NGX_VALID_DOM.required}="true"]`).forEach((marker) => {
+    label.querySelectorAll(`[${POLICY_VALIDATION_DOM.required}="true"]`).forEach((marker) => {
       renderer.removeChild(label, marker);
     });
 
@@ -148,7 +148,7 @@ export class BootstrapValidationDisplayStrategy extends AbstractValidationDispla
 
     const marker = renderer.createElement('span');
     addClasses(renderer, marker, this.requiredIndicator.markerClass ?? this.classes.requiredMarker);
-    renderer.setAttribute(marker, NGX_VALID_DOM.required, 'true');
+    renderer.setAttribute(marker, POLICY_VALIDATION_DOM.required, 'true');
     renderer.appendChild(marker, renderer.createText(this.requiredIndicator.marker ?? ' *'));
     renderer.appendChild(label, marker);
   }
@@ -161,7 +161,7 @@ export class BootstrapValidationDisplayStrategy extends AbstractValidationDispla
 
     const container = renderer.createElement('div');
     addClasses(renderer, container, this.classes.errorContainer);
-    renderer.setAttribute(container, NGX_VALID_DOM.bootstrapErrorsFor, this.containerId(context));
+    renderer.setAttribute(container, POLICY_VALIDATION_DOM.bootstrapErrorsFor, this.containerId(context));
     renderer.appendChild(root, container);
     return container;
   }
@@ -217,7 +217,7 @@ export class BootstrapValidationDisplayStrategy extends AbstractValidationDispla
       return host;
     }
 
-    return host.closest('.form-group, .form-check, [data-ngx-valid-field]') as HTMLElement | null
+    return host.closest('.form-group, .form-check, [data-policy-validation-field]') as HTMLElement | null
       ?? host.parentElement;
   }
 

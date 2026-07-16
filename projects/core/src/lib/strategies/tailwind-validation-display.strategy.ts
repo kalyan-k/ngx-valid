@@ -3,7 +3,7 @@ import { AbstractValidationDisplayStrategy } from '../display/abstract-validatio
 import {
   DEFAULT_ERROR_ELEMENT_TAG,
   DEFAULT_REQUIRED_MARKER,
-  NGX_VALID_DOM,
+  POLICY_VALIDATION_DOM,
   TAILWIND_DISPLAY_CLASSES
 } from '../display/validation-display.constants';
 import {
@@ -147,7 +147,7 @@ export class TailwindValidationDisplayStrategy extends AbstractValidationDisplay
       return;
     }
 
-    const existingMarker = label.querySelector(`[${NGX_VALID_DOM.required}="true"]`);
+    const existingMarker = label.querySelector(`[${POLICY_VALIDATION_DOM.required}="true"]`);
 
     if (!requiredResult.isRequired) {
       if (existingMarker) {
@@ -162,7 +162,7 @@ export class TailwindValidationDisplayStrategy extends AbstractValidationDisplay
 
     const marker = renderer.createElement('span');
     addClasses(renderer, marker, this.requiredIndicator.markerClass ?? this.classes.requiredMarker);
-    renderer.setAttribute(marker, NGX_VALID_DOM.required, 'true');
+    renderer.setAttribute(marker, POLICY_VALIDATION_DOM.required, 'true');
     renderer.setAttribute(marker, 'aria-hidden', 'true');
     renderer.appendChild(marker, renderer.createText(this.requiredIndicator.marker ?? DEFAULT_REQUIRED_MARKER));
     renderer.appendChild(label, marker);
@@ -176,7 +176,7 @@ export class TailwindValidationDisplayStrategy extends AbstractValidationDisplay
 
     const container = renderer.createElement('div');
     addClasses(renderer, container, this.classes.errorContainer);
-    renderer.setAttribute(container, NGX_VALID_DOM.tailwindErrorsFor, this.containerId(context));
+    renderer.setAttribute(container, POLICY_VALIDATION_DOM.tailwindErrorsFor, this.containerId(context));
     renderer.appendChild(root, container);
     return container;
   }
@@ -242,7 +242,7 @@ export class TailwindValidationDisplayStrategy extends AbstractValidationDisplay
       return host;
     }
 
-    return host.closest(`[${NGX_VALID_DOM.field}], .tw-field`) as HTMLElement | null
+    return host.closest(`[${POLICY_VALIDATION_DOM.field}], .tw-field`) as HTMLElement | null
       ?? host.parentElement;
   }
 
@@ -260,8 +260,8 @@ export class TailwindValidationDisplayStrategy extends AbstractValidationDisplay
   }
 
   private findAllErrorContainers(root: HTMLElement, containerId: string): HTMLElement[] {
-    return Array.from(root.querySelectorAll(`[${NGX_VALID_DOM.tailwindErrorsFor}]`))
-      .filter((node) => node.getAttribute(NGX_VALID_DOM.tailwindErrorsFor) === containerId) as HTMLElement[];
+    return Array.from(root.querySelectorAll(`[${POLICY_VALIDATION_DOM.tailwindErrorsFor}]`))
+      .filter((node) => node.getAttribute(POLICY_VALIDATION_DOM.tailwindErrorsFor) === containerId) as HTMLElement[];
   }
 
   private getRadioInputs(context: ValidationDisplayContext): HTMLInputElement[] {
@@ -289,7 +289,7 @@ export class TailwindValidationDisplayStrategy extends AbstractValidationDisplay
       }
     }
 
-    const fieldWrapper = host.closest(`[${NGX_VALID_DOM.field}], .tw-field`) as HTMLElement | null;
+    const fieldWrapper = host.closest(`[${POLICY_VALIDATION_DOM.field}], .tw-field`) as HTMLElement | null;
     if (fieldWrapper) {
       const twLabel = fieldWrapper.querySelector('.tw-label, .tw-check-label');
       if (twLabel) {

@@ -55,7 +55,7 @@ export type CompleteValidationDisplayClassMap = Required<ValidationDisplayClassM
  *   error: 'p-error',
  *   errorContainer: 'p-error-container',
  *   requiredMarker: 'p-required',
- *   baseInvalid: 'ngx-valid-invalid',
+ *   baseInvalid: 'policy-validation-invalid',
  *   radioGroupInvalid: 'p-radiogroup-invalid'
  * });
  */

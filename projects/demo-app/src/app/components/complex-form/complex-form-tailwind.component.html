@@ -1,15 +1,15 @@
 <div class="tw-form-page demo-form-page">
   <form (ngSubmit)="onSubmit()" class="tw-form">
     <section class="tw-panel tw-panel-highlight mb-4">
-      <ngx-validation-policy-group-status
+      <policy-validation-policy-group-status
         [model]="model"
         policyGroupName="checkout"
         label="Entire page (checkout policy group)"
         pendingTooltip="Validates all three policies together on submit."
         evaluatedTooltip="Combined result across all form sections."
-      ></ngx-validation-policy-group-status>
-      <ngx-validation-policy-group-summary [model]="model" policyGroupName="checkout"></ngx-validation-policy-group-summary>
-      <ngx-validation-summary [model]="model" title="All errors on this page:"></ngx-validation-summary>
+      ></policy-validation-policy-group-status>
+      <policy-validation-policy-group-summary [model]="model" policyGroupName="checkout"></policy-validation-policy-group-summary>
+      <policy-validation-summary [model]="model" title="All errors on this page:"></policy-validation-summary>
     </section>
 
     <section class="tw-panel mb-4">
@@ -18,37 +18,37 @@
           <h3 class="tw-panel-title">Personal Information</h3>
           <p class="tw-panel-subtitle">Policy: PersonalInfo · Group: personalInfo</p>
         </div>
-        <ngx-validation-group-status
+        <policy-validation-group-status
           [model]="model"
           groupName="personalInfo"
           pendingTooltip="All personal fields are always required."
           evaluatedTooltip="Valid when name, email, and phone pass validation."
-        ></ngx-validation-group-status>
+        ></policy-validation-group-status>
       </header>
-      <ngx-validation-group-summary [model]="model" groupName="personalInfo"></ngx-validation-group-summary>
+      <policy-validation-group-summary [model]="model" groupName="personalInfo"></policy-validation-group-summary>
       <div class="tw-grid-2">
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twFirstName">First Name</label>
           <input class="tw-input" type="text" id="twFirstName" name="firstName" [(ngModel)]="model.personal.firstName"
-            ngxValidator [validateModel]="'form.personal.firstName'" [actualModel]="model"
+            policyValidator [validateModel]="'form.personal.firstName'" [actualModel]="model"
             [withPolicy]="'PersonalInfo'" groupName="personalInfo" />
         </div>
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twLastName">Last Name</label>
           <input class="tw-input" type="text" id="twLastName" name="lastName" [(ngModel)]="model.personal.lastName"
-            ngxValidator [validateModel]="'form.personal.lastName'" [actualModel]="model"
+            policyValidator [validateModel]="'form.personal.lastName'" [actualModel]="model"
             [withPolicy]="'PersonalInfo'" groupName="personalInfo" />
         </div>
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twPersonalEmail">Email</label>
           <input class="tw-input" type="email" id="twPersonalEmail" name="personalEmail" [(ngModel)]="model.personal.email"
-            ngxValidator [validateModel]="'form.personal.email'" [actualModel]="model"
+            policyValidator [validateModel]="'form.personal.email'" [actualModel]="model"
             [withPolicy]="'PersonalInfo'" groupName="personalInfo" />
         </div>
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twPhone">Phone</label>
           <input class="tw-input" type="tel" id="twPhone" name="phone" placeholder="(555) 555-5555" [(ngModel)]="model.personal.phone"
-            ngxValidator [validateModel]="'form.personal.phone'" [actualModel]="model"
+            policyValidator [validateModel]="'form.personal.phone'" [actualModel]="model"
             [withPolicy]="'PersonalInfo'" groupName="personalInfo" />
         </div>
       </div>
@@ -60,18 +60,18 @@
           <h3 class="tw-panel-title">Shipping Address</h3>
           <p class="tw-panel-subtitle">Policy: ShippingAddress · Conditional rules</p>
         </div>
-        <ngx-validation-group-status
+        <policy-validation-group-status
           [model]="model"
           groupName="shippingInfo"
           pendingTooltip="City, State, ZIP required when Street Address has a value."
           evaluatedTooltip="Valid when required shipping fields pass."
-        ></ngx-validation-group-status>
+        ></policy-validation-group-status>
       </header>
-      <ngx-validation-group-summary [model]="model" groupName="shippingInfo"></ngx-validation-group-summary>
-      <div class="tw-field" data-ngx-valid-field>
+      <policy-validation-group-summary [model]="model" groupName="shippingInfo"></policy-validation-group-summary>
+      <div class="tw-field" data-policy-validation-field>
         <label class="tw-label" for="twShippingLine1">Street Address</label>
         <input class="tw-input" type="text" id="twShippingLine1" name="shippingLine1" [(ngModel)]="model.shipping.line1"
-          ngxValidator [validateModel]="'form.shipping.line1'" [actualModel]="model"
+          policyValidator [validateModel]="'form.shipping.line1'" [actualModel]="model"
           [withPolicy]="'ShippingAddress'" groupName="shippingInfo" />
         <p class="tw-hint">Enter a street address to enable required city, state, ZIP, and country.</p>
       </div>
@@ -80,29 +80,29 @@
         <input class="tw-input" type="text" id="twShippingLine2" name="shippingLine2" [(ngModel)]="model.shipping.line2" />
       </div>
       <div class="tw-grid-3">
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twShippingCity">City</label>
           <input class="tw-input" type="text" id="twShippingCity" name="shippingCity" [(ngModel)]="model.shipping.city"
-            ngxValidator [validateModel]="'form.shipping.city'" [actualModel]="model"
+            policyValidator [validateModel]="'form.shipping.city'" [actualModel]="model"
             [withPolicy]="'ShippingAddress'" groupName="shippingInfo" />
         </div>
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twShippingState">State</label>
           <input class="tw-input" type="text" id="twShippingState" name="shippingState" [(ngModel)]="model.shipping.state"
-            ngxValidator [validateModel]="'form.shipping.state'" [actualModel]="model"
+            policyValidator [validateModel]="'form.shipping.state'" [actualModel]="model"
             [withPolicy]="'ShippingAddress'" groupName="shippingInfo" />
         </div>
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twShippingZip">ZIP Code</label>
           <input class="tw-input" type="text" id="twShippingZip" name="shippingZip" [(ngModel)]="model.shipping.zip"
-            ngxValidator [validateModel]="'form.shipping.zip'" [actualModel]="model"
+            policyValidator [validateModel]="'form.shipping.zip'" [actualModel]="model"
             [withPolicy]="'ShippingAddress'" groupName="shippingInfo" />
         </div>
       </div>
-      <div class="tw-field" data-ngx-valid-field>
+      <div class="tw-field" data-policy-validation-field>
         <label class="tw-label" for="twShippingCountry">Country</label>
         <select class="tw-input" id="twShippingCountry" name="shippingCountry" [(ngModel)]="model.shipping.country"
-          ngxValidator [validateModel]="'form.shipping.country'" [actualModel]="model"
+          policyValidator [validateModel]="'form.shipping.country'" [actualModel]="model"
           [withPolicy]="'ShippingAddress'" groupName="shippingInfo">
           <option value="">Choose...</option>
           <option value="US">United States</option>
@@ -117,14 +117,14 @@
           <h3 class="tw-panel-title">Billing Address</h3>
           <p class="tw-panel-subtitle">Policy: BillingAddress · Depends on same-as-shipping</p>
         </div>
-        <ngx-validation-group-status
+        <policy-validation-group-status
           [model]="model"
           groupName="billingInfo"
           pendingTooltip="Billing fields required when 'Same as shipping' is unchecked."
           evaluatedTooltip="Valid when billing rules pass."
-        ></ngx-validation-group-status>
+        ></policy-validation-group-status>
       </header>
-      <ngx-validation-group-summary [model]="model" groupName="billingInfo"></ngx-validation-group-summary>
+      <policy-validation-group-summary [model]="model" groupName="billingInfo"></policy-validation-group-summary>
       <div class="tw-field tw-check">
         <input class="tw-checkbox" type="checkbox" id="twSameAsShipping" name="sameAsShipping"
           [(ngModel)]="model.billing.sameAsShipping" (ngModelChange)="onSameAsShippingChange()" />
@@ -132,23 +132,23 @@
       </div>
 
       <div *ngIf="!model.billing.sameAsShipping">
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twBillingLine1">Street Address</label>
           <input class="tw-input" type="text" id="twBillingLine1" name="billingLine1" [(ngModel)]="model.billing.line1"
-            ngxValidator [validateModel]="'form.billing.line1'" [actualModel]="model"
+            policyValidator [validateModel]="'form.billing.line1'" [actualModel]="model"
             [withPolicy]="'BillingAddress'" groupName="billingInfo" />
         </div>
         <div class="tw-grid-2">
-          <div class="tw-field" data-ngx-valid-field>
+          <div class="tw-field" data-policy-validation-field>
             <label class="tw-label" for="twBillingCity">City</label>
             <input class="tw-input" type="text" id="twBillingCity" name="billingCity" [(ngModel)]="model.billing.city"
-              ngxValidator [validateModel]="'form.billing.city'" [actualModel]="model"
+              policyValidator [validateModel]="'form.billing.city'" [actualModel]="model"
               [withPolicy]="'BillingAddress'" groupName="billingInfo" />
           </div>
-          <div class="tw-field" data-ngx-valid-field>
+          <div class="tw-field" data-policy-validation-field>
             <label class="tw-label" for="twBillingZip">ZIP Code</label>
             <input class="tw-input" type="text" id="twBillingZip" name="billingZip" [(ngModel)]="model.billing.zip"
-              ngxValidator [validateModel]="'form.billing.zip'" [actualModel]="model"
+              policyValidator [validateModel]="'form.billing.zip'" [actualModel]="model"
               [withPolicy]="'BillingAddress'" groupName="billingInfo" />
           </div>
         </div>

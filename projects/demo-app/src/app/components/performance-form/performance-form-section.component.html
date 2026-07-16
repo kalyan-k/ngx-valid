@@ -83,12 +83,12 @@
     <button *ngIf="tailwind" type="button" class="tw-btn tw-btn-secondary tw-btn-sm" (click)="onFillSection()" [disabled]="!canUseSectionActions">Fill section</button>
     <button *ngIf="tailwind" type="button" class="tw-btn tw-btn-secondary tw-btn-sm" (click)="onClearSection()" [disabled]="!canUseSectionActions">Clear section</button>
     <button *ngIf="tailwind" type="button" class="tw-btn tw-btn-primary tw-btn-sm" (click)="onValidateSection()" [disabled]="!canUseSectionActions">Validate section</button>
-    <ngx-validation-group-status
+    <policy-validation-group-status
       [model]="model"
       [groupName]="section.groupName"
       pendingTooltip="Section fields validate on blur/change; badge updates after submit or validate all."
       evaluatedTooltip="All controls in this section pass validation."
-    ></ngx-validation-group-status>
+    ></policy-validation-group-status>
   </div>
 </ng-template>
 
@@ -107,30 +107,30 @@
 
 <ng-template #bootstrapFields>
   <ng-container *ngFor="let field of visibleFields; trackBy: trackField">
-    <div *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number' || field.type === 'date'" class="col-md-6 form-group mb-3" data-ngx-valid-field>
+    <div *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number' || field.type === 'date'" class="col-md-6 form-group mb-3" data-policy-validation-field>
       <label [for]="field.elementId">{{ field.label }}</label>
       <input [type]="field.type" class="form-control" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
     </div>
-    <div *ngIf="field.type === 'checkbox'" class="col-md-6 form-check mb-3" data-ngx-valid-field>
+    <div *ngIf="field.type === 'checkbox'" class="col-md-6 form-check mb-3" data-policy-validation-field>
       <input type="checkbox" class="form-check-input" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
       <label class="form-check-label" [for]="field.elementId">{{ field.label }}</label>
     </div>
-    <div *ngIf="field.type === 'select'" class="col-md-6 form-group mb-3" data-ngx-valid-field>
+    <div *ngIf="field.type === 'select'" class="col-md-6 form-group mb-3" data-policy-validation-field>
       <label [for]="field.elementId">{{ field.label }}</label>
       <select class="form-control" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
         <option value="">— Select —</option>
         <option *ngFor="let opt of field.selectOptions" [value]="opt">{{ opt }}</option>
       </select>
     </div>
-    <div *ngIf="field.type === 'textarea'" class="col-md-12 form-group mb-3" data-ngx-valid-field>
+    <div *ngIf="field.type === 'textarea'" class="col-md-12 form-group mb-3" data-policy-validation-field>
       <label [for]="field.elementId">{{ field.label }}</label>
       <textarea class="form-control" rows="2" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName"></textarea>
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName"></textarea>
     </div>
-    <fieldset *ngIf="field.type === 'radio'" class="col-md-6 mb-3 perf-radio-fieldset" data-ngx-valid-field ngxValidator
+    <fieldset *ngIf="field.type === 'radio'" class="col-md-6 mb-3 perf-radio-fieldset" data-policy-validation-field policyValidator
       [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
       <legend class="form-label fs-6">{{ field.label }}</legend>
       <div class="form-check" *ngFor="let opt of field.radioOptions">
@@ -143,32 +143,32 @@
 
 <ng-template #materialFields>
   <ng-container *ngFor="let field of visibleFields; trackBy: trackField">
-    <mat-form-field *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number' || field.type === 'date'" appearance="outline" data-ngx-valid-field>
+    <mat-form-field *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number' || field.type === 'date'" appearance="outline" data-policy-validation-field>
       <mat-label>{{ field.label }}</mat-label>
       <input matInput [type]="field.type" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
     </mat-form-field>
-    <div *ngIf="field.type === 'checkbox'" class="mat-checkbox-field mat-field-full" data-ngx-valid-field>
+    <div *ngIf="field.type === 'checkbox'" class="mat-checkbox-field mat-field-full" data-policy-validation-field>
       <mat-checkbox [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">{{ field.label }}</mat-checkbox>
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">{{ field.label }}</mat-checkbox>
     </div>
-    <mat-form-field *ngIf="field.type === 'select'" appearance="outline" data-ngx-valid-field>
+    <mat-form-field *ngIf="field.type === 'select'" appearance="outline" data-policy-validation-field>
       <mat-label>{{ field.label }}</mat-label>
       <mat-select [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
         <mat-option value="">— Select —</mat-option>
         <mat-option *ngFor="let opt of field.selectOptions" [value]="opt">{{ opt }}</mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field *ngIf="field.type === 'textarea'" appearance="outline" class="mat-field-full" data-ngx-valid-field>
+    <mat-form-field *ngIf="field.type === 'textarea'" appearance="outline" class="mat-field-full" data-policy-validation-field>
       <mat-label>{{ field.label }}</mat-label>
       <textarea matInput rows="2" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName"></textarea>
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName"></textarea>
     </mat-form-field>
-    <div *ngIf="field.type === 'radio'" class="mat-field-full mat-radio-block" data-ngx-valid-field>
+    <div *ngIf="field.type === 'radio'" class="mat-field-full mat-radio-block" data-policy-validation-field>
       <mat-label class="mat-group-label">{{ field.label }}</mat-label>
       <mat-radio-group [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
         <mat-radio-button *ngFor="let opt of field.radioOptions" [value]="opt.value">{{ opt.label }}</mat-radio-button>
       </mat-radio-group>
     </div>
@@ -177,30 +177,30 @@
 
 <ng-template #tailwindFields>
   <ng-container *ngFor="let field of visibleFields; trackBy: trackField">
-    <div *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number' || field.type === 'date'" class="tw-field" data-ngx-valid-field>
+    <div *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'number' || field.type === 'date'" class="tw-field" data-policy-validation-field>
       <label class="tw-label" [for]="field.elementId">{{ field.label }}</label>
       <input class="tw-input" [type]="field.type" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
     </div>
-    <div *ngIf="field.type === 'checkbox'" class="tw-field tw-check" data-ngx-valid-field>
+    <div *ngIf="field.type === 'checkbox'" class="tw-field tw-check" data-policy-validation-field>
       <input class="tw-checkbox" type="checkbox" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName" />
       <label class="tw-check-label" [for]="field.elementId">{{ field.label }}</label>
     </div>
-    <div *ngIf="field.type === 'select'" class="tw-field" data-ngx-valid-field>
+    <div *ngIf="field.type === 'select'" class="tw-field" data-policy-validation-field>
       <label class="tw-label" [for]="field.elementId">{{ field.label }}</label>
       <select class="tw-input" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
         <option value="">— Select —</option>
         <option *ngFor="let opt of field.selectOptions" [value]="opt">{{ opt }}</option>
       </select>
     </div>
-    <div *ngIf="field.type === 'textarea'" class="tw-field tw-field-full" data-ngx-valid-field>
+    <div *ngIf="field.type === 'textarea'" class="tw-field tw-field-full" data-policy-validation-field>
       <label class="tw-label" [for]="field.elementId">{{ field.label }}</label>
       <textarea class="tw-input tw-textarea" rows="2" [id]="field.elementId" [name]="field.elementId" [(ngModel)]="model.sections[section.id][field.id]"
-        ngxValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName"></textarea>
+        policyValidator [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName"></textarea>
     </div>
-    <fieldset *ngIf="field.type === 'radio'" class="tw-fieldset tw-field-full" data-ngx-valid-field ngxValidator
+    <fieldset *ngIf="field.type === 'radio'" class="tw-fieldset tw-field-full" data-policy-validation-field policyValidator
       [validateModel]="field.validateModel" [actualModel]="model" [withPolicy]="field.policyName" [groupName]="field.groupName">
       <legend class="tw-label">{{ field.label }}</legend>
       <label class="tw-radio" *ngFor="let opt of field.radioOptions">

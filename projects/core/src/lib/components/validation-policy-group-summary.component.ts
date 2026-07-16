@@ -2,16 +2,16 @@ import { Component, Input } from '@angular/core';
 import { FormGroupStatus } from '../interfaces/validation-result.interface';
 
 @Component({
-  selector: 'ngx-validation-policy-group-summary',
+  selector: 'policy-validation-policy-group-summary',
   standalone: false,
   template: `
     <div
       *ngIf="status?.isEvaluated && status?.errors?.length"
-      class="ngx-valid-policy-group-summary"
+      class="policy-validation-policy-group-summary"
       role="alert"
     >
-      <strong class="ngx-valid-summary-title">{{ title }}</strong>
-      <ul class="ngx-valid-summary-list">
+      <strong class="policy-validation-summary-title">{{ title }}</strong>
+      <ul class="policy-validation-summary-list">
         <li *ngFor="let err of status?.errors">{{ err.error.message }}</li>
       </ul>
     </div>

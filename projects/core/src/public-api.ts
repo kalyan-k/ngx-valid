@@ -1,5 +1,5 @@
 /*
- * Public API Surface of ngx-valid
+ * Public API Surface of policy-validation
  */
 
 export * from './lib/validation.module';
@@ -35,7 +35,7 @@ export { VALIDATION_DISPLAY_CONFIG } from './lib/tokens/validation-display.token
 export { VALIDATION_DISPLAY_STRATEGY } from './lib/tokens/validation-display-strategy.token';
 export { AbstractValidationDisplayStrategy } from './lib/display/abstract-validation-display.strategy';
 export {
-  NGX_VALID_DOM,
+  POLICY_VALIDATION_DOM,
   GENERIC_DISPLAY_CLASSES,
   BOOTSTRAP_DISPLAY_CLASSES,
   TAILWIND_DISPLAY_CLASSES,

@@ -12,12 +12,12 @@ import { FormGroupStatus } from '../interfaces/validation-result.interface';
 import { ValidationProviderService } from '../services/validation-provider.service';
 
 @Component({
-  selector: 'ngx-validation-group-status',
+  selector: 'policy-validation-group-status',
   standalone: false,
   template: `
     <span
       *ngIf="status?.isEvaluated; else pendingBadge"
-      class="ngx-valid-group-badge badge"
+      class="policy-validation-group-badge badge"
       [class.bg-success]="status?.isValid"
       [class.bg-danger]="status?.isInValid"
       [attr.title]="evaluatedTooltip"
@@ -26,7 +26,7 @@ import { ValidationProviderService } from '../services/validation-provider.servi
     </span>
     <ng-template #pendingBadge>
       <span
-        class="ngx-valid-group-badge badge bg-secondary"
+        class="policy-validation-group-badge badge bg-secondary"
         [attr.title]="pendingTooltip"
       >
         {{ pendingLabel }}

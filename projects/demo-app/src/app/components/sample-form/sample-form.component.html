@@ -13,18 +13,18 @@
 
   <form (ngSubmit)="onSubmit()" #sampleForm="ngForm">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <ngx-validation-group-status
+      <policy-validation-group-status
         [model]="model"
         groupName="mainForm"
         pendingTooltip="Submit the form to evaluate all fields in this section."
         evaluatedTooltip="Shows whether all fields in this form group passed validation on the last submit."
-      ></ngx-validation-group-status>
+      ></policy-validation-group-status>
     </div>
 
-    <ngx-validation-summary [model]="model"></ngx-validation-summary>
-    <ngx-validation-group-summary [model]="model" groupName="mainForm"></ngx-validation-group-summary>
+    <policy-validation-summary [model]="model"></policy-validation-summary>
+    <policy-validation-group-summary [model]="model" groupName="mainForm"></policy-validation-group-summary>
 
-    <div class="form-group mb-3" data-ngx-valid-field>
+    <div class="form-group mb-3" data-policy-validation-field>
       <label for="textInput">Text Input</label>
       <input
         type="text"
@@ -32,7 +32,7 @@
         id="textInput"
         name="textInput"
         [(ngModel)]="model.textInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.textInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
@@ -40,7 +40,7 @@
       />
     </div>
 
-    <div class="form-group mb-3" data-ngx-valid-field>
+    <div class="form-group mb-3" data-policy-validation-field>
       <label for="emailInput">Email Input</label>
       <input
         type="email"
@@ -48,7 +48,7 @@
         id="emailInput"
         name="emailInput"
         [(ngModel)]="model.emailInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.emailInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
@@ -56,7 +56,7 @@
       />
     </div>
 
-    <div class="form-group mb-3" data-ngx-valid-field>
+    <div class="form-group mb-3" data-policy-validation-field>
       <label for="passwordInput">Password Input</label>
       <input
         type="password"
@@ -64,7 +64,7 @@
         id="passwordInput"
         name="passwordInput"
         [(ngModel)]="model.passwordInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.passwordInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
@@ -73,7 +73,7 @@
       <small class="text-muted">Minimum 8 characters</small>
     </div>
 
-    <div class="form-group mb-3" data-ngx-valid-field>
+    <div class="form-group mb-3" data-policy-validation-field>
       <label for="numberInput">Number Input (1–100)</label>
       <input
         type="number"
@@ -81,7 +81,7 @@
         id="numberInput"
         name="numberInput"
         [(ngModel)]="model.numberInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.numberInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
@@ -89,7 +89,7 @@
       />
     </div>
 
-    <div class="form-group mb-3" data-ngx-valid-field>
+    <div class="form-group mb-3" data-policy-validation-field>
       <label for="dateInput">Date Input</label>
       <input
         type="date"
@@ -97,7 +97,7 @@
         id="dateInput"
         name="dateInput"
         [(ngModel)]="model.dateInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.dateInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
@@ -105,14 +105,14 @@
       />
     </div>
 
-    <div class="form-check mb-3" data-ngx-valid-field>
+    <div class="form-check mb-3" data-policy-validation-field>
       <input
         type="checkbox"
         class="form-check-input"
         id="checkboxInput"
         name="checkboxInput"
         [(ngModel)]="model.checkboxInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.checkboxInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
@@ -123,8 +123,8 @@
 
     <fieldset
       class="mb-3"
-      data-ngx-valid-field
-      ngxValidator
+      data-policy-validation-field
+      policyValidator
       [validateModel]="'form.radioGroup'"
       [actualModel]="model"
       [withPolicy]="'SampleForm'"
@@ -155,14 +155,14 @@
       </div>
     </fieldset>
 
-    <div class="form-group mb-3" data-ngx-valid-field>
+    <div class="form-group mb-3" data-policy-validation-field>
       <label for="selectInput">Select</label>
       <select
         class="form-control"
         id="selectInput"
         name="selectInput"
         [(ngModel)]="model.selectInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.selectInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"
@@ -175,7 +175,7 @@
       </select>
     </div>
 
-    <div class="form-group mb-3" data-ngx-valid-field>
+    <div class="form-group mb-3" data-policy-validation-field>
       <label for="textareaInput">Textarea</label>
       <textarea
         class="form-control"
@@ -183,7 +183,7 @@
         name="textareaInput"
         rows="4"
         [(ngModel)]="model.textareaInput"
-        ngxValidator
+        policyValidator
         [validateModel]="'form.textareaInput'"
         [actualModel]="model"
         [withPolicy]="'SampleForm'"

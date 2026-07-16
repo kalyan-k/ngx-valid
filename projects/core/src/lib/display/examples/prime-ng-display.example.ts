@@ -17,7 +17,7 @@ export const PRIME_NG_DISPLAY_CLASSES = defineValidationDisplayClasses({
   error: 'p-error',
   errorContainer: 'p-error-container',
   requiredMarker: 'p-required-marker',
-  baseInvalid: 'ngx-valid-invalid',
+  baseInvalid: 'policy-validation-invalid',
   radioGroupInvalid: 'p-radiogroup-invalid'
 });
 

@@ -1,6 +1,6 @@
 import { Renderer2 } from '@angular/core';
 import { AbstractValidationDisplayStrategy } from '../display/abstract-validation-display.strategy';
-import { MATERIAL_DISPLAY_CLASSES, NGX_VALID_DOM } from '../display/validation-display.constants';
+import { MATERIAL_DISPLAY_CLASSES, POLICY_VALIDATION_DOM } from '../display/validation-display.constants';
 import {
   ValidationDisplayConfig,
   ValidationDisplayContext
@@ -8,7 +8,7 @@ import {
 import { ControlType, RequiredResult, ValidationResult } from '../interfaces/validation-result.interface';
 import { addClasses, findAllElementsByAttribute, findElementByAttribute } from '../utils/dom.util';
 
-const STANDALONE_ERROR_ATTR = NGX_VALID_DOM.materialErrorsFor;
+const STANDALONE_ERROR_ATTR = POLICY_VALIDATION_DOM.materialErrorsFor;
 
 /**
  * Display strategy for Angular Material (MDC-based, v15+).
@@ -23,7 +23,7 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
     super();
     this.checkboxErrorClass = MATERIAL_DISPLAY_CLASSES.checkboxErrorContainer;
     this.radioErrorClass = MATERIAL_DISPLAY_CLASSES.radioErrorContainer;
-    this.standaloneErrorClass = config.classes?.error ?? 'ngx-valid-mat-field-error';
+    this.standaloneErrorClass = config.classes?.error ?? 'policy-validation-mat-field-error';
   }
   detectControlType(element: HTMLElement): ControlType {
     const tag = element.tagName.toUpperCase();
@@ -169,7 +169,7 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
 
     const labelElements = this.getLabelElements(context, parent);
     labelElements.forEach((labelElement) => {
-      labelElement.querySelectorAll('.mat-placeholder-required, [data-ngx-valid-required]').forEach((marker) => {
+      labelElement.querySelectorAll('.mat-placeholder-required, [data-policy-validation-required]').forEach((marker) => {
         renderer.removeChild(labelElement, marker);
       });
 
@@ -178,7 +178,7 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
         renderer.addClass(marker, 'mat-placeholder-required');
         renderer.addClass(marker, 'mat-form-field-required-marker');
         renderer.addClass(marker, 'mat-mdc-form-field-required-marker');
-        renderer.setAttribute(marker, 'data-ngx-valid-required', 'true');
+        renderer.setAttribute(marker, 'data-policy-validation-required', 'true');
         renderer.setAttribute(marker, 'aria-hidden', 'true');
         renderer.appendChild(marker, renderer.createText(' *'));
         renderer.appendChild(labelElement, marker);
@@ -241,14 +241,14 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
 
     if (context.controlType === 'checkbox') {
       const checkbox = this.findMatCheckbox(context);
-      return checkbox?.closest('.mat-checkbox-field, [data-ngx-valid-field]') as HTMLElement | null
+      return checkbox?.closest('.mat-checkbox-field, [data-policy-validation-field]') as HTMLElement | null
         ?? checkbox?.parentElement
         ?? null;
     }
 
     if (context.controlType === 'radio') {
       const radioGroup = this.findMatRadioGroup(context);
-      return radioGroup?.closest('.mat-radio-block, [data-ngx-valid-field]') as HTMLElement | null
+      return radioGroup?.closest('.mat-radio-block, [data-policy-validation-field]') as HTMLElement | null
         ?? radioGroup?.parentElement
         ?? null;
     }
@@ -353,16 +353,16 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
     renderer.setAttribute(parent, 'aria-invalid', 'true');
 
     if (controlType === 'radio') {
-      const wrapper = parent.closest('.mat-radio-block, [data-ngx-valid-field]') as HTMLElement | null;
+      const wrapper = parent.closest('.mat-radio-block, [data-policy-validation-field]') as HTMLElement | null;
       if (wrapper) {
-        renderer.addClass(wrapper, 'ngx-valid-mat-radio-invalid');
+        renderer.addClass(wrapper, 'policy-validation-mat-radio-invalid');
       }
     }
 
     if (controlType === 'checkbox') {
-      const wrapper = parent.closest('.mat-checkbox-field, [data-ngx-valid-field]') as HTMLElement | null;
+      const wrapper = parent.closest('.mat-checkbox-field, [data-policy-validation-field]') as HTMLElement | null;
       if (wrapper) {
-        renderer.addClass(wrapper, 'ngx-valid-mat-checkbox-invalid');
+        renderer.addClass(wrapper, 'policy-validation-mat-checkbox-invalid');
       }
     }
   }
@@ -372,16 +372,16 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
     renderer.removeAttribute(parent, 'aria-invalid');
 
     if (controlType === 'radio') {
-      const wrapper = parent.closest('.mat-radio-block, [data-ngx-valid-field]') as HTMLElement | null;
+      const wrapper = parent.closest('.mat-radio-block, [data-policy-validation-field]') as HTMLElement | null;
       if (wrapper) {
-        renderer.removeClass(wrapper, 'ngx-valid-mat-radio-invalid');
+        renderer.removeClass(wrapper, 'policy-validation-mat-radio-invalid');
       }
     }
 
     if (controlType === 'checkbox') {
-      const wrapper = parent.closest('.mat-checkbox-field, [data-ngx-valid-field]') as HTMLElement | null;
+      const wrapper = parent.closest('.mat-checkbox-field, [data-policy-validation-field]') as HTMLElement | null;
       if (wrapper) {
-        renderer.removeClass(wrapper, 'ngx-valid-mat-checkbox-invalid');
+        renderer.removeClass(wrapper, 'policy-validation-mat-checkbox-invalid');
       }
     }
   }
@@ -413,7 +413,7 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
     }
 
     if (context.controlType === 'radio') {
-      const root = parent.closest('.mat-radio-block, [data-ngx-valid-field]') ?? parent.parentElement;
+      const root = parent.closest('.mat-radio-block, [data-policy-validation-field]') ?? parent.parentElement;
       const groupLabel = root?.querySelector('.mat-group-label, legend, mat-label');
       if (groupLabel) {
         return [groupLabel as HTMLElement];
@@ -426,11 +426,11 @@ export class MaterialValidationDisplayStrategy extends AbstractValidationDisplay
   private createErrorElement(controlType: ControlType, renderer: Renderer2): HTMLElement {
     if (controlType === 'checkbox' || controlType === 'radio') {
       const errorElement = renderer.createElement('div');
-      renderer.addClass(errorElement, 'ngx-valid-mat-field-error');
-      if (this.standaloneErrorClass !== 'ngx-valid-mat-field-error') {
+      renderer.addClass(errorElement, 'policy-validation-mat-field-error');
+      if (this.standaloneErrorClass !== 'policy-validation-mat-field-error') {
         addClasses(renderer, errorElement, this.standaloneErrorClass);
       }
-      renderer.setAttribute(errorElement, NGX_VALID_DOM.error, 'true');
+      renderer.setAttribute(errorElement, POLICY_VALIDATION_DOM.error, 'true');
       renderer.setAttribute(errorElement, 'role', 'alert');
       return errorElement;
     }

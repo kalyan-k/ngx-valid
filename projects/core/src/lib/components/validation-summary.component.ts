@@ -3,12 +3,12 @@ import { ValidationResult } from '../interfaces/validation-result.interface';
 import { getValidationMeta } from '../utils/validation-meta.util';
 
 @Component({
-  selector: 'ngx-validation-summary',
+  selector: 'policy-validation-summary',
   standalone: false,
   template: `
-    <div *ngIf="visible" class="ngx-valid-summary" role="alert" [attr.aria-live]="'polite'">
-      <strong class="ngx-valid-summary-title">{{ title }}</strong>
-      <ul class="ngx-valid-summary-list">
+    <div *ngIf="visible" class="policy-validation-summary" role="alert" [attr.aria-live]="'polite'">
+      <strong class="policy-validation-summary-title">{{ title }}</strong>
+      <ul class="policy-validation-summary-list">
         <li *ngFor="let err of errors">{{ err.error.message }}</li>
       </ul>
     </div>

@@ -1,32 +1,32 @@
 import { CompleteValidationDisplayClassMap } from '../interfaces/validation-display.interface';
 
-/** DOM attributes used by ngx-valid display strategies (stable contract for custom implementations). */
-export const NGX_VALID_DOM = {
-  error: 'data-ngx-valid-error',
-  errorContainer: 'data-ngx-valid-error-container',
-  required: 'data-ngx-valid-required',
-  field: 'data-ngx-valid-field',
-  bootstrapErrorsFor: 'data-ngx-valid-bootstrap-errors-for',
-  tailwindErrorsFor: 'data-ngx-valid-tailwind-errors-for',
-  materialErrorsFor: 'data-ngx-valid-mat-errors-for'
+/** DOM attributes used by policy-validation display strategies (stable contract for custom implementations). */
+export const POLICY_VALIDATION_DOM = {
+  error: 'data-policy-validation-error',
+  errorContainer: 'data-policy-validation-error-container',
+  required: 'data-policy-validation-required',
+  field: 'data-policy-validation-field',
+  bootstrapErrorsFor: 'data-policy-validation-bootstrap-errors-for',
+  tailwindErrorsFor: 'data-policy-validation-tailwind-errors-for',
+  materialErrorsFor: 'data-policy-validation-mat-errors-for'
 } as const;
 
 export const GENERIC_DISPLAY_CLASSES = {
-  invalid: 'ngx-valid-invalid',
-  error: 'ngx-valid-error',
-  errorContainer: 'ngx-valid-error-container',
-  requiredMarker: 'ngx-valid-required-marker',
-  baseInvalid: 'ngx-valid-invalid',
-  radioGroupInvalid: 'ngx-valid-radio-group-invalid'
+  invalid: 'policy-validation-invalid',
+  error: 'policy-validation-error',
+  errorContainer: 'policy-validation-error-container',
+  requiredMarker: 'policy-validation-required-marker',
+  baseInvalid: 'policy-validation-invalid',
+  radioGroupInvalid: 'policy-validation-radio-group-invalid'
 } as const satisfies CompleteValidationDisplayClassMap;
 
 export const BOOTSTRAP_DISPLAY_CLASSES = {
   invalid: 'is-invalid',
-  error: 'ngx-valid-bootstrap-field-error',
-  errorContainer: 'ngx-valid-bootstrap-error-container',
-  requiredMarker: 'ngx-valid-required-marker text-danger',
+  error: 'policy-validation-bootstrap-field-error',
+  errorContainer: 'policy-validation-bootstrap-error-container',
+  requiredMarker: 'policy-validation-required-marker text-danger',
   baseInvalid: 'is-invalid',
-  radioGroupInvalid: 'ngx-valid-radio-group-invalid'
+  radioGroupInvalid: 'policy-validation-radio-group-invalid'
 } as const satisfies CompleteValidationDisplayClassMap;
 
 export const TAILWIND_DISPLAY_CLASSES = {
@@ -39,14 +39,14 @@ export const TAILWIND_DISPLAY_CLASSES = {
 } as const satisfies CompleteValidationDisplayClassMap;
 
 export const MATERIAL_DISPLAY_CLASSES = {
-  invalid: 'ngx-valid-mat-invalid',
-  error: 'mat-error ngx-valid-mat-field-error',
+  invalid: 'policy-validation-mat-invalid',
+  error: 'mat-error policy-validation-mat-field-error',
   errorContainer: 'mat-mdc-form-field-error-wrapper',
-  requiredMarker: 'ngx-valid-mat-required-marker',
-  baseInvalid: 'ngx-valid-mat-invalid',
-  radioGroupInvalid: 'ngx-valid-mat-radio-group-invalid',
-  checkboxErrorContainer: 'ngx-valid-mat-checkbox-errors',
-  radioErrorContainer: 'ngx-valid-mat-radio-errors'
+  requiredMarker: 'policy-validation-mat-required-marker',
+  baseInvalid: 'policy-validation-mat-invalid',
+  radioGroupInvalid: 'policy-validation-mat-radio-group-invalid',
+  checkboxErrorContainer: 'policy-validation-mat-checkbox-errors',
+  radioErrorContainer: 'policy-validation-mat-radio-errors'
 } as const;
 
 export const DEFAULT_REQUIRED_MARKER = ' *';

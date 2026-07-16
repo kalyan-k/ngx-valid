@@ -1,4 +1,4 @@
-import { ValidationPolicy, Validator, ValidatorHelper } from 'ngx-valid';
+import { ValidationPolicy, Validator, ValidatorHelper } from '@policy-validation/angular';
 
 export class PersonalInfoValidationPolicy implements ValidationPolicy {
   addValidations(validatorHelper: ValidatorHelper): Validator[] {

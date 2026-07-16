@@ -53,18 +53,18 @@
           <h5 class="mb-0">Form configuration</h5>
           <small class="text-muted">Policy: <code>PerformanceConfig</code> · Group: <code>perfConfig</code></small>
         </div>
-        <ngx-validation-group-status
+        <policy-validation-group-status
           [model]="model"
           groupName="perfConfig"
           pendingTooltip="Configure sections and controls per section, then generate the form."
           evaluatedTooltip="Configuration inputs are valid."
-        ></ngx-validation-group-status>
+        ></policy-validation-group-status>
       </div>
       <div class="card-body">
-        <ngx-validation-group-summary [model]="model" groupName="perfConfig"></ngx-validation-group-summary>
+        <policy-validation-group-summary [model]="model" groupName="perfConfig"></policy-validation-group-summary>
 
         <div class="row g-3 align-items-end">
-          <div class="col-md-3 form-group" data-ngx-valid-field>
+          <div class="col-md-3 form-group" data-policy-validation-field>
             <label for="sectionCount">Sections / components</label>
             <input
               type="number"
@@ -75,7 +75,7 @@
               max="50"
               [(ngModel)]="model.config.sectionCount"
               [disabled]="isBusy"
-              ngxValidator
+              policyValidator
               [validateModel]="'form.config.sectionCount'"
               [actualModel]="model"
               [withPolicy]="configPolicyName"
@@ -83,7 +83,7 @@
             />
             <small class="text-muted">Range: 1–50</small>
           </div>
-          <div class="col-md-3 form-group" data-ngx-valid-field>
+          <div class="col-md-3 form-group" data-policy-validation-field>
             <label for="controlsPerSection">Controls per section</label>
             <input
               type="number"
@@ -94,7 +94,7 @@
               max="200"
               [(ngModel)]="model.config.controlsPerSection"
               [disabled]="isBusy"
-              ngxValidator
+              policyValidator
               [validateModel]="'form.config.controlsPerSection'"
               [actualModel]="model"
               [withPolicy]="configPolicyName"
@@ -136,25 +136,25 @@
         <mat-card-title>Form configuration</mat-card-title>
         <mat-card-subtitle>Policy: PerformanceConfig · Group: perfConfig</mat-card-subtitle>
         <span class="mat-card-header-spacer"></span>
-        <ngx-validation-group-status [model]="model" groupName="perfConfig"
+        <policy-validation-group-status [model]="model" groupName="perfConfig"
           pendingTooltip="Configure sections and controls per section, then generate the form."
-          evaluatedTooltip="Configuration inputs are valid."></ngx-validation-group-status>
+          evaluatedTooltip="Configuration inputs are valid."></policy-validation-group-status>
       </mat-card-header>
       <mat-card-content>
-        <ngx-validation-group-summary [model]="model" groupName="perfConfig"></ngx-validation-group-summary>
+        <policy-validation-group-summary [model]="model" groupName="perfConfig"></policy-validation-group-summary>
         <div class="mat-fields-grid">
-          <mat-form-field appearance="outline" data-ngx-valid-field>
+          <mat-form-field appearance="outline" data-policy-validation-field>
             <mat-label>Sections / components</mat-label>
             <input matInput type="number" id="matSectionCount" name="sectionCount" min="1" max="50"
-              [(ngModel)]="model.config.sectionCount" [disabled]="isBusy" ngxValidator
+              [(ngModel)]="model.config.sectionCount" [disabled]="isBusy" policyValidator
               [validateModel]="'form.config.sectionCount'" [actualModel]="model"
               [withPolicy]="configPolicyName" [groupName]="configGroupName" />
             <mat-hint>Range: 1–50</mat-hint>
           </mat-form-field>
-          <mat-form-field appearance="outline" data-ngx-valid-field>
+          <mat-form-field appearance="outline" data-policy-validation-field>
             <mat-label>Controls per section</mat-label>
             <input matInput type="number" id="matControlsPerSection" name="controlsPerSection" min="1" max="200"
-              [(ngModel)]="model.config.controlsPerSection" [disabled]="isBusy" ngxValidator
+              [(ngModel)]="model.config.controlsPerSection" [disabled]="isBusy" policyValidator
               [validateModel]="'form.config.controlsPerSection'" [actualModel]="model"
               [withPolicy]="configPolicyName" [groupName]="configGroupName" />
             <mat-hint>Range: 1–200</mat-hint>
@@ -181,24 +181,24 @@
           <h3 class="tw-panel-title">Form configuration</h3>
           <p class="tw-panel-subtitle">Policy: PerformanceConfig · Group: perfConfig</p>
         </div>
-        <ngx-validation-group-status [model]="model" groupName="perfConfig"
+        <policy-validation-group-status [model]="model" groupName="perfConfig"
           pendingTooltip="Configure sections and controls per section, then generate the form."
-          evaluatedTooltip="Configuration inputs are valid."></ngx-validation-group-status>
+          evaluatedTooltip="Configuration inputs are valid."></policy-validation-group-status>
       </header>
-      <ngx-validation-group-summary [model]="model" groupName="perfConfig"></ngx-validation-group-summary>
+      <policy-validation-group-summary [model]="model" groupName="perfConfig"></policy-validation-group-summary>
       <div class="tw-grid-2">
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twSectionCount">Sections / components</label>
           <input class="tw-input" type="number" id="twSectionCount" name="sectionCount" min="1" max="50"
-            [(ngModel)]="model.config.sectionCount" [disabled]="isBusy" ngxValidator
+            [(ngModel)]="model.config.sectionCount" [disabled]="isBusy" policyValidator
             [validateModel]="'form.config.sectionCount'" [actualModel]="model"
             [withPolicy]="configPolicyName" [groupName]="configGroupName" />
           <p class="tw-hint">Range: 1–50</p>
         </div>
-        <div class="tw-field" data-ngx-valid-field>
+        <div class="tw-field" data-policy-validation-field>
           <label class="tw-label" for="twControlsPerSection">Controls per section</label>
           <input class="tw-input" type="number" id="twControlsPerSection" name="controlsPerSection" min="1" max="200"
-            [(ngModel)]="model.config.controlsPerSection" [disabled]="isBusy" ngxValidator
+            [(ngModel)]="model.config.controlsPerSection" [disabled]="isBusy" policyValidator
             [validateModel]="'form.config.controlsPerSection'" [actualModel]="model"
             [withPolicy]="configPolicyName" [groupName]="configGroupName" />
           <p class="tw-hint">Range: 1–200</p>
@@ -245,7 +245,7 @@
           </div>
           <div class="col-6 col-md-3">
             <div class="stat-tile">
-              <span class="stat-label">ngxValidator directives</span>
+              <span class="stat-label">policyValidator directives</span>
               <span class="stat-value">{{ metrics.estimatedDirectives | number }}</span>
             </div>
           </div>
@@ -281,13 +281,13 @@
     <ng-container *ngIf="isGenerated || phase === 'rendering'">
       <section class="card mb-4 border-primary" *ngIf="isGenerated && uiFramework === 'bootstrap'">
         <div class="card-body">
-          <ngx-validation-policy-group-status
+          <policy-validation-policy-group-status
             [model]="model"
             [policyGroupName]="policyGroupName"
             label="Entire performance form"
             pendingTooltip="Run Validate all or Submit to evaluate every generated section."
             evaluatedTooltip="Combined validation result across all dynamically generated sections."
-          ></ngx-validation-policy-group-status>
+          ></policy-validation-policy-group-status>
           <app-performance-form-error-summary
             [model]="model"
             [sections]="allSectionMetas"
@@ -298,13 +298,13 @@
 
       <mat-card *ngIf="isGenerated && uiFramework === 'material'" class="mb-4">
         <mat-card-content>
-          <ngx-validation-policy-group-status
+          <policy-validation-policy-group-status
             [model]="model"
             [policyGroupName]="policyGroupName"
             label="Entire performance form"
             pendingTooltip="Run Validate all or Submit to evaluate every generated section."
             evaluatedTooltip="Combined validation result across all dynamically generated sections."
-          ></ngx-validation-policy-group-status>
+          ></policy-validation-policy-group-status>
           <app-performance-form-error-summary
             [model]="model"
             [sections]="allSectionMetas"
@@ -314,13 +314,13 @@
       </mat-card>
 
       <section *ngIf="isGenerated && uiFramework === 'tailwind'" class="tw-panel mb-4">
-        <ngx-validation-policy-group-status
+        <policy-validation-policy-group-status
           [model]="model"
           [policyGroupName]="policyGroupName"
           label="Entire performance form"
           pendingTooltip="Run Validate all or Submit to evaluate every generated section."
           evaluatedTooltip="Combined validation result across all dynamically generated sections."
-        ></ngx-validation-policy-group-status>
+        ></policy-validation-policy-group-status>
         <app-performance-form-error-summary
           [model]="model"
           [sections]="allSectionMetas"
