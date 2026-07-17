@@ -1,7 +1,6 @@
 import { Binary, Conditional, ImplicitReceiver, KeyedRead, Lexer, LiteralArray, LiteralMap, LiteralPrimitive, Call, Parser, PrefixNot, PropertyRead, AST, ParseLocation, ParseSourceFile, ParseSourceSpan } from '@angular/compiler';
 
 const isString = (v: any) => typeof v === 'string';
-const isDef = (v: undefined) => v !== void 0;
 const ifDef = (v: undefined, d: number) => v === void 0 ? d : v;
 const plus = (a: undefined, b: undefined) => void 0 === a ? b : void 0 === b ? a : a + b;
 const minus = (a: undefined, b: undefined) => ifDef(a, 0) - ifDef(b, 0);
@@ -15,30 +14,6 @@ function bindingSourceSpan(expr: string): ParseSourceSpan {
     const end = new ParseLocation(file, expr.length, 0, expr.length);
     return new ParseSourceSpan(start, end);
 }
-
-const primitiveEquals = (a: any, b: any) => {
-    if (typeof a === 'object' || typeof b === 'object') {
-        return false;
-    }
-    if (a !== a && b !== b) { // NaN case
-        return true;
-    }
-    return a === b;
-};
-
-const detectChanges = (ov: any[], nv: string | any[]) => {
-    const len = nv.length;
-    if (len > 10) {
-        return true;
-    }
-    for (let i = len - 1; i >= 0; i--) {
-        if (!primitiveEquals(ov[i], nv[i])) {
-            return true;
-        }
-    }
-    return false;
-};
-
 
 class ASTCompiler {
     ast: any; // ast to be compiled
@@ -67,7 +42,7 @@ class ASTCompiler {
 
     processLiteralPrimitive() {
         const ast = this.cAst;
-        return isString(ast.value) ? `"${ast.value}"` : ast.value;
+        return isString(ast.value) ? JSON.stringify(ast.value) : ast.value;
     }
 
     processLiteralArray() {
@@ -90,7 +65,7 @@ class ASTCompiler {
         for (const _value of ast.values) {
             _values.push(this.build(_value));
         }
-        stmts.push(`${v}={${ast.keys.map((k: { key: string; }, i: any) => k.key + ':' + _values[i])}}`);
+        stmts.push(`${v}={${ast.keys.map((k: { key: string; }, i: any) => JSON.stringify(k.key) + ':' + _values[i])}}`);
         return v;
     }
 
@@ -107,9 +82,10 @@ class ASTCompiler {
         const ast = this.cAst;
         const stmts = this.cStmts;
         const k = this.build(ast.key);
-        const o = this.build(ast.obj);
+        // Angular 20 exposes the keyed-read target as `receiver` (older versions used `obj`).
+        const o = this.build(ast.receiver ?? ast.obj);
         const v = this.createVar();
-        stmts.push(`${v}=${o}["${k}"]`);
+        stmts.push(`${v}=${o}&&${o}[${k}]`);
         return v;
     }
 
@@ -140,18 +116,19 @@ class ASTCompiler {
         const l = this.build(ast.left);
         const r = this.build(ast.right, _s2);
 
-        let v = this.createVar();
+        const v = this.createVar();
 
         if (ast.operation === '&&') {
-            v = r;
             _s1.push(
+                `${v}=${l};`,
                 `if(${l}){`,
                 _s2.join(';'),
+                `;${v}=${r};`,
                 `}`
             );
         } else {
-            v = l;
             _s1.push(
+                `${v}=${l};`,
                 `if(!${l}){`,
                 _s2.join(';'),
                 `;${v}=${r};`,
@@ -199,10 +176,10 @@ class ASTCompiler {
         _s1.push(
             `if(${condition}){`,
             _s2.join(';'),
-            `${v}=${trueExp};`,
+            `;${v}=${trueExp};`,
             `}else{`,
             _s3.join(';'),
-            `${v}=${falseExp};`,
+            `;${v}=${falseExp};`,
             `}`
         );
 
@@ -217,9 +194,18 @@ class ASTCompiler {
         for (const arg of ast.args) {
             _args.push(this.build(arg));
         }
-        const fn = this.build(ast.receiver);
         const v = this.createVar();
-        stmts.push(`${v}=${fn}.${ast.name}&&${fn}.${ast.name}(${_args.join(',')})`);
+
+        // Angular 20 represents a method call as Call(PropertyRead(receiver, name), args).
+        // Compile that shape without losing the method's `this` binding.
+        if (ast.receiver instanceof PropertyRead) {
+            const target = this.build(ast.receiver.receiver);
+            const methodName = ast.receiver.name;
+            stmts.push(`${v}=${target}&&${target}.${methodName}&&${target}.${methodName}(${_args.join(',')})`);
+        } else {
+            const fn = this.build(ast.receiver);
+            stmts.push(`${v}=${fn}&&${fn}(${_args.join(',')})`);
+        }
         return v;
     }
 
@@ -263,7 +249,7 @@ class ASTCompiler {
     }
 
     fnArgs() {
-        const args = ['_plus', '_minus', '_isDef'];
+        const args = ['_plus', '_minus'];
 
         args.push('ctx', 'locals');
 
@@ -283,7 +269,7 @@ class ASTCompiler {
         this.addReturnStmt(this.build(this.ast));
 
         const fn = new Function(this.fnArgs(), this.fnBody());
-        const boundFn = fn.bind(undefined, plus, minus, isDef);
+        const boundFn = fn.bind(undefined, plus, minus);
         this.cleanup();
         return boundFn;
     }

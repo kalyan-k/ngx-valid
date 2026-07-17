@@ -190,6 +190,21 @@ npm run build:demo
 npm run build:all
 ```
 
+## Testing
+
+The core library and demo application have independent Jasmine/Karma suites and independently enforced 90% thresholds for statements, branches, functions, and lines.
+
+```bash
+npm test
+npm run test:coverage
+npm run test:coverage:core
+npm run test:coverage:demo
+npm run test:reports
+npm run reports:open
+```
+
+`npm run test:reports` creates a file-system-friendly dashboard at `reports/index.html`, with separate test-execution and source-coverage reports for the core library and demo app. See [docs/testing.md](docs/testing.md) for report locations, CI behavior, failure handling, troubleshooting, exclusions, and contributor conventions.
+
 ## Repository Layout
 
 ```text
@@ -218,9 +233,9 @@ Issues and pull requests are welcome at `https://github.com/kalyan-k/policy-vali
 Before opening a pull request, run:
 
 ```bash
-npm run build:lib
-npm run build:demo
-npm test
+npm ci
+npm run test:coverage
+npm run build:all
 ```
 
 ## License

@@ -18,8 +18,25 @@
     "watch:lib": "ng build core --configuration development --watch",
     "pack:lib": "npm run build:lib && npm pack ./dist/policy-validation --dry-run",
     "publish:lib": "npm run build:lib && npm publish ./dist/policy-validation --access public",
-    "test": "ng test core",
-    "test:all": "ng test",
+    "test": "npm run test:core && npm run test:demo",
+    "test:core": "ng test core --watch=false --browsers=ChromeHeadless",
+    "test:demo": "ng test demo-app --watch=false --browsers=ChromeHeadless",
+    "test:coverage": "npm run test:coverage:core && npm run test:coverage:demo",
+    "test:coverage:core": "ng test core --watch=false --browsers=ChromeHeadless --code-coverage",
+    "test:coverage:demo": "ng test demo-app --watch=false --browsers=ChromeHeadless --code-coverage",
+    "test:coverage:core:ci": "ng test core --watch=false --browsers=ChromeHeadlessCI --code-coverage",
+    "test:coverage:demo:ci": "ng test demo-app --watch=false --browsers=ChromeHeadlessCI --code-coverage",
+    "test:reports:core": "node tools/testing/run-project-report.mjs core",
+    "test:reports:demo": "node tools/testing/run-project-report.mjs demo-app",
+    "test:reports": "node tools/testing/run-all-reports.mjs",
+    "test:ci": "node tools/testing/run-all-reports.mjs --ci",
+    "test:all": "npm test",
+    "test:watch:core": "ng test core",
+    "test:watch:demo": "ng test demo-app",
+    "reports:clean": "node tools/testing/clean-reports.mjs",
+    "reports:index": "node tools/testing/generate-report-index.mjs",
+    "reports:verify": "node tools/testing/verify-reports.mjs",
+    "reports:open": "node tools/testing/open-reports.mjs",
     "lint": "ng lint core",
     "lint:all": "ng lint"
   },
@@ -67,7 +84,7 @@
   },
   "overrides": {
     "lodash": "4.18.1",
-    "glob": "^11.0.0",
+    "glob": "^13.0.0",
     "ws": "^8.18.0",
     "rollup": "^4.34.0",
     "flatted": "^3.3.2",
@@ -77,7 +94,7 @@
     "braces": "^3.0.3",
     "tar": "^7.4.0",
     "webpack-dev-middleware": "^7.4.2",
-    "minimatch": "^9.0.5",
+    "minimatch": "^10.2.5",
     "serialize-javascript": "^7.0.5",
     "tmp": "^0.2.4",
     "piscina": "^4.9.0",
@@ -88,6 +105,9 @@
     "http-proxy-middleware": "^3.0.7",
     "webpack-dev-server": "^5.2.5",
     "@babel/core": "^7.29.1",
-    "@sigstore/core": "^3.2.1"
+    "@sigstore/core": "^3.2.1",
+    "karma": {
+      "minimatch": "3.1.4"
+    }
   }
 }

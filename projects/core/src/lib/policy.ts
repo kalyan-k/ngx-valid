@@ -100,8 +100,8 @@ export class Policy {
     }
 
     private canRunValidation = (model: any, value: any, validator: any, validationRule: any) => {
-        if (validator.dependency) {
-            return this.isDependencySatisfied(model, validator);
+        if (validator.dependency && !this.isDependencySatisfied(model, validator)) {
+            return false;
         }
 
         // Don't run validation if the rule is optional and doesn't have a value.

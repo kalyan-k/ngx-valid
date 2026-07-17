@@ -27,7 +27,14 @@
 				"test": {
 					"builder": "@angular-devkit/build-angular:karma",
 					"options": {
+						"karmaConfig": "karma.core.conf.cjs",
+						"preserveSymlinks": true,
 						"tsConfig": "projects/core/tsconfig.spec.json",
+						"codeCoverageExclude": [
+							"projects/core/src/public-api.ts",
+							"projects/core/src/lib/interface/**/*.ts",
+							"projects/core/src/lib/interfaces/validation-result.interface.ts"
+						],
 						"polyfills": [
 							"zone.js",
 							"zone.js/testing"
@@ -60,6 +67,7 @@
 					"builder": "@angular-devkit/build-angular:browser",
 					"options": {
 						"outputPath": "dist/demo-app",
+						"preserveSymlinks": true,
 						"index": "projects/demo-app/src/index.html",
 						"main": "projects/demo-app/src/main.ts",
 						"polyfills": [
@@ -130,11 +138,16 @@
 				"test": {
 					"builder": "@angular-devkit/build-angular:karma",
 					"options": {
+						"karmaConfig": "karma.demo-app.conf.cjs",
+						"preserveSymlinks": true,
 						"polyfills": [
 							"zone.js",
 							"zone.js/testing"
 						],
 						"tsConfig": "projects/demo-app/tsconfig.spec.json",
+						"codeCoverageExclude": [
+							"projects/demo-app/src/main.ts"
+						],
 						"inlineStyleLanguage": "sass",
 						"assets": [
 							"projects/demo-app/src/favicon.ico",

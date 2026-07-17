@@ -1,0 +1,66 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { cleanReports } from './clean-reports.mjs';
+import { generateReportIndex } from './generate-report-index.mjs';
+import { verifyReports } from './verify-reports.mjs';
+import {
+  projects,
+  npmRunInvocation,
+  requiredProjectReports,
+  workspaceRoot
+} from './report-paths.mjs';
+
+const useCiLauncher = process.argv.includes('--ci') || process.env.CI === 'true';
+let failed = false;
+
+try {
+  cleanReports();
+
+  for (const projectName of projects) {
+    const scriptProject = projectName === 'demo-app' ? 'demo' : 'core';
+    const scriptName = `test:coverage:${scriptProject}${useCiLauncher ? ':ci' : ''}`;
+    const invocation = npmRunInvocation(scriptName);
+    console.log(`\nGenerating ${projectName} test and coverage reports...`);
+    const result = spawnSync(invocation.command, invocation.args, {
+      cwd: workspaceRoot,
+      env: process.env,
+      stdio: 'inherit',
+      shell: false
+    });
+
+    if (result.error) {
+      console.error(result.error.stack || result.error);
+      failed = true;
+    } else if (result.status !== 0) {
+      failed = true;
+    }
+
+    const missing = requiredProjectReports(projectName).filter((file) => !fs.existsSync(file));
+    if (missing.length > 0) {
+      failed = true;
+      console.error(`Missing generated ${projectName} report files:`);
+      missing.forEach((file) => console.error(`- ${path.relative(workspaceRoot, file)}`));
+    }
+  }
+
+  const dashboard = generateReportIndex();
+  console.log(`Generated report dashboard: ${path.relative(workspaceRoot, dashboard.output)}`);
+  if (dashboard.missing.length > 0) {
+    failed = true;
+  }
+
+  const verificationFailures = verifyReports();
+  if (verificationFailures.length > 0) {
+    failed = true;
+    console.error(`Report verification failed with ${verificationFailures.length} issue(s):`);
+    verificationFailures.forEach((failure) => console.error(`- ${failure}`));
+  } else {
+    console.log('Verified generated report structure and local navigation.');
+  }
+} catch (error) {
+  console.error(error instanceof Error ? error.stack : error);
+  failed = true;
+}
+
+process.exitCode = failed ? 1 : 0;
