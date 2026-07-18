@@ -5,6 +5,7 @@ import { cleanReports } from './clean-reports.mjs';
 import {
   assertProject,
   npmRunInvocation,
+  projectScriptName,
   requiredProjectReports,
   workspaceRoot
 } from './report-paths.mjs';
@@ -17,8 +18,7 @@ try {
   cleanReports(projectName);
 
   const useCiLauncher = explicitCi || process.env.CI === 'true';
-  const scriptProject = projectName === 'demo-app' ? 'demo' : 'core';
-  const scriptName = `test:coverage:${scriptProject}${useCiLauncher ? ':ci' : ''}`;
+  const scriptName = `test:coverage:${projectScriptName(projectName)}${useCiLauncher ? ':ci' : ''}`;
   const invocation = npmRunInvocation(scriptName);
   const result = spawnSync(invocation.command, invocation.args, {
     cwd: workspaceRoot,

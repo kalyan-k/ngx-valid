@@ -6,7 +6,12 @@ const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 export const workspaceRoot = path.resolve(toolsDirectory, '..', '..');
 export const reportsRoot = path.join(workspaceRoot, 'reports');
-export const projects = Object.freeze(['core', 'demo-app']);
+export const projects = Object.freeze(['core', 'angular', 'angular-demo']);
+const projectScriptNames = Object.freeze({
+  core: 'core',
+  angular: 'angular',
+  'angular-demo': 'demo'
+});
 
 export function assertProject(projectName) {
   if (!projects.includes(projectName)) {
@@ -17,6 +22,11 @@ export function assertProject(projectName) {
 export function projectReportRoot(projectName) {
   assertProject(projectName);
   return path.join(reportsRoot, projectName);
+}
+
+export function projectScriptName(projectName) {
+  assertProject(projectName);
+  return projectScriptNames[projectName];
 }
 
 export function requiredProjectReports(projectName) {

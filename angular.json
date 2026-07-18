@@ -1,179 +1,222 @@
 {
-	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-	"version": 1,
-	"newProjectRoot": "projects",
-	"projects": {
-		"core": {
-			"projectType": "library",
-			"root": "projects/core",
-			"sourceRoot": "projects/core/src",
-			"prefix": "lib",
-			"architect": {
-				"build": {
-					"builder": "@angular-devkit/build-angular:ng-packagr",
-					"options": {
-						"project": "projects/core/ng-package.json"
-					},
-					"configurations": {
-						"production": {
-							"tsConfig": "projects/core/tsconfig.lib.prod.json"
-						},
-						"development": {
-							"tsConfig": "projects/core/tsconfig.lib.json"
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"test": {
-					"builder": "@angular-devkit/build-angular:karma",
-					"options": {
-						"karmaConfig": "karma.core.conf.cjs",
-						"preserveSymlinks": true,
-						"tsConfig": "projects/core/tsconfig.spec.json",
-						"codeCoverageExclude": [
-							"projects/core/src/public-api.ts",
-							"projects/core/src/lib/interface/**/*.ts",
-							"projects/core/src/lib/interfaces/validation-result.interface.ts"
-						],
-						"polyfills": [
-							"zone.js",
-							"zone.js/testing"
-						]
-					}
-				},
-				"lint": {
-					"builder": "@angular-eslint/builder:lint",
-					"options": {
-						"lintFilePatterns": [
-							"projects/core/**/*.ts",
-							"projects/core/**/*.html"
-						]
-					}
-				}
-			}
-		},
-		"demo-app": {
-			"projectType": "application",
-			"schematics": {
-				"@schematics/angular:component": {
-					"style": "sass"
-				}
-			},
-			"root": "projects/demo-app",
-			"sourceRoot": "projects/demo-app/src",
-			"prefix": "app",
-			"architect": {
-				"build": {
-					"builder": "@angular-devkit/build-angular:browser",
-					"options": {
-						"outputPath": "dist/demo-app",
-						"preserveSymlinks": true,
-						"index": "projects/demo-app/src/index.html",
-						"main": "projects/demo-app/src/main.ts",
-						"polyfills": [
-							"zone.js"
-						],
-						"tsConfig": "projects/demo-app/tsconfig.app.json",
-						"inlineStyleLanguage": "sass",
-						"assets": [
-							"projects/demo-app/src/favicon.ico",
-							"projects/demo-app/src/assets"
-						],
-						"styles": [
-							"node_modules/bootstrap/dist/css/bootstrap.min.css",
-							"@angular/material/prebuilt-themes/indigo-pink.css",
-							"dist/policy-validation/styles/policy-validation.css",
-							"projects/demo-app/src/styles.sass"
-						],
-						"scripts": []
-					},
-					"configurations": {
-						"production": {
-							"budgets": [
-								{
-									"type": "initial",
-									"maximumWarning": "1.5mb",
-									"maximumError": "2mb"
-								},
-								{
-									"type": "anyComponentStyle",
-									"maximumWarning": "2kb",
-									"maximumError": "4kb"
-								}
-							],
-							"outputHashing": "all"
-						},
-						"development": {
-							"buildOptimizer": false,
-							"optimization": false,
-							"vendorChunk": true,
-							"extractLicenses": false,
-							"sourceMap": true,
-							"namedChunks": true
-						}
-					},
-					"defaultConfiguration": "production"
-				},
-				"serve": {
-					"builder": "@angular-devkit/build-angular:dev-server",
-					"options": {
-						"buildTarget": "demo-app:build:development"
-					},
-					"configurations": {
-						"production": {
-							"buildTarget": "demo-app:build:production"
-						},
-						"development": {
-							"buildTarget": "demo-app:build:development"
-						}
-					},
-					"defaultConfiguration": "development"
-				},
-				"extract-i18n": {
-					"builder": "@angular-devkit/build-angular:extract-i18n",
-					"options": {
-						"buildTarget": "demo-app:build"
-					}
-				},
-				"test": {
-					"builder": "@angular-devkit/build-angular:karma",
-					"options": {
-						"karmaConfig": "karma.demo-app.conf.cjs",
-						"preserveSymlinks": true,
-						"polyfills": [
-							"zone.js",
-							"zone.js/testing"
-						],
-						"tsConfig": "projects/demo-app/tsconfig.spec.json",
-						"codeCoverageExclude": [
-							"projects/demo-app/src/main.ts"
-						],
-						"inlineStyleLanguage": "sass",
-						"assets": [
-							"projects/demo-app/src/favicon.ico",
-							"projects/demo-app/src/assets"
-						],
-						"styles": [
-							"projects/demo-app/src/styles.sass"
-						],
-						"scripts": []
-					}
-				},
-				"lint": {
-					"builder": "@angular-eslint/builder:lint",
-					"options": {
-						"lintFilePatterns": [
-							"projects/demo-app/**/*.ts",
-							"projects/demo-app/**/*.html"
-						]
-					}
-				}
-			}
-		}
-	},
-	"cli": {
-		"schematicCollections": [
-			"@angular-eslint/schematics"
-		]
-	}
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "packages",
+  "projects": {
+    "core": {
+      "projectType": "library",
+      "root": "packages/core",
+      "sourceRoot": "packages/core/src",
+      "prefix": "pv",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "packages/core/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "packages/core/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "packages/core/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "karmaConfig": "karma.core.conf.cjs",
+            "preserveSymlinks": true,
+            "tsConfig": "packages/core/tsconfig.spec.json",
+            "codeCoverageExclude": [
+              "packages/core/src/public-api.ts",
+              "packages/core/src/lib/interfaces/**/*.ts"
+            ],
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "packages/core/src"
+            ]
+          }
+        }
+      }
+    },
+    "angular": {
+      "projectType": "library",
+      "root": "packages/angular",
+      "sourceRoot": "packages/angular/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "packages/angular/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "packages/angular/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "packages/angular/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "karmaConfig": "karma.angular.conf.cjs",
+            "preserveSymlinks": true,
+            "tsConfig": "packages/angular/tsconfig.spec.json",
+            "codeCoverageExclude": [
+              "packages/angular/src/public-api.ts"
+            ],
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "packages/angular/src"
+            ]
+          }
+        }
+      }
+    },
+    "angular-demo": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "sass"
+        }
+      },
+      "root": "apps/angular-demo",
+      "sourceRoot": "apps/angular-demo/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/angular-demo",
+            "preserveSymlinks": true,
+            "index": "apps/angular-demo/src/index.html",
+            "main": "apps/angular-demo/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "apps/angular-demo/tsconfig.app.json",
+            "inlineStyleLanguage": "sass",
+            "assets": [
+              "apps/angular-demo/src/favicon.ico",
+              "apps/angular-demo/src/assets"
+            ],
+            "styles": [
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "@angular/material/prebuilt-themes/indigo-pink.css",
+              "dist/policy-validation/styles/policy-validation.css",
+              "apps/angular-demo/src/styles.sass"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "1.5mb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "angular-demo:build:development"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "angular-demo:build:production"
+            },
+            "development": {
+              "buildTarget": "angular-demo:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "angular-demo:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "karmaConfig": "karma.angular-demo.conf.cjs",
+            "preserveSymlinks": true,
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "apps/angular-demo/tsconfig.spec.json",
+            "codeCoverageExclude": [
+              "apps/angular-demo/src/main.ts"
+            ],
+            "inlineStyleLanguage": "sass",
+            "assets": [
+              "apps/angular-demo/src/favicon.ico",
+              "apps/angular-demo/src/assets"
+            ],
+            "styles": [
+              "apps/angular-demo/src/styles.sass"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/angular-demo/src"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
+  }
 }

@@ -1,0 +1,9 @@
+{
+  "name": "@policy-validation/angular-demo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Private Angular demonstration application for @policy-validation/angular",
+  "dependencies": {
+    "@policy-validation/angular": "1.0.0"
+  }
+}

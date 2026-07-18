@@ -262,7 +262,12 @@ function PersistentTestResultsReporter(baseReporterDecorator, config, logger) {
   const log = logger.create('reporter:persistent-test-results');
   const options = config.persistentTestResultsReporter || {};
   const projectName = options.projectName || 'tests';
-  const displayName = projectName === 'demo-app' ? 'Demo App' : 'Core Library';
+  const displayNames = {
+    core: 'Core Engine',
+    angular: 'Angular Adapter',
+    'angular-demo': 'Angular Demo'
+  };
+  const displayName = displayNames[projectName] || projectName;
   const outputDir = options.outputDir || path.join(config.basePath, 'reports', projectName);
   const workspaceRoot = config.basePath || process.cwd();
   let startedAt;

@@ -2,14 +2,18 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
+      "@policy-validation/core": [
+        "./dist/policy-validation-core",
+        "./packages/core/src/public-api.ts"
+      ],
       "@policy-validation/angular": [
         "./dist/policy-validation",
-        "./projects/core/src/public-api.ts"
+        "./packages/angular/src/public-api.ts"
       ]
     },
     "outDir": "./dist/out-tsc",
-    "rootDir": "./projects",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,

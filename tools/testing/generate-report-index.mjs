@@ -39,7 +39,12 @@ function projectData(projectName) {
 }
 
 function renderProject({ projectName, tests, coverage, missing }) {
-  const title = projectName === 'core' ? 'Core Library' : 'Demo App';
+  const titles = {
+    core: 'Core Engine',
+    angular: 'Angular Adapter',
+    'angular-demo': 'Angular Demo'
+  };
+  const title = titles[projectName] || projectName;
   const summary = tests?.summary;
   const statusClass = (summary?.failed || tests?.runError || missing.length > 0) ? 'status-warning' : 'status-pass';
   const statusText = missing.length > 0
@@ -88,7 +93,7 @@ function renderDashboard(data, generatedAt) {
     body { margin:0; color:var(--ink); background:var(--bg); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
     header { padding:42px 28px 34px; text-align:center; color:#fff; background:linear-gradient(125deg,#172554,#3157d5 62%,#4f46e5); }
     header .eyebrow { color:#c7d7ff; } header h1 { margin:6px 0; font-size:34px; } header p { margin:0; color:#dce5ff; }
-    main { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; max-width:1280px; margin:0 auto; padding:28px; }
+    main { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; max-width:1600px; margin:0 auto; padding:28px; }
     .project-card { padding:24px; border:1px solid var(--line); border-radius:16px; background:var(--panel); box-shadow:0 8px 28px rgba(23,32,51,.06); }
     .project-heading { display:flex; align-items:start; justify-content:space-between; gap:14px; }
     .eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
@@ -107,15 +112,15 @@ function renderDashboard(data, generatedAt) {
     .coverage { margin-top:8px; }
     .missing { margin-top:16px; color:var(--warn); } .missing ul { margin-bottom:0; }
     footer { padding:0 28px 28px; text-align:center; color:var(--muted); }
-    @media (max-width:900px) { main { grid-template-columns:1fr; } }
+    @media (max-width:1200px) { main { grid-template-columns:1fr; max-width:760px; } }
     @media (max-width:580px) { header h1 { font-size:27px; } main { padding:14px; } .project-card { padding:18px; } .metrics { grid-template-columns:repeat(2,1fr); } }
   </style>
 </head>
 <body>
   <header>
-    <span class="eyebrow">@policy-validation/angular</span>
+    <span class="eyebrow">Policy Validation monorepo</span>
     <h1>Test and code-coverage reports</h1>
-    <p>Independent reports for the core library and demo application</p>
+    <p>Independent reports for the core engine, Angular adapter, and Angular demo</p>
   </header>
   <main>${data.map(renderProject).join('\n')}</main>
   <footer>Generated ${escapeHtml(generatedAt)}</footer>

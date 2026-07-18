@@ -7,6 +7,16 @@ const persistentTestResultsReporter = require('./tools/testing/persistent-test-r
 applyKarmaGlobCompatibility();
 
 function configureKarma(config, projectName) {
+  const sourceRoots = {
+    core: path.join(__dirname, 'packages', 'core'),
+    angular: path.join(__dirname, 'packages', 'angular'),
+    'angular-demo': path.join(__dirname, 'apps', 'angular-demo')
+  };
+  const sourceRoot = sourceRoots[projectName];
+  if (!sourceRoot) {
+    throw new Error(`Unknown Karma project: ${projectName}`);
+  }
+
   config.set({
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -31,7 +41,7 @@ function configureKarma(config, projectName) {
     persistentTestResultsReporter: {
       projectName,
       outputDir: path.join(__dirname, 'reports', projectName),
-      sourceRoot: path.join(__dirname, 'projects', projectName === 'core' ? 'core' : 'demo-app')
+      sourceRoot
     },
     coverageReporter: {
       dir: path.join(__dirname, 'reports', projectName, 'coverage'),
@@ -53,8 +63,12 @@ function configureKarma(config, projectName) {
       }
     },
     reporters: ['progress', 'kjhtml', 'persistent-test-results'],
-    browsers: ['ChromeHeadless'],
+    browsers: ['ChromeHeadlessLocal'],
     customLaunchers: {
+      ChromeHeadlessLocal: {
+        base: 'ChromeHeadless',
+        flags: ['--disable-gpu']
+      },
       ChromeHeadlessCI: {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage']

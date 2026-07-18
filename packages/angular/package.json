@@ -1,0 +1,49 @@
+{
+  "name": "@policy-validation/angular",
+  "version": "1.0.0",
+  "description": "Angular adapter for policy-based validation and pluggable form-error display",
+  "keywords": [
+    "angular",
+    "validation",
+    "angular-forms",
+    "forms",
+    "validator",
+    "form-validation",
+    "policy-validation"
+  ],
+  "license": "MIT",
+  "author": "Kalyan K <kalyan411@gmail.com>",
+  "homepage": "https://github.com/kalyan-k/policy-validation#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com:kalyan-k/policy-validation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kalyan-k/policy-validation/issues"
+  },
+  "peerDependencies": {
+    "@policy-validation/core": "^1.0.0",
+    "@angular/common": "^20.3.0",
+    "@angular/compiler": "^20.3.0",
+    "@angular/core": "^20.3.0",
+    "@angular/forms": "^20.3.0",
+    "rxjs": "^7.8.0",
+    "underscore": "^1.13.8"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "style": "styles/policy-validation.css",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./styles/policy-validation.css": {
+      "style": "./styles/policy-validation.css",
+      "default": "./styles/policy-validation.css"
+    }
+  }
+}

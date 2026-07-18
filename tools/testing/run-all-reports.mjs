@@ -7,6 +7,7 @@ import { verifyReports } from './verify-reports.mjs';
 import {
   projects,
   npmRunInvocation,
+  projectScriptName,
   requiredProjectReports,
   workspaceRoot
 } from './report-paths.mjs';
@@ -18,8 +19,7 @@ try {
   cleanReports();
 
   for (const projectName of projects) {
-    const scriptProject = projectName === 'demo-app' ? 'demo' : 'core';
-    const scriptName = `test:coverage:${scriptProject}${useCiLauncher ? ':ci' : ''}`;
+    const scriptName = `test:coverage:${projectScriptName(projectName)}${useCiLauncher ? ':ci' : ''}`;
     const invocation = npmRunInvocation(scriptName);
     console.log(`\nGenerating ${projectName} test and coverage reports...`);
     const result = spawnSync(invocation.command, invocation.args, {
