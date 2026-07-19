@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@validation-rules/core": [
+        "../../dist/validation-rules-core",
+        "../core/src/public-api.ts"
+      ],
+      "@validation-rules/angular": [
+        "../../dist/validation-rules-angular",
+        "./src/public-api.ts"
+      ]
+    }
+  }
+}

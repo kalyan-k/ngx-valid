@@ -1,16 +1,18 @@
 'use strict';
 
 const path = require('node:path');
-const { applyKarmaGlobCompatibility } = require('./tools/karma-glob-compat.cjs');
-const persistentTestResultsReporter = require('./tools/testing/persistent-test-results-reporter.cjs');
+const { applyKarmaGlobCompatibility } = require('./karma-glob-compat.cjs');
+const persistentTestResultsReporter = require('./persistent-test-results-reporter.cjs');
 
 applyKarmaGlobCompatibility();
 
+const workspaceRoot = path.resolve(__dirname, '..', '..');
+
 function configureKarma(config, projectName) {
   const sourceRoots = {
-    core: path.join(__dirname, 'packages', 'core'),
-    angular: path.join(__dirname, 'packages', 'angular'),
-    'angular-demo': path.join(__dirname, 'apps', 'angular-demo')
+    core: path.join(workspaceRoot, 'packages', 'core'),
+    angular: path.join(workspaceRoot, 'packages', 'angular'),
+    'angular-demo': path.join(workspaceRoot, 'apps', 'angular-demo')
   };
   const sourceRoot = sourceRoots[projectName];
   if (!sourceRoot) {
@@ -18,7 +20,7 @@ function configureKarma(config, projectName) {
   }
 
   config.set({
-    basePath: '',
+    basePath: workspaceRoot,
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
     plugins: [
       require('karma-jasmine'),
@@ -40,11 +42,11 @@ function configureKarma(config, projectName) {
     },
     persistentTestResultsReporter: {
       projectName,
-      outputDir: path.join(__dirname, 'reports', projectName),
+      outputDir: path.join(workspaceRoot, 'reports', projectName),
       sourceRoot
     },
     coverageReporter: {
-      dir: path.join(__dirname, 'reports', projectName, 'coverage'),
+      dir: path.join(workspaceRoot, 'reports', projectName, 'coverage'),
       subdir: '.',
       fixWebpackSourcePaths: true,
       reporters: [

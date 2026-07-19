@@ -8,13 +8,12 @@ Validation Rules separates reusable validation behavior from Angular integration
 validation-rules/
 |-- packages/
 |   |-- core/                 # @validation-rules/core
-|   `-- angular/              # @validation-rules/angular
+|   `-- angular/              # @validation-rules/angular and Angular CLI workspace
 |-- apps/
-|   `-- angular-demo/         # private Angular consumer
+|   `-- angular-demo/         # private Angular consumer and its Karma config
 |-- tools/
 |   |-- architecture/         # dependency-boundary verification
-|   `-- testing/              # persistent report pipeline
-|-- angular.json
+|   `-- testing/              # shared Karma config and persistent report pipeline
 |-- package.json              # private npm-workspaces root
 `-- tsconfig.json
 ```
@@ -93,7 +92,7 @@ Package builds follow dependency order:
 2. `@validation-rules/angular` to `dist/validation-rules-angular`
 3. `angular-demo` to `dist/angular-demo`
 
-The root scripts encode this order. Individual project targets remain available for focused development, but the Angular package build requires a current core artifact.
+The root scripts encode this order and delegate Angular CLI commands to the workspace configuration owned by `packages/angular`. Individual project targets remain available for focused development, but the Angular package build requires a current core artifact.
 
 ## Testing ownership
 

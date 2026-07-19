@@ -2,16 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "paths": {
-      "@validation-rules/core": [
-        "./dist/validation-rules-core",
-        "./packages/core/src/public-api.ts"
-      ],
-      "@validation-rules/angular": [
-        "./dist/validation-rules-angular",
-        "./packages/angular/src/public-api.ts"
-      ]
-    },
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,

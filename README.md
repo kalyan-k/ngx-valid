@@ -43,18 +43,17 @@ See [Architecture](docs/architecture.md) for ownership decisions and extension g
 ```text
 validation-rules/
 |-- apps/
-|   `-- angular-demo/          # private consumer and integration demo
+|   `-- angular-demo/          # private consumer, integration demo, and Karma config
 |-- packages/
-|   |-- angular/               # @validation-rules/angular
-|   `-- core/                  # @validation-rules/core
+|   |-- angular/               # @validation-rules/angular and Angular CLI workspace
+|   `-- core/                  # @validation-rules/core and core Karma config
 |-- docs/
 |   |-- architecture.md
 |   |-- rebranding-report.md
 |   `-- testing.md
 |-- tools/
 |   |-- architecture/          # dependency-boundary verification
-|   `-- testing/               # persistent HTML/JSON/JUnit reports
-|-- angular.json
+|   `-- testing/               # shared Karma config and persistent reports
 |-- package.json               # private npm-workspaces root
 `-- tsconfig.json
 ```

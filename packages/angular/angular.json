@@ -1,25 +1,25 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "$schema": "../../node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "newProjectRoot": "packages",
+  "newProjectRoot": ".",
   "projects": {
     "core": {
       "projectType": "library",
-      "root": "packages/core",
-      "sourceRoot": "packages/core/src",
+      "root": "../core",
+      "sourceRoot": "../core/src",
       "prefix": "pv",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "packages/core/ng-package.json"
+            "project": "../core/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "packages/core/tsconfig.lib.prod.json"
+              "tsConfig": "../core/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "packages/core/tsconfig.lib.json"
+              "tsConfig": "../core/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -27,12 +27,12 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "karmaConfig": "karma.core.conf.cjs",
+            "karmaConfig": "../core/karma.conf.cjs",
             "preserveSymlinks": true,
-            "tsConfig": "packages/core/tsconfig.spec.json",
+            "tsConfig": "../core/tsconfig.spec.json",
             "codeCoverageExclude": [
-              "packages/core/src/public-api.ts",
-              "packages/core/src/lib/interfaces/**/*.ts"
+              "../core/src/public-api.ts",
+              "../core/src/lib/interfaces/**/*.ts"
             ],
             "polyfills": [
               "zone.js",
@@ -44,7 +44,7 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "packages/core/src"
+              "../core/src"
             ]
           }
         }
@@ -52,21 +52,21 @@
     },
     "angular": {
       "projectType": "library",
-      "root": "packages/angular",
-      "sourceRoot": "packages/angular/src",
+      "root": ".",
+      "sourceRoot": "src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "packages/angular/ng-package.json"
+            "project": "ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "packages/angular/tsconfig.lib.prod.json"
+              "tsConfig": "tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "packages/angular/tsconfig.lib.json"
+              "tsConfig": "tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -74,11 +74,11 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "karmaConfig": "karma.angular.conf.cjs",
+            "karmaConfig": "karma.conf.cjs",
             "preserveSymlinks": true,
-            "tsConfig": "packages/angular/tsconfig.spec.json",
+            "tsConfig": "tsconfig.spec.json",
             "codeCoverageExclude": [
-              "packages/angular/src/public-api.ts"
+              "src/public-api.ts"
             ],
             "polyfills": [
               "zone.js",
@@ -90,7 +90,7 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "packages/angular/src"
+              "src"
             ]
           }
         }
@@ -103,31 +103,31 @@
           "style": "sass"
         }
       },
-      "root": "apps/angular-demo",
-      "sourceRoot": "apps/angular-demo/src",
+      "root": "../../apps/angular-demo",
+      "sourceRoot": "../../apps/angular-demo/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/angular-demo",
+            "outputPath": "../../dist/angular-demo",
             "preserveSymlinks": true,
-            "index": "apps/angular-demo/src/index.html",
-            "main": "apps/angular-demo/src/main.ts",
+            "index": "../../apps/angular-demo/src/index.html",
+            "main": "../../apps/angular-demo/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "apps/angular-demo/tsconfig.app.json",
+            "tsConfig": "../../apps/angular-demo/tsconfig.app.json",
             "inlineStyleLanguage": "sass",
             "assets": [
-              "apps/angular-demo/src/favicon.ico",
-              "apps/angular-demo/src/assets"
+              "../../apps/angular-demo/src/favicon.ico",
+              "../../apps/angular-demo/src/assets"
             ],
             "styles": [
-              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "../../node_modules/bootstrap/dist/css/bootstrap.min.css",
               "@angular/material/prebuilt-themes/indigo-pink.css",
-              "dist/validation-rules-angular/styles/policy-validation.css",
-              "apps/angular-demo/src/styles.sass"
+              "../../dist/validation-rules-angular/styles/policy-validation.css",
+              "../../apps/angular-demo/src/styles.sass"
             ],
             "scripts": []
           },
@@ -182,23 +182,23 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "karmaConfig": "karma.angular-demo.conf.cjs",
+            "karmaConfig": "../../apps/angular-demo/karma.conf.cjs",
             "preserveSymlinks": true,
             "polyfills": [
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "apps/angular-demo/tsconfig.spec.json",
+            "tsConfig": "../../apps/angular-demo/tsconfig.spec.json",
             "codeCoverageExclude": [
-              "apps/angular-demo/src/main.ts"
+              "../../apps/angular-demo/src/main.ts"
             ],
             "inlineStyleLanguage": "sass",
             "assets": [
-              "apps/angular-demo/src/favicon.ico",
-              "apps/angular-demo/src/assets"
+              "../../apps/angular-demo/src/favicon.ico",
+              "../../apps/angular-demo/src/assets"
             ],
             "styles": [
-              "apps/angular-demo/src/styles.sass"
+              "../../apps/angular-demo/src/styles.sass"
             ],
             "scripts": []
           }
@@ -207,7 +207,7 @@
           "builder": "@angular-eslint/builder:lint",
           "options": {
             "lintFilePatterns": [
-              "apps/angular-demo/src"
+              "../../apps/angular-demo/src"
             ]
           }
         }

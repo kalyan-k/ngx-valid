@@ -13,7 +13,7 @@ Two browsable HTML report types are generated:
 
 The interactive `kjhtml` page and console progress remain enabled for local watch runs. Persistent reports remain usable after Karma exits and can be opened directly from the file system.
 
-Karma 6 expects older `glob` and `minimatch` APIs. `tools/karma-glob-compat.cjs` adapts the two properties Karma reads, while a scoped npm override gives Karma patched `minimatch` 3.1.4. This compatibility is limited to the runner.
+Karma 6 expects older `glob` and `minimatch` APIs. `tools/testing/karma-glob-compat.cjs` adapts the two properties Karma reads, while a scoped npm override gives Karma patched `minimatch` 3.1.4. This compatibility is limited to the runner.
 
 All three test targets and the demo build enable `preserveSymlinks`, keeping module identity stable when the workspace is opened through a junction or symbolic link.
 
@@ -77,7 +77,7 @@ Karma exposes mapped stacks for failed Jasmine results. Passing results do not e
 
 ## Coverage gates
 
-`karma.shared.conf.cjs` enforces these minimums independently:
+`tools/testing/karma.shared.conf.cjs` enforces these minimums independently:
 
 | Metric | Core | Angular | Demo |
 | --- | ---: | ---: | ---: |

@@ -41,6 +41,7 @@ validation-rules/
 |-- apps/
 |   `-- angular-demo/
 |       |-- src/app/
+|       |-- karma.conf.cjs
 |       |-- package.json
 |       `-- tsconfig.*.json
 |-- docs/
@@ -49,21 +50,19 @@ validation-rules/
 |   `-- testing.md
 |-- packages/
 |   |-- angular/
+|   |   |-- angular.json
+|   |   |-- karma.conf.cjs
 |   |   |-- src/lib/
 |   |   |-- ng-package.json
 |   |   `-- package.json
 |   `-- core/
+|       |-- karma.conf.cjs
 |       |-- src/lib/
 |       |-- ng-package.json
 |       `-- package.json
 |-- tools/
 |   |-- architecture/
-|   `-- testing/
-|-- angular.json
-|-- karma.angular-demo.conf.cjs
-|-- karma.angular.conf.cjs
-|-- karma.core.conf.cjs
-|-- karma.shared.conf.cjs
+|   `-- testing/               # shared Karma and report tooling
 |-- package-lock.json
 |-- package.json
 |-- README.md
@@ -112,7 +111,7 @@ Root configuration, CI, and documentation files modified:
 ```text
 .github/workflows/test.yml
 README.md
-angular.json
+packages/angular/angular.json
 docs/architecture.md
 docs/testing.md
 package-lock.json

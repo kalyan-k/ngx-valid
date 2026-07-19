@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const { Glob } = require('glob');
 
 /**
- * Karma 6 reads the legacy Glob#found and Glob#statCache properties. The workspace
+ * Karma 6 reads the legacy Glob#found and Glob#statCache properties. This workspace
  * intentionally pins a supported modern glob release, so adapt that API at test
  * configuration time instead of installing Karma's deprecated glob 7 dependency.
  */
