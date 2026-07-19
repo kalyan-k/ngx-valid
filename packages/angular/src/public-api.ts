@@ -1,5 +1,5 @@
 /*
- * Public API Surface of policy-validation
+ * Public API surface of the Validation Rules Angular adapter.
  */
 
 export * from './lib/validation.module';
@@ -16,7 +16,7 @@ export {
   PolicyGroupConfig,
   ControlType,
   clearTouchedFieldsForPrefix
-} from '@policy-validation/core';
+} from '@validation-rules/core';
 export { ValidationProviderService } from './lib/services/validation-provider.service';
 export { ValidatorDirective } from './lib/directives/validator.directive';
 export { Policy } from './lib/policy';

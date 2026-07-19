@@ -2,15 +2,15 @@
 
 ## Goals
 
-The workspace separates reusable validation behavior from Angular integration while preserving the existing Angular API and runtime behavior. The structure is intentionally small: one engine package, one framework adapter, and one real demo application.
+Validation Rules separates reusable validation behavior from Angular integration while preserving the established Angular API and runtime behavior. The workspace is intentionally small: one framework-neutral engine, one implemented framework adapter, and one real consumer application.
 
 ```text
-policy-validation/
+validation-rules/
 |-- packages/
-|   |-- core/                 # @policy-validation/core
-|   `-- angular/              # @policy-validation/angular
+|   |-- core/                 # @validation-rules/core
+|   `-- angular/              # @validation-rules/angular
 |-- apps/
-|   `-- angular-demo/         # private Angular application
+|   `-- angular-demo/         # private Angular consumer
 |-- tools/
 |   |-- architecture/         # dependency-boundary verification
 |   `-- testing/              # persistent report pipeline
@@ -19,25 +19,25 @@ policy-validation/
 `-- tsconfig.json
 ```
 
-No `shared` package exists because there is no third ownership boundary to justify one. React and Vue adapters and demos are not scaffolded until they have a real implementation.
+There is no `shared` package because the current code has no additional ownership boundary that justifies one. Future-framework adapters and demos are not scaffolded until they have complete implementations.
 
 ## Dependency graph
 
 ```text
-@policy-validation/angular-demo (private app)
-                 |
-                 | dependency
-                 v
-    @policy-validation/angular
-                 |
-                 | peer dependency
-                 v
-      @policy-validation/core
+@validation-rules/angular-demo (private app)
+                  |
+                  | dependency
+                  v
+     @validation-rules/angular
+                  |
+                  | peer dependency
+                  v
+       @validation-rules/core
 ```
 
-The demo imports only `@policy-validation/angular`. The Angular adapter imports `@policy-validation/core`. Core imports neither Angular nor an adapter. npm workspaces link the three local packages during repository development; TypeScript path mappings support tests and local compilation.
+The demo imports only `@validation-rules/angular`. The Angular adapter imports `@validation-rules/core`. Core imports neither Angular nor an adapter. npm workspaces link the local packages during repository development; TypeScript path mappings support tests and local compilation.
 
-Run `npm run architecture:verify` to validate this direction. CI runs the same command before tests. The verifier rejects Angular dependencies in core, reverse adapter imports, direct demo-to-core imports, missing workspace relationships, and out-of-scope React/Vue placeholders.
+Run `npm run architecture:verify` to validate this direction. CI runs the same command before tests. The verifier rejects Angular dependencies in core, reverse adapter imports, direct demo-to-core imports, missing workspace relationships, and out-of-scope React or Vue placeholders.
 
 ## Core engine boundary
 
@@ -48,11 +48,11 @@ Run `npm run architecture:verify` to validate this direction. CI runs the same c
 - `Validator`, `ValidatorHelper`, and built-in `ValidationHelper` rules
 - validation metadata, touched-field, reset, and failure-shape utilities
 
-The package compiles as a publishable Angular Package Format library through ng-packagr, but its runtime sources and package manifest have no Angular dependency. Reusing the existing packager avoids introducing another build system solely for this extraction.
+The package compiles as a publishable Angular Package Format library through ng-packagr, but its runtime sources and manifest have no Angular dependency. Reusing the workspace packager avoids introducing a second build system solely for the neutral package.
 
 ## Angular adapter boundary
 
-`packages/angular` owns all Angular-specific behavior:
+`packages/angular` owns framework-specific behavior:
 
 - `ValidationModule` and providers
 - `ValidationProviderService`
@@ -61,45 +61,66 @@ The package compiles as a publishable Angular Package Format library through ng-
 - DOM rendering utilities and display strategies
 - Angular expression parsing and `Policy` execution
 
-The adapter consumes engine types and helpers through the `@policy-validation/core` public entry point. Its public entry point re-exports the framework-neutral symbols that the original Angular package exposed, preserving consumer imports from `@policy-validation/angular`.
+The adapter consumes engine types and helpers through the `@validation-rules/core` public entry point. Its own entry point re-exports neutral symbols that existing Angular consumers historically imported from the adapter.
+
+## Compatibility boundary
+
+The repository, npm scope, imports, package metadata, report titles, and build destinations use the Validation Rules identity. Existing runtime and public API contracts remain unchanged:
+
+- Angular selectors such as `policy-validation-group-status`
+- the `policyValidator` directive selector and inputs
+- DOM attributes and `policy-validation-*` CSS classes
+- the `styles/policy-validation.css` package export
+- public policy-domain types such as `ValidationPolicy`, `Policy`, and `POLICY_VALIDATION_DOM`
+
+Those names are compatibility hooks or domain concepts, not workspace branding. Renaming them would require a separately planned breaking release and consumer migration.
 
 ## Why policy execution remains in Angular
 
-The existing `Policy` implementation creates expressions through `@angular/compiler`. Moving that implementation to core would give core an Angular dependency, while replacing the parser would be a behavioral rewrite with compatibility risk. This migration therefore keeps the parser and executor in the adapter.
+The existing `Policy` implementation creates expressions through `@angular/compiler`. Moving that implementation to core would give core an Angular dependency, while replacing the parser would be a behavioral rewrite with compatibility risk.
 
-A future extraction should first define a small expression-evaluator port in core, provide an Angular-backed implementation in the adapter, and run the existing policy specifications against both the old and proposed evaluators. Until that work is justified, the present boundary is the safest honest separation.
+A future extraction should first define a small expression-evaluator port in core, provide an Angular-backed implementation in the adapter, and run the existing policy specifications against both evaluators. Until that work is justified, the current boundary is the safest behavior-preserving design.
 
 ## Demo boundary
 
-`apps/angular-demo` is a private application. It consumes the Angular package name rather than reaching into package source paths, which makes its builds and integration tests representative of real consumers. It keeps its existing routing, forms, display presets, and runtime behavior.
+`apps/angular-demo` is a private application. It consumes the Angular package name instead of package source paths, making its builds and integration tests representative of real consumers. Its routes, forms, display presets, and interaction behavior remain unchanged.
 
 ## Build order
 
 Package builds follow dependency order:
 
-1. `@policy-validation/core` to `dist/policy-validation-core`
-2. `@policy-validation/angular` to `dist/policy-validation`
+1. `@validation-rules/core` to `dist/validation-rules-core`
+2. `@validation-rules/angular` to `dist/validation-rules-angular`
 3. `angular-demo` to `dist/angular-demo`
 
-The root scripts encode this order. Individual project targets remain available for focused development, but an Angular adapter package build requires a current core build artifact.
+The root scripts encode this order. Individual project targets remain available for focused development, but the Angular package build requires a current core artifact.
 
 ## Testing ownership
 
-Specifications moved with their owning production code:
+Specifications live beside the code whose behavior they protect:
 
 - Core validator and metadata tests live under `packages/core`.
 - Angular services, policy execution, directive, component, parser, display, and DOM tests live under `packages/angular`.
 - Application and integration tests live under `apps/angular-demo`.
 
-Each target generates separate test, coverage, and JUnit reports and enforces the same 90% global thresholds. This prevents high coverage in one layer from hiding gaps in another.
+Each target generates separate HTML, JSON, LCOV, and JUnit reports and independently enforces 90% global thresholds. High coverage in one layer cannot hide gaps in another.
 
-## Extension policy
+## Adding an adapter
 
-Add a new framework adapter only when there is concrete framework integration to implement. It should depend on `@policy-validation/core`, own its lifecycle/rendering bindings, and receive an application that exercises its public package entry point. If two or more adapters later share non-engine build or test infrastructure, evaluate a `shared` package then; do not add one preemptively.
+Add a framework adapter only when there is concrete integration to implement. A complete adapter should:
 
-## Known risks and follow-up opportunities
+1. Depend on `@validation-rules/core` without introducing a reverse dependency.
+2. Own its framework lifecycle, form bindings, and rendering behavior.
+3. Export a deliberate public entry point and document its compatibility contract.
+4. Include a private application that consumes the package name rather than source paths.
+5. Carry independent lint, build, test, coverage, and report targets.
+6. Extend the architecture guard and CI pipeline.
 
-- The policy executor is not yet framework-independent because of the Angular expression parser.
-- The packages share a root toolchain and version today; independent release automation is outside this migration.
-- `underscore` remains a core peer dependency to preserve current validator semantics. Replacing it should be a separately tested change.
-- The Angular adapter uses a core peer dependency, so published releases must keep compatible versions aligned. This repository does not automate publishing.
+If two or more adapters later share non-engine infrastructure, evaluate a shared package at that time; do not add one preemptively.
+
+## Known risks and opportunities
+
+- The Angular expression parser still anchors policy execution to the adapter.
+- `underscore` remains a core peer dependency to preserve validator semantics.
+- Package versions and compatibility are aligned manually; publishing and release automation are outside this repository milestone.
+- Compatibility identifiers retain their historic names and require clear documentation for new consumers.

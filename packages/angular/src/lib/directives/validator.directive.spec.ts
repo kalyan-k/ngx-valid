@@ -7,7 +7,7 @@ import {
   RendererFactory2
 } from '@angular/core';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { getValidationMeta, ValidationPolicy, Validator, ValidatorHelper } from '@policy-validation/core';
+import { getValidationMeta, ValidationPolicy, Validator, ValidatorHelper } from '@validation-rules/core';
 import { ValidationDisplayStrategy } from '../interfaces/validation-display.interface';
 import { ValidationProviderService } from '../services/validation-provider.service';
 import { ValidatorDirective } from './validator.directive';

@@ -1,59 +1,96 @@
-# Policy Validation
+# Validation Rules
 
-Policy Validation is a policy-based validation toolkit organized as an extendable monorepo. The reusable validation engine is framework-independent, the Angular package adapts it to Angular forms and rendering, and the demo consumes the same Angular public API as an application.
+Validation Rules is an extendable monorepo for policy-driven model and form validation. It separates a framework-independent rules engine from framework adapters, so validation behavior can stay reusable and testable while each UI integration owns its lifecycle and rendering concerns.
 
-## Packages and application
+The repository currently ships a core engine and a production Angular adapter, plus an Angular demo that exercises the public package API. It intentionally contains no placeholder implementations for other frameworks.
 
-| Workspace | Package | Responsibility |
-| --- | --- | --- |
-| `packages/core` | `@policy-validation/core` | Framework-neutral contracts, validators, rules, and validation-state utilities |
-| `packages/angular` | `@policy-validation/angular` | Angular forms integration, policy execution, directives, services, components, and display strategies |
-| `apps/angular-demo` | private | Browser demo and integration coverage for the Angular adapter |
+## Key features
 
-The dependency direction is deliberately one-way:
+- Fluent, reusable validation rules organized into named policies
+- Framework-independent validators, contracts, results, and model-state utilities
+- Angular template-driven forms integration through a directive and provider service
+- Nested model paths, conditional rules, asynchronous rules, and dependent fields
+- Form-group and multi-policy-group validation status
+- Field, group, policy-group, and page-level error summaries
+- Bootstrap, Angular Material, Tailwind-friendly, generic, automatic, and custom display strategies
+- Independent tests, coverage gates, and browsable reports for every workspace project
+- Enforced dependency direction from demo to adapter to core
+
+## Why Validation Rules?
+
+Validation logic often becomes scattered across templates, components, event handlers, and backend-shaped models. Validation Rules gives that behavior an explicit home. A policy describes what a model requires; an adapter connects that policy to a framework; display strategies decide how errors appear.
+
+This separation makes rules easier to reuse, test, review, and evolve without tying the engine to a particular UI framework. Existing Angular behavior remains intact while the monorepo provides a clean boundary for future adapters when real implementations are ready.
+
+## Architecture
 
 ```text
 apps/angular-demo
         |
         v
-packages/angular
+@validation-rules/angular
         |
         v
-packages/core
+@validation-rules/core
 ```
 
-`@policy-validation/angular` re-exports the framework-neutral symbols that were historically part of its public API, so existing Angular imports remain valid. `@policy-validation/core` has no Angular dependency.
+Dependencies flow in one direction. The private demo consumes only the Angular package. The Angular adapter consumes the core public entry point. Core has no Angular dependency. `npm run architecture:verify` enforces these boundaries and rejects speculative React or Vue placeholders.
+
+See [Architecture](docs/architecture.md) for ownership decisions and extension guidance.
+
+## Repository structure
+
+```text
+validation-rules/
+|-- apps/
+|   `-- angular-demo/          # private consumer and integration demo
+|-- packages/
+|   |-- angular/               # @validation-rules/angular
+|   `-- core/                  # @validation-rules/core
+|-- docs/
+|   |-- architecture.md
+|   |-- rebranding-report.md
+|   `-- testing.md
+|-- tools/
+|   |-- architecture/          # dependency-boundary verification
+|   `-- testing/               # persistent HTML/JSON/JUnit reports
+|-- angular.json
+|-- package.json               # private npm-workspaces root
+`-- tsconfig.json
+```
 
 ## Installation
 
-Angular consumers install the engine, adapter, and Underscore peer dependency together:
+Angular consumers install the core engine, Angular adapter, and Underscore peer dependency together:
 
 ```bash
-npm install @policy-validation/core @policy-validation/angular underscore
+npm install @validation-rules/core @validation-rules/angular underscore
 ```
 
-Angular framework packages are peer dependencies of `@policy-validation/angular`.
+Angular framework packages are peer dependencies of `@validation-rules/angular`.
 
-To use the optional default stylesheet, add:
+To use the optional default stylesheet, add its stable package entry point to the Angular workspace configuration:
 
 ```json
 {
   "styles": [
-    "node_modules/@policy-validation/angular/styles/policy-validation.css"
+    "node_modules/@validation-rules/angular/styles/policy-validation.css"
   ]
 }
 ```
 
-## Angular quick start
+The `policy-validation.css` filename and `policy-validation-*` DOM/CSS hooks are retained as compatibility APIs. Package names and repository identity changed; existing selectors and styling integrations did not.
+
+## Quick start
+
+Define a policy:
 
 ```typescript
-import { NgModule } from '@angular/core';
 import {
-  ValidationModule,
   ValidationPolicy,
   Validator,
   ValidatorHelper
-} from '@policy-validation/angular';
+} from '@validation-rules/angular';
 
 export class UserFormPolicy implements ValidationPolicy {
   addValidations(v: ValidatorHelper): Validator[] {
@@ -64,12 +101,29 @@ export class UserFormPolicy implements ValidationPolicy {
     ];
   }
 }
+```
+
+Configure the Angular module and register the policy:
+
+```typescript
+import { NgModule } from '@angular/core';
+import {
+  ValidationModule,
+  ValidationProviderService
+} from '@validation-rules/angular';
 
 @NgModule({
   imports: [ValidationModule.forRoot({ preset: 'bootstrap' })]
 })
-export class AppModule {}
+export class AppModule {
+  constructor(validation: ValidationProviderService) {
+    validation.register('UserForm', new UserFormPolicy());
+    validation.registerFormGroupPolicy('userForm', 'UserForm');
+  }
+}
 ```
+
+Attach the existing directive API to a template-driven control:
 
 ```html
 <input
@@ -82,16 +136,64 @@ export class AppModule {}
 />
 ```
 
-Register the policy with `ValidationProviderService`:
+## Advanced example
+
+Use multiple policies and form groups for a multi-step workflow:
 
 ```typescript
-validationProvider.register('UserForm', new UserFormPolicy());
-validationProvider.registerFormGroupPolicy('userForm', 'UserForm');
+validation.register('PersonalInfo', personalInfoPolicy);
+validation.register('ShippingAddress', shippingPolicy);
+validation.register('BillingAddress', billingPolicy);
+
+validation.registerPolicyGroup('checkout', {
+  policies: ['PersonalInfo', 'ShippingAddress', 'BillingAddress'],
+  formGroups: ['personalInfo', 'shippingInfo', 'billingInfo']
+});
+
+validation.evaluatePolicies(order, ['PersonalInfo', 'ShippingAddress', 'BillingAddress'])
+  .subscribe(() => {
+    if ((order.validationResults ?? []).length === 0) {
+      submitOrder(order);
+    }
+  });
 ```
 
-## Repository setup
+The Angular adapter also supports generated forms through `replacePolicy()`, explicit state cleanup, and custom display strategies.
 
-Requirements are Node.js 22, npm, and a locally available Chrome/Chromium browser for Karma.
+## Policies
+
+A policy implements `ValidationPolicy` and returns validators for one model concern. Policies are registered under stable names, can be replaced for dynamic forms, and can be evaluated individually or as a set. The existing Angular expression-based `Policy` executor stays in the adapter because it depends on `@angular/compiler`.
+
+## Rules
+
+`ValidatorHelper` creates fluent validators for model paths. `ValidationHelper` supplies built-in checks such as required values, email shape, numbers, ranges, and conditional rules. Core exports the rule engine directly; Angular re-exports its historically public neutral symbols for consumer compatibility.
+
+## Groups
+
+Form groups aggregate field status for one portion of a view. Policy groups aggregate policies and form groups across larger workflows such as checkout or onboarding. Angular status and summary components render these states using the unchanged `policy-validation-*` selectors.
+
+## Package overview
+
+| Workspace | Package | Responsibility |
+| --- | --- | --- |
+| `packages/core` | `@validation-rules/core` | Framework-neutral contracts, rules, validators, results, and model-state utilities |
+| `packages/angular` | `@validation-rules/angular` | Angular policy execution, forms integration, directives, services, components, and display strategies |
+| `apps/angular-demo` | private | Browser demo and integration coverage using the Angular public API |
+
+Build artifacts are written to `dist/validation-rules-core`, `dist/validation-rules-angular`, and `dist/angular-demo`.
+
+## Roadmap
+
+- Continue strengthening the framework-neutral engine and adapter contract
+- Evaluate a parser abstraction that could move expression execution out of Angular without changing behavior
+- Improve package release coordination and consumer migration tooling after package names are approved
+- Consider React, Vue, Svelte, or Blazor adapters only as future product directions backed by complete implementations and demos
+
+No non-Angular framework package or placeholder exists in this repository.
+
+## Development
+
+Requirements are Node.js 22, npm, and a locally available Chrome or Chromium browser for Karma.
 
 ```bash
 npm install
@@ -100,56 +202,22 @@ npm test
 npm run build:all
 ```
 
-Common commands:
-
 | Command | Purpose |
 | --- | --- |
-| `npm start` | Build both packages and serve `angular-demo` |
-| `npm run build:core` | Build the framework-independent package |
-| `npm run build:angular` | Build core, then the Angular adapter |
-| `npm run build:demo` | Build both packages, then the demo |
-| `npm run build:all` | Build the complete monorepo |
-| `npm test` | Run all three test suites |
+| `npm start` | Build both packages and serve the Angular demo |
+| `npm run build` | Build core and the Angular adapter in dependency order |
+| `npm run build:demo` | Build packages and the production demo |
+| `npm test` | Run the core, Angular, and demo suites |
 | `npm run test:coverage` | Run all suites with independent 90% coverage gates |
-| `npm run test:reports` | Generate browsable test and coverage reports for all projects |
+| `npm run test:reports` | Generate and verify browsable reports for every project |
 | `npm run reports:open` | Open the generated report dashboard |
 | `npm run lint:all` | Lint every configured project |
 
-Build outputs are generated under `dist/`:
-
-```text
-dist/
-|-- policy-validation-core/  # @policy-validation/core
-|-- policy-validation/       # @policy-validation/angular
-`-- angular-demo/            # demo browser bundle
-```
-
-## Testing and reports
-
-Core, Angular, and demo tests run independently. Each project enforces at least 90% statements, branches, functions, and lines coverage. `npm run test:reports` generates `reports/index.html`, persistent HTML test results, Istanbul source coverage, JSON/LCOV summaries, and JUnit XML.
-
-See [Testing and reports](docs/testing.md) for the command matrix, report paths, coverage scope, CI behavior, and troubleshooting.
-
-## Architecture
-
-The repository contains only the abstractions justified by the current Angular implementation. It does not include React, Vue, placeholder adapters, or a speculative shared package.
-
-The Angular expression-based `Policy` executor remains in the Angular adapter because it uses `@angular/compiler`. Moving it into core without changing behavior requires a future parser abstraction. See [Architecture](docs/architecture.md) for package boundaries, extraction decisions, dependency enforcement, and extension guidance.
-
-## Public API compatibility
-
-Existing consumers can continue importing these framework-neutral symbols from `@policy-validation/angular`:
-
-- `ValidationPolicy`, `ValidationModel`
-- `Validator`, `ValidatorHelper`, `ValidationHelper`
-- validation result and group-state contracts
-- `clearTouchedFieldsForPrefix`
-
-New framework-neutral integrations may import the broader engine utilities directly from `@policy-validation/core`.
+See [Testing and reports](docs/testing.md) for report locations, coverage scope, CI behavior, and troubleshooting.
 
 ## Contributing
 
-Before opening a pull request, run:
+Keep changes within the established dependency direction and preserve public behavior unless a breaking release is explicitly planned. Before opening a pull request, run:
 
 ```bash
 npm ci
@@ -159,7 +227,7 @@ npm run build:all
 npm run lint:all
 ```
 
-The root package and demo are private. The CI workflow validates boundaries, tests, coverage, report generation, and builds; it does not publish packages.
+Add behavior-focused tests with production changes, do not exclude executable code to raise coverage, and do not scaffold future-framework packages without an implementation. The root and demo packages are private. CI validates the repository but does not publish packages.
 
 ## License
 

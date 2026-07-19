@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { getValidationMeta, ValidationResult } from '@policy-validation/core';
+import { getValidationMeta, ValidationResult } from '@validation-rules/core';
 
 @Component({
   selector: 'policy-validation-summary',

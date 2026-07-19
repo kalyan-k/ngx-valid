@@ -1,23 +1,57 @@
-# Policy Validation Core
+# Validation Rules Core
 
-`@policy-validation/core` contains the framework-independent contracts, fluent validators, built-in validation rules, result models, and validation-state utilities used by Policy Validation.
-
-The package has no Angular imports. Framework adapters depend on this package; this package never depends on an adapter.
+`@validation-rules/core` is the framework-independent engine for Validation Rules. It contains validation contracts, fluent validators, built-in rules, results, and model-state utilities without importing Angular or another UI framework.
 
 ## Installation
 
 ```bash
-npm install @policy-validation/core underscore
+npm install @validation-rules/core underscore
+```
+
+`underscore` is a peer dependency retained for validator compatibility.
+
+## Capabilities
+
+- Define reusable policies with `ValidationPolicy`
+- Build field validators with `ValidatorHelper`
+- Apply built-in rules through `ValidationHelper`
+- Represent field, required, form-group, and policy-group results
+- Track touched fields and determine when errors should be visible
+- Reset validation metadata and identify validation-failure shapes
+
+## Example
+
+```typescript
+import {
+  ValidationPolicy,
+  Validator,
+  ValidatorHelper
+} from '@validation-rules/core';
+
+export class AccountPolicy implements ValidationPolicy {
+  addValidations(v: ValidatorHelper): Validator[] {
+    return [
+      v.validateFor('email')
+        .isRequired('Email is required')
+        .isEmail('Enter a valid email address')
+    ];
+  }
+}
 ```
 
 ## Public API
 
 - `ValidationPolicy`, `ValidationModel`
 - `Validator`, `ValidatorHelper`, `ValidationHelper`
-- validation result, required result, form-group, and policy-group contracts
+- `ValidationError`, `ValidationResult`, and `RequiredResult`
+- `FormGroupStatus`, `PolicyGroupConfig`, and `ControlType`
 - validation metadata, touched-state, reset, and failure-shape utilities
 
-The current Angular expression-based policy executor remains in `@policy-validation/angular` because it relies on Angular's expression parser. Extracting that executor requires a future behavior-preserving parser abstraction and is intentionally outside this migration.
+The Angular expression-based policy executor remains in `@validation-rules/angular` because it relies on Angular's expression parser. Extracting it requires a separately tested parser abstraction.
+
+## Architecture
+
+Core is the lowest-level package. Framework adapters may depend on it; it never depends on an adapter. The repository enforces this rule with `npm run architecture:verify`.
 
 ## License
 

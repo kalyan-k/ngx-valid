@@ -1,5 +1,5 @@
 import { firstValueFrom, Subject } from 'rxjs';
-import { getValidationMeta, markFieldTouched, Validator, ValidatorHelper } from '@policy-validation/core';
+import { getValidationMeta, markFieldTouched, Validator, ValidatorHelper } from '@validation-rules/core';
 import { Policy } from './policy';
 
 describe('Policy', () => {

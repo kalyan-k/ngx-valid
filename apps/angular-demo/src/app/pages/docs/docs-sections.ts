@@ -10,7 +10,7 @@ export const DOC_SECTIONS: DocSection[] = [
   {
     id: 'overview',
     title: 'Overview',
-    summary: 'Policy Validation is a policy-based validation library for Angular template-driven forms. Validation rules live in reusable policy classes; the policyValidator directive wires controls to those policies and display strategies render errors for any UI framework.',
+    summary: 'Validation Rules is a policy-based validation library for Angular template-driven forms. Validation rules live in reusable policy classes; the policyValidator directive wires controls to those policies and display strategies render errors for any UI framework.',
     bullets: [
       'Declarative policies instead of scattered Validators in components',
       'Supports conditional required fields via dependency expressions',

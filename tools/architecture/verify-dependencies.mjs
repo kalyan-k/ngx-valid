@@ -57,19 +57,19 @@ if (failures.length === 0) {
     ...corePackage.optionalDependencies
   };
 
-  expect(corePackage.name === '@policy-validation/core', 'Core package name must be @policy-validation/core.');
-  expect(angularPackage.name === '@policy-validation/angular', 'Angular package name must be @policy-validation/angular.');
+  expect(corePackage.name === '@validation-rules/core', 'Core package name must be @validation-rules/core.');
+  expect(angularPackage.name === '@validation-rules/angular', 'Angular package name must be @validation-rules/angular.');
   expect(
-    angularPackage.peerDependencies?.['@policy-validation/core'] === '^1.0.0',
-    'Angular adapter must declare @policy-validation/core as a peer dependency.'
+    angularPackage.peerDependencies?.['@validation-rules/core'] === '^1.0.0',
+    'Angular adapter must declare @validation-rules/core as a peer dependency.'
   );
   expect(
-    demoPackage.dependencies?.['@policy-validation/angular'] === angularPackage.version,
+    demoPackage.dependencies?.['@validation-rules/angular'] === angularPackage.version,
     'Angular demo must depend on the local Angular adapter version.'
   );
   expect(
-    demoPackage.dependencies?.['@policy-validation/core'] === undefined,
-    'Angular demo must consume framework-neutral APIs through @policy-validation/angular.'
+    demoPackage.dependencies?.['@validation-rules/core'] === undefined,
+    'Angular demo must consume framework-neutral APIs through @validation-rules/angular.'
   );
 
   for (const dependency of Object.keys(coreDependencies)) {
@@ -78,21 +78,21 @@ if (failures.length === 0) {
 
   const forbiddenCoreFiles = findSourceMatches(
     coreRoot,
-    /(?:from\s+|import\s*\()(['"])(?:@angular\/|@policy-validation\/angular|(?:\.\.\/)+angular(?:\/|\1))/
+    /(?:from\s+|import\s*\()(['"])(?:@angular\/|@validation-rules\/angular|(?:\.\.\/)+angular(?:\/|\1))/
   );
   for (const file of forbiddenCoreFiles) {
     failures.push(`Core source has a forbidden framework dependency: ${relative(file)}`);
   }
 
   expect(
-    findSourceMatches(angularRoot, /(['"])@policy-validation\/core\1/).length > 0,
-    'Angular adapter source must consume @policy-validation/core.'
+    findSourceMatches(angularRoot, /(['"])@validation-rules\/core\1/).length > 0,
+    'Angular adapter source must consume @validation-rules/core.'
   );
   expect(
-    findSourceMatches(demoRoot, /(['"])@policy-validation\/angular\1/).length > 0,
-    'Angular demo source must consume @policy-validation/angular.'
+    findSourceMatches(demoRoot, /(['"])@validation-rules\/angular\1/).length > 0,
+    'Angular demo source must consume @validation-rules/angular.'
   );
-  for (const file of findSourceMatches(demoRoot, /(['"])@policy-validation\/core\1/)) {
+  for (const file of findSourceMatches(demoRoot, /(['"])@validation-rules\/core\1/)) {
     failures.push(`Angular demo bypasses the adapter: ${relative(file)}`);
   }
 
@@ -111,5 +111,5 @@ if (failures.length > 0) {
   process.exitCode = 1;
 } else {
   console.log('Verified dependency direction: angular-demo -> angular -> core.');
-  console.log('Verified that @policy-validation/core has no Angular dependency.');
+  console.log('Verified that @validation-rules/core has no Angular dependency.');
 }

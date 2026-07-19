@@ -12,7 +12,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { ValidationProviderService } from '@policy-validation/angular';
+import { ValidationProviderService } from '@validation-rules/angular';
 import { PerformanceFieldDef, PerformanceFormGroupStatus, PerformanceFormModel, PerformanceSectionMeta } from '../../models/performance-form.model';
 import { DemoFramework } from '../../demo/demo-framework.model';
 import { PerformanceFormBuilderService } from './performance-form-builder.service';

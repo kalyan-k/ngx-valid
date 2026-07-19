@@ -1,5 +1,5 @@
 import { firstValueFrom } from 'rxjs';
-import { ValidationProviderService, ValidatorHelper } from '@policy-validation/angular';
+import { ValidationProviderService, ValidatorHelper } from '@validation-rules/angular';
 import { PerformanceFormModel, PerformanceFieldDef, PerformanceSectionMeta } from '../../models/performance-form.model';
 import { PerformanceFormBuilderService } from './performance-form-builder.service';
 import { PerformanceConfigValidationPolicy, PerformanceSectionValidationPolicy } from './performance-form.validation.policy';

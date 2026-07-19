@@ -1,4 +1,4 @@
-import { ValidationPolicy, Validator, ValidatorHelper } from '@policy-validation/angular';
+import { ValidationPolicy, Validator, ValidatorHelper } from '@validation-rules/angular';
 
 export class SampleFormValidationPolicy implements ValidationPolicy {
   addValidations(validatorHelper: ValidatorHelper): Validator[] {

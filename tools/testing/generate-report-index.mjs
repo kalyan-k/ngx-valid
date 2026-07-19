@@ -86,7 +86,7 @@ function renderDashboard(data, generatedAt) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Policy Validation test reports</title>
+  <title>Validation Rules test reports</title>
   <style>
     :root { color-scheme:light; --ink:#172033; --muted:#667085; --line:#d7deea; --panel:#fff; --bg:#eef2f8; --accent:#3157d5; --pass:#087443; --warn:#b54708; }
     * { box-sizing:border-box; }
@@ -118,7 +118,7 @@ function renderDashboard(data, generatedAt) {
 </head>
 <body>
   <header>
-    <span class="eyebrow">Policy Validation monorepo</span>
+    <span class="eyebrow">Validation Rules monorepo</span>
     <h1>Test and code-coverage reports</h1>
     <p>Independent reports for the core engine, Angular adapter, and Angular demo</p>
   </header>

@@ -25,7 +25,7 @@ import { ComplexFormTailwindComponent } from './components/complex-form/complex-
 import { PerformanceFormComponent } from './components/performance-form/performance-form.component';
 import { PerformanceFormSectionComponent } from './components/performance-form/performance-form-section.component';
 import { PerformanceFormErrorSummaryComponent } from './components/performance-form/performance-form-error-summary.component';
-import { ValidationModule } from '@policy-validation/angular';
+import { ValidationModule } from '@validation-rules/angular';
 import { validationProviders } from './validation.providers';
 
 @NgModule({

@@ -1,22 +1,22 @@
 {
-  "name": "@policy-validation/core",
+  "name": "@validation-rules/core",
   "version": "1.0.0",
   "description": "Framework-independent validation contracts, rules, validators, and model-state utilities",
   "keywords": [
     "validation",
     "validator",
     "form-validation",
-    "policy-validation"
+    "validation-rules"
   ],
   "license": "MIT",
   "author": "Kalyan K <kalyan411@gmail.com>",
-  "homepage": "https://github.com/kalyan-k/policy-validation#readme",
+  "homepage": "https://github.com/kalyan-k/validation-rules#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:kalyan-k/policy-validation.git"
+    "url": "git+ssh://git@github.com:kalyan-k/validation-rules.git"
   },
   "bugs": {
-    "url": "https://github.com/kalyan-k/policy-validation/issues"
+    "url": "https://github.com/kalyan-k/validation-rules/issues"
   },
   "peerDependencies": {
     "underscore": "^1.13.8"

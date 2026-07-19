@@ -2,14 +2,13 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@policy-validation/core": [
-        "./dist/policy-validation-core",
+      "@validation-rules/core": [
+        "./dist/validation-rules-core",
         "./packages/core/src/public-api.ts"
       ],
-      "@policy-validation/angular": [
-        "./dist/policy-validation",
+      "@validation-rules/angular": [
+        "./dist/validation-rules-angular",
         "./packages/angular/src/public-api.ts"
       ]
     },

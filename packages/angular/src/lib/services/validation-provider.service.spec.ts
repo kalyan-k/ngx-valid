@@ -1,5 +1,5 @@
 import { firstValueFrom } from 'rxjs';
-import { getValidationMeta, markFieldTouched, ValidationPolicy, Validator, ValidatorHelper } from '@policy-validation/core';
+import { getValidationMeta, markFieldTouched, ValidationPolicy, Validator, ValidatorHelper } from '@validation-rules/core';
 import { ValidationProviderService } from './validation-provider.service';
 
 class RequiredPolicy implements ValidationPolicy {

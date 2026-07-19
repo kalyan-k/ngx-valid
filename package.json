@@ -1,7 +1,7 @@
 {
-  "name": "policy-validation-workspace",
+  "name": "validation-rules-workspace",
   "version": "0.0.0",
-  "description": "Private monorepo for the framework-independent Policy Validation engine, Angular adapter, and Angular demo.",
+  "description": "Private monorepo for the framework-independent Validation Rules engine, Angular adapter, and Angular demo.",
   "private": true,
   "workspaces": [
     "packages/*",
@@ -23,8 +23,8 @@
     "build-demo": "npm run build:demo",
     "watch": "npm run watch:lib",
     "watch:lib": "npm run build:core && ng build angular --configuration development --watch",
-    "pack:lib": "npm run build:lib && npm pack ./dist/policy-validation --dry-run",
-    "publish:lib": "npm run build:lib && npm publish ./dist/policy-validation --access public",
+    "pack:lib": "npm run build:lib && npm pack ./dist/validation-rules-angular --dry-run",
+    "publish:lib": "npm run build:lib && npm publish ./dist/validation-rules-angular --access public",
     "architecture:verify": "node tools/architecture/verify-dependencies.mjs",
     "test": "npm run test:core && npm run test:angular && npm run test:demo",
     "test:core": "ng test core --watch=false --browsers=ChromeHeadlessLocal",

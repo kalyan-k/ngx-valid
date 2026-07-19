@@ -1,58 +1,65 @@
-# Policy Validation for Angular
+# Validation Rules for Angular
 
-`@policy-validation/angular` provides policy-based validation for Angular template-driven forms. Policies keep validation rules reusable, testable, and independent from component view logic.
+`@validation-rules/angular` connects policy-driven validation to Angular template-driven forms. Policies keep rules reusable and testable, while directives, services, components, and display strategies integrate them with the view.
 
 ## Installation
 
 ```bash
-npm install @policy-validation/core @policy-validation/angular underscore
+npm install @validation-rules/core @validation-rules/angular underscore
 ```
 
-`@policy-validation/core` and Angular framework packages such as `@angular/core`, `@angular/common`, and `@angular/forms` are peer dependencies.
+The core package, Angular framework packages, RxJS, and Underscore are peer dependencies.
 
-Add the optional stylesheet when you want the default classes:
+Add the optional default stylesheet:
 
 ```json
 {
   "styles": [
-    "node_modules/@policy-validation/angular/styles/policy-validation.css"
+    "node_modules/@validation-rules/angular/styles/policy-validation.css"
   ]
 }
 ```
 
+The historic stylesheet filename, `policyValidator` directive API, `policy-validation-*` selectors, CSS classes, and DOM attributes remain stable compatibility contracts.
+
 ## Features
 
-- Policy classes for reusable form validation rules
-- Nested model path validation
-- Conditional validation rules
-- Form group and policy group status tracking
-- Error summaries for fields, groups, and pages
-- Bootstrap, Angular Material, Tailwind-friendly generic, and custom display strategies
-- Dynamic policy replacement and cleanup APIs
+- Reusable policy classes and fluent rules
+- Nested model paths, conditional rules, and asynchronous validation
+- Form-group and policy-group status tracking
+- Field, group, policy-group, and model summaries
+- Bootstrap, Angular Material, Tailwind-friendly, generic, automatic, and custom display strategies
+- Dynamic policy replacement, refresh, evaluation, and cleanup APIs
 
-## Quick Start
+## Quick start
 
 ```typescript
 import { NgModule } from '@angular/core';
-import { ValidationModule } from '@policy-validation/angular';
+import {
+  ValidationModule,
+  ValidationPolicy,
+  ValidationProviderService,
+  Validator,
+  ValidatorHelper
+} from '@validation-rules/angular';
 
-@NgModule({
-  imports: [
-    ValidationModule.forRoot({ preset: 'bootstrap' })
-  ]
-})
-export class AppModule {}
-```
-
-```typescript
-import { ValidationPolicy, Validator, ValidatorHelper } from '@policy-validation/angular';
-
-export class UserFormPolicy implements ValidationPolicy {
+class UserFormPolicy implements ValidationPolicy {
   addValidations(v: ValidatorHelper): Validator[] {
     return [
-      v.validateFor('email').isRequired('Email is required').isEmail('Invalid email'),
-      v.validateFor('age').isRequired('Age is required').isNumber('Age must be a number')
+      v.validateFor('email')
+        .isRequired('Email is required')
+        .isEmail('Enter a valid email address')
     ];
+  }
+}
+
+@NgModule({
+  imports: [ValidationModule.forRoot({ preset: 'bootstrap' })]
+})
+export class AppModule {
+  constructor(validation: ValidationProviderService) {
+    validation.register('UserForm', new UserFormPolicy());
+    validation.registerFormGroupPolicy('userForm', 'UserForm');
   }
 }
 ```
@@ -66,79 +73,41 @@ export class UserFormPolicy implements ValidationPolicy {
   [withPolicy]="'UserForm'"
   groupName="userForm"
 />
+
+<policy-validation-group-status
+  [model]="model"
+  groupName="userForm"
+></policy-validation-group-status>
 ```
 
-## Registering Policies
+## Policy groups
 
 ```typescript
-validationProvider.register('UserForm', new UserFormPolicy());
-validationProvider.registerFormGroupPolicy('userForm', 'UserForm');
-```
-
-## Unregistering Policies
-
-```typescript
-validationProvider.unregisterPolicy('UserForm');
-validationProvider.unregisterFormGroupPolicy('userForm');
-validationProvider.unregisterPolicyGroup('checkout');
-```
-
-## Groups
-
-```html
-<policy-validation-group-status [model]="model" groupName="userForm"></policy-validation-group-status>
-<policy-validation-group-summary [model]="model" groupName="userForm"></policy-validation-group-summary>
-```
-
-```typescript
-validationProvider.registerPolicyGroup('checkout', {
+validation.registerPolicyGroup('checkout', {
   policies: ['PersonalInfo', 'ShippingAddress', 'BillingAddress'],
   formGroups: ['personalInfo', 'shippingInfo', 'billingInfo']
 });
 ```
 
-## Dynamic Policies
-
-Use `replacePolicy(name, policy)` for generated forms, and clear stale state when a dynamic form changes.
+Use `replacePolicy(name, policy)` for generated forms and clear stale state when their shape changes:
 
 ```typescript
-validationProvider.replacePolicy(policyName, generatedPolicy);
-validationProvider.clearValidationState(model, [policyName]);
+validation.replacePolicy(policyName, generatedPolicy);
+validation.clearValidationState(model, [policyName]);
 ```
 
-## Validation Lifecycle
+## Common exports
 
-1. Register policies and optional group mappings.
-2. Attach `policyValidator` to controls.
-3. Field validation runs on interaction.
-4. Display strategies render invalid state and errors.
-5. Submit flows call `validateAll()` or `evaluatePolicies()`.
-6. Summary and status components refresh from model validation state.
-
-## API
-
-Common exports:
-
-- `ValidationModule`
-- `ValidationPolicy`
-- `Validator`
-- `ValidatorHelper`
-- `ValidationProviderService`
-- `ValidatorDirective`
-- `ValidationSummaryComponent`
-- `ValidationGroupStatusComponent`
-- `ValidationGroupSummaryComponent`
-- `ValidationPolicyGroupStatusComponent`
-- `ValidationPolicyGroupSummaryComponent`
-- `provideBootstrapValidationDisplay()`
-- `provideMaterialValidationDisplay()`
-- `provideTailwindValidationDisplay()`
-- `provideGenericValidationDisplay()`
-- `provideCustomValidationDisplay()`
+- `ValidationModule`, `ValidationProviderService`, and `ValidatorDirective`
+- `ValidationPolicy`, `Validator`, `ValidatorHelper`, and `ValidationHelper`
+- summary and status components for models, groups, and policy groups
+- Bootstrap, Material, Tailwind, generic, default, and custom display strategies
+- display configuration, resolver, factory, provider, and token APIs
+- Angular `Policy` execution plus re-exported framework-neutral contracts
 
 ## Demo
 
-The source repository includes a private Angular demo application.
+The repository includes a private Angular consumer with Bootstrap, Material, and Tailwind-style examples:
 
 ```bash
 npm install

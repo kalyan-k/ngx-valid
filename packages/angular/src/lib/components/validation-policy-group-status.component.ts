@@ -8,7 +8,7 @@ import {
   SimpleChanges
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { FormGroupStatus } from '@policy-validation/core';
+import { FormGroupStatus } from '@validation-rules/core';
 import { ValidationProviderService } from '../services/validation-provider.service';
 
 @Component({

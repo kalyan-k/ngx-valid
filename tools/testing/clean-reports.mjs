@@ -12,8 +12,8 @@ function assertWorkspace() {
   const packageFile = path.join(workspaceRoot, 'package.json');
   const packageJson = JSON.parse(fs.readFileSync(packageFile, 'utf8'));
 
-  if (packageJson.name !== 'policy-validation-workspace') {
-    throw new Error(`Refusing to clean reports outside the Policy Validation workspace: ${workspaceRoot}`);
+  if (packageJson.name !== 'validation-rules-workspace') {
+    throw new Error(`Refusing to clean reports outside the Validation Rules workspace: ${workspaceRoot}`);
   }
 }
 
