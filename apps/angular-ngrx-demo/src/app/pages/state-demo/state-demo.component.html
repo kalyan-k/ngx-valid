@@ -1,0 +1,14 @@
+<section class="demo-page" *ngIf="profile$ | async as profile">
+  <header><p class="eyebrow">Page 1 · no Angular Forms</p><h2>Pure NgRx State</h2><p>Inputs dispatch actions directly. Validation runs against a cloned store snapshot and dispatches the results back through the reducer.</p></header>
+  <div class="pattern-banner"><span>DOM event</span><b>→</b><span>NgRx action</span><b>→</b><span>State snapshot</span><b>→</b><span>Validation policy</span><b>→</b><span>Validated state</span></div>
+  <div class="content-grid">
+    <form class="demo-card" (submit)="$event.preventDefault(); validate()" novalidate>
+      <div class="card-heading"><div><small>Editable state</small><h3>Account profile</h3></div><span class="lifecycle" [attr.data-state]="lifecycle$ | async">{{ lifecycle$ | async }}</span></div>
+      <label>Full name<input type="text" [value]="profile.fullName" (input)="update('fullName', $event)" [class.field-invalid]="errorFor(profile, 'fullName')"><span class="field-error" *ngIf="errorFor(profile, 'fullName') as error">{{ error }}</span></label>
+      <label>Email<input type="email" [value]="profile.email" (input)="update('email', $event)" [class.field-invalid]="errorFor(profile, 'email')"><span class="field-error" *ngIf="errorFor(profile, 'email') as error">{{ error }}</span></label>
+      <label>Account role<select [value]="profile.role" (change)="update('role', $event)" [class.field-invalid]="errorFor(profile, 'role')"><option value="">Choose a role</option><option value="administrator">Administrator</option><option value="reviewer">Reviewer</option><option value="operator">Operator</option></select><span class="field-error" *ngIf="errorFor(profile, 'role') as error">{{ error }}</span></label>
+      <div class="actions"><button class="primary" type="submit">Validate store state</button><button type="button" (click)="reset()">Reset</button></div>
+    </form>
+    <aside class="state-card"><div class="card-heading"><div><small>Selected feature state</small><h3>NgRx snapshot</h3></div><span>{{ (profile.validationResults || []).length }} errors</span></div><pre>{{ profile | json }}</pre><p>No <code>FormGroup</code>, <code>FormControl</code>, or <code>ngModel</code> participates in this page.</p></aside>
+  </div>
+</section>

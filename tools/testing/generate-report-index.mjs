@@ -42,7 +42,8 @@ function renderProject({ projectName, tests, coverage, missing }) {
   const titles = {
     core: 'Core Engine',
     angular: 'Angular Adapter',
-    'angular-demo': 'Angular Demo'
+    'angular-demo': 'Angular Demo',
+    'angular-ngrx-demo': 'Angular + NgRx Demo'
   };
   const title = titles[projectName] || projectName;
   const summary = tests?.summary;
@@ -93,7 +94,7 @@ function renderDashboard(data, generatedAt) {
     body { margin:0; color:var(--ink); background:var(--bg); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
     header { padding:42px 28px 34px; text-align:center; color:#fff; background:linear-gradient(125deg,#172554,#3157d5 62%,#4f46e5); }
     header .eyebrow { color:#c7d7ff; } header h1 { margin:6px 0; font-size:34px; } header p { margin:0; color:#dce5ff; }
-    main { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:24px; max-width:1600px; margin:0 auto; padding:28px; }
+    main { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; max-width:1400px; margin:0 auto; padding:28px; }
     .project-card { padding:24px; border:1px solid var(--line); border-radius:16px; background:var(--panel); box-shadow:0 8px 28px rgba(23,32,51,.06); }
     .project-heading { display:flex; align-items:start; justify-content:space-between; gap:14px; }
     .eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
@@ -120,7 +121,7 @@ function renderDashboard(data, generatedAt) {
   <header>
     <span class="eyebrow">Validation Rules monorepo</span>
     <h1>Test and code-coverage reports</h1>
-    <p>Independent reports for the core engine, Angular adapter, and Angular demo</p>
+    <p>Independent reports for the core engine, Angular adapter, and both demonstration applications</p>
   </header>
   <main>${data.map(renderProject).join('\n')}</main>
   <footer>Generated ${escapeHtml(generatedAt)}</footer>

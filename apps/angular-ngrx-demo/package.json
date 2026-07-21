@@ -1,0 +1,10 @@
+{
+  "name": "@validation-rules/angular-ngrx-demo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Private NgRx integration demo for @validation-rules/angular",
+  "dependencies": {
+    "@ngrx/store": "^20.1.0",
+    "@validation-rules/angular": "1.0.0"
+  }
+}

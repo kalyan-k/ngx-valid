@@ -1,0 +1,18 @@
+<section class="demo-page">
+  <header><p class="eyebrow">Page 2 · enterprise synchronization</p><h2>NgRx + Reactive Forms</h2><p>The form owns interaction state, NgRx owns the durable draft, and Validation Rules owns policy evaluation.</p></header>
+  <div class="lifecycle-strip"><span>Form value</span><b>→</b><span>Draft action</span><b>→</b><span>NgRx state</span><b>→</b><span>Policy result</span><b>→</b><span>Control errors + state</span></div>
+  <div class="content-grid">
+    <form class="demo-card" [formGroup]="form" (ngSubmit)="validate()" novalidate>
+      <div class="card-heading"><div><small>Reactive FormGroup</small><h3>Workspace account</h3></div><span class="lifecycle" [attr.data-state]="lifecycle$ | async">{{ lifecycle$ | async }}</span></div>
+      <label>Display name<input type="text" formControlName="displayName"><span class="field-error" *ngIf="form.controls.displayName.errors?.['policyValidation'] as error">{{ error }}</span></label>
+      <label>Work email<input type="email" formControlName="workEmail"><span class="field-error" *ngIf="form.controls.workEmail.errors?.['policyValidation'] as error">{{ error }}</span></label>
+      <label>Seat count<input type="number" formControlName="seatCount" min="1" max="500"><span class="field-error" *ngIf="form.controls.seatCount.errors?.['policyValidation'] as error">{{ error }}</span></label>
+      <div class="actions"><button class="primary" type="submit">Validate synchronized model</button><button type="button" (click)="reset()">Reset lifecycle</button></div>
+    </form>
+    <aside class="architecture-card" *ngIf="account$ | async as account">
+      <div class="card-heading"><div><small>Lifecycle ownership</small><h3>Three coordinated layers</h3></div><span>{{ (account.validationResults || []).length }} errors</span></div>
+      <ol><li><strong>Reactive Forms</strong><span>Value changes, touched state, and control-level errors.</span></li><li><strong>NgRx</strong><span>Serializable draft, validated snapshot, and lifecycle status.</span></li><li><strong>Validation Rules</strong><span>Reusable policy and structured validation results.</span></li></ol>
+      <pre>{{ account | json }}</pre>
+    </aside>
+  </div>
+</section>

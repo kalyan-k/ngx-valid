@@ -41,6 +41,9 @@
           </div>
         </div>
       </ng-container>
+      <div class="demo-nav-divider" aria-hidden="true"></div>
+      <p class="demo-nav-label">Platform</p>
+      <a *ngFor="let link of platformLinks" class="demo-nav-link" [href]="link.href">{{ link.label }}</a>
     </nav>
 
     <footer class="demo-sidebar-footer">

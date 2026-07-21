@@ -1,0 +1,16 @@
+<div class="application-shell">
+  <header class="topbar">
+    <a class="brand" [href]="links.portal"><span>VR</span><strong>Validation Rules</strong><small>Angular + NgRx</small></a>
+    <nav aria-label="Platform navigation"><a [href]="links.portal">Portal</a><a [href]="links.docs">Documentation</a><a [href]="links.angular">ngModel Demo</a><a href="https://github.com/kalyan-k/validation-rules">GitHub</a></nav>
+  </header>
+  <div class="workspace">
+    <aside>
+      <p class="eyebrow">Integration patterns</p><h1>NgRx validation lab</h1>
+      <p>Compare validation against pure store state with an enterprise Reactive Forms synchronization lifecycle.</p>
+      <nav class="page-nav" aria-label="NgRx examples"><a routerLink="/state" routerLinkActive="active">01 · Pure NgRx State</a><a routerLink="/reactive-forms" routerLinkActive="active">02 · NgRx + Reactive Forms</a></nav>
+      <a class="docs-link" [href]="links.docs">Read the NgRx guide →</a>
+    </aside>
+    <main><router-outlet></router-outlet></main>
+  </div>
+  <footer><span>State-first validation patterns</span><span>© {{ currentYear }} Validation Rules</span></footer>
+</div>

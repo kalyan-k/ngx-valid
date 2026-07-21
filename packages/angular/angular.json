@@ -212,6 +212,114 @@
           }
         }
       }
+    },
+    "angular-ngrx-demo": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "sass"
+        }
+      },
+      "root": "../../apps/angular-ngrx-demo",
+      "sourceRoot": "../../apps/angular-ngrx-demo/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "../../dist/angular-ngrx-demo",
+            "preserveSymlinks": true,
+            "index": "../../apps/angular-ngrx-demo/src/index.html",
+            "main": "../../apps/angular-ngrx-demo/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "../../apps/angular-ngrx-demo/tsconfig.app.json",
+            "inlineStyleLanguage": "sass",
+            "assets": [],
+            "styles": [
+              "../../apps/angular-ngrx-demo/src/styles.sass"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "900kb",
+                  "maximumError": "1.1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kb",
+                  "maximumError": "12kb"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "angular-ngrx-demo:build:development"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "angular-ngrx-demo:build:production"
+            },
+            "development": {
+              "buildTarget": "angular-ngrx-demo:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "options": {
+            "buildTarget": "angular-ngrx-demo:build"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "karmaConfig": "../../apps/angular-ngrx-demo/karma.conf.cjs",
+            "preserveSymlinks": true,
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "../../apps/angular-ngrx-demo/tsconfig.spec.json",
+            "codeCoverageExclude": [
+              "../../apps/angular-ngrx-demo/src/main.ts"
+            ],
+            "inlineStyleLanguage": "sass",
+            "assets": [],
+            "styles": [
+              "../../apps/angular-ngrx-demo/src/styles.sass"
+            ],
+            "scripts": []
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "../../apps/angular-ngrx-demo/src"
+            ]
+          }
+        }
+      }
     }
   },
   "cli": {

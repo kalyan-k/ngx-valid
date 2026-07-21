@@ -265,7 +265,8 @@ function PersistentTestResultsReporter(baseReporterDecorator, config, logger) {
   const displayNames = {
     core: 'Core Engine',
     angular: 'Angular Adapter',
-    'angular-demo': 'Angular Demo'
+    'angular-demo': 'Angular Demo',
+    'angular-ngrx-demo': 'Angular + NgRx Demo'
   };
   const displayName = displayNames[projectName] || projectName;
   const outputDir = options.outputDir || path.join(config.basePath, 'reports', projectName);

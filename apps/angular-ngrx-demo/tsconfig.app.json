@@ -1,0 +1,10 @@
+{
+  "extends": "../../packages/angular/tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/angular-ngrx-demo-app",
+    "types": []
+  },
+  "files": ["src/main.ts"],
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.spec.ts"]
+}

@@ -1,0 +1,116 @@
+.application-shell
+  min-height: 100vh
+  display: flex
+  flex-direction: column
+
+.topbar
+  min-height: 68px
+  display: flex
+  align-items: center
+  justify-content: space-between
+  padding: 0 2rem
+  color: #fff
+  background: #10243e
+
+  nav
+    display: flex
+    gap: 1.2rem
+
+    a
+      color: #c5d3e0
+      text-decoration: none
+      font-size: .8rem
+
+.brand
+  display: flex
+  align-items: center
+  gap: .65rem
+  color: #fff
+  text-decoration: none
+
+  > span
+    display: grid
+    place-items: center
+    width: 34px
+    height: 34px
+    border-radius: 9px
+    background: #0d8f82
+    font-size: .7rem
+    font-weight: 900
+
+  small
+    color: #9eb2c5
+
+.workspace
+  flex: 1
+  display: grid
+  grid-template-columns: 285px minmax(0, 1fr)
+
+  > aside
+    padding: 2.5rem 1.6rem
+    color: #dce7ef
+    background: #16304c
+
+    h1
+      margin: 0 0 1rem
+      font-size: 1.7rem
+      line-height: 1.1
+
+    > p:not(.eyebrow)
+      color: #9fb2c4
+      font-size: .86rem
+
+.eyebrow
+  margin: 0 0 .6rem
+  color: #64d3c8
+  font-size: .68rem
+  font-weight: 800
+  letter-spacing: .12em
+  text-transform: uppercase
+
+.page-nav
+  display: grid
+  gap: .45rem
+  margin-top: 2rem
+
+  a
+    padding: .75rem
+    border-radius: 8px
+    color: #c9d6e1
+    text-decoration: none
+    font-size: .82rem
+
+    &:hover, &.active
+      color: #fff
+      background: rgba(13, 143, 130, .28)
+
+.docs-link
+  display: inline-block
+  margin-top: 2rem
+  color: #73dacf
+  font-size: .78rem
+  font-weight: 700
+  text-decoration: none
+
+main
+  min-width: 0
+  background: #f3f6f8
+
+footer
+  display: flex
+  justify-content: space-between
+  padding: .8rem 2rem
+  color: #8597aa
+  background: #0b1b2d
+  font-size: .72rem
+
+@media (max-width: 850px)
+  .topbar nav
+    display: none
+  .workspace
+    grid-template-columns: 1fr
+    > aside
+      padding: 1.5rem
+  footer
+    flex-direction: column
+    gap: .2rem

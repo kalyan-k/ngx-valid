@@ -2,7 +2,7 @@
 
 ## Goals
 
-Validation Rules separates reusable validation behavior from Angular integration while preserving the established Angular API and runtime behavior. The workspace is intentionally small: one framework-neutral engine, one implemented framework adapter, and one real consumer application.
+Validation Rules separates reusable validation behavior from framework integration while preserving the established Angular API and runtime behavior. Product navigation, documentation, and framework demos are separate applications so each can scale independently.
 
 ```text
 validation-rules/
@@ -10,7 +10,10 @@ validation-rules/
 |   |-- core/                 # @validation-rules/core
 |   `-- angular/              # @validation-rules/angular and Angular CLI workspace
 |-- apps/
-|   `-- angular-demo/         # private Angular consumer and its Karma config
+|   |-- demo/                 # framework-neutral launcher and status dashboard
+|   |-- docs/                 # Markdown documentation application
+|   |-- angular-demo/         # private ngModel consumer
+|   `-- angular-ngrx-demo/    # private NgRx integration consumer
 |-- tools/
 |   |-- architecture/         # dependency-boundary verification
 |   `-- testing/              # shared Karma config and persistent report pipeline
@@ -23,18 +26,14 @@ There is no `shared` package because the current code has no additional ownershi
 ## Dependency graph
 
 ```text
-@validation-rules/angular-demo (private app)
-                  |
-                  | dependency
-                  v
-     @validation-rules/angular
-                  |
-                  | peer dependency
-                  v
-       @validation-rules/core
+apps/angular-demo ---------+
+                           +--> @validation-rules/angular --> @validation-rules/core
+apps/angular-ngrx-demo ----+
+
+apps/demo ----URLs----> apps/docs and framework demos
 ```
 
-The demo imports only `@validation-rules/angular`. The Angular adapter imports `@validation-rules/core`. Core imports neither Angular nor an adapter. npm workspaces link the local packages during repository development; TypeScript path mappings support tests and local compilation.
+Both Angular demos import only `@validation-rules/angular`. The Angular adapter imports `@validation-rules/core`. Core imports neither Angular nor an adapter. The Node portal and docs applications import no Angular or NgRx runtime. npm workspaces link the local packages during repository development; Angular-owned TypeScript path mappings support tests and local compilation.
 
 Run `npm run architecture:verify` to validate this direction. CI runs the same command before tests. The verifier rejects Angular dependencies in core, reverse adapter imports, direct demo-to-core imports, missing workspace relationships, and out-of-scope React or Vue placeholders.
 
@@ -80,9 +79,13 @@ The existing `Policy` implementation creates expressions through `@angular/compi
 
 A future extraction should first define a small expression-evaluator port in core, provide an Angular-backed implementation in the adapter, and run the existing policy specifications against both evaluators. Until that work is justified, the current boundary is the safest behavior-preserving design.
 
-## Demo boundary
+## Application boundaries
 
 `apps/angular-demo` is a private application. It consumes the Angular package name instead of package source paths, making its builds and integration tests representative of real consumers. Its routes, forms, display presets, and interaction behavior remain unchanged.
+
+`apps/angular-ngrx-demo` is also private and consumes the same public adapter. Its pure-state page validates a cloned NgRx model without `FormGroup`; its Reactive Forms page synchronizes form values and validation lifecycle through NgRx.
+
+`apps/demo` owns process startup, health polling, the application registry, report links, and the browser entry point. `apps/docs` owns Markdown rendering, navigation, and search. These Node applications communicate with the demos through URLs and remain framework-neutral.
 
 ## Build order
 
@@ -90,7 +93,9 @@ Package builds follow dependency order:
 
 1. `@validation-rules/core` to `dist/validation-rules-core`
 2. `@validation-rules/angular` to `dist/validation-rules-angular`
-3. `angular-demo` to `dist/angular-demo`
+3. Portal and documentation TypeScript to `dist/apps/*`
+4. `angular-demo` to `dist/angular-demo`
+5. `angular-ngrx-demo` to `dist/angular-ngrx-demo`
 
 The root scripts encode this order and delegate Angular CLI commands to the workspace configuration owned by `packages/angular`. Individual project targets remain available for focused development, but the Angular package build requires a current core artifact.
 
@@ -100,9 +105,9 @@ Specifications live beside the code whose behavior they protect:
 
 - Core validator and metadata tests live under `packages/core`.
 - Angular services, policy execution, directive, component, parser, display, and DOM tests live under `packages/angular`.
-- Application and integration tests live under `apps/angular-demo`.
+- Application and integration tests live under each application.
 
-Each target generates separate HTML, JSON, LCOV, and JUnit reports and independently enforces 90% global thresholds. High coverage in one layer cannot hide gaps in another.
+Each Angular target generates separate HTML, JSON, LCOV, and JUnit reports and independently enforces 90% global thresholds. The Node applications use the built-in Node test runner. High coverage in one Angular layer cannot hide gaps in another.
 
 ## Adding an adapter
 

@@ -28,9 +28,9 @@ jobs:
         run: npm run architecture:verify
 
       - name: Generate test and coverage reports
-        run: npm run test:reports
+        run: npm run test:ci
 
-      - name: Build library and demo application
+      - name: Build packages and applications
         run: npm run build:all
 
       - name: Upload browsable test reports

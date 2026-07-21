@@ -1,6 +1,6 @@
 # Testing and reports
 
-The workspace tests the framework-independent core engine, Angular adapter, and Angular demo separately. Every project produces persistent test results, source coverage, and JUnit XML and independently enforces 90% global coverage thresholds.
+The workspace tests the framework-independent core engine, Angular adapter, both Angular demos, and both Node applications. Every Angular project produces persistent test results, source coverage, and JUnit XML and independently enforces 90% global coverage thresholds.
 
 ## Test stack
 
@@ -15,7 +15,7 @@ The interactive `kjhtml` page and console progress remain enabled for local watc
 
 Karma 6 expects older `glob` and `minimatch` APIs. `tools/testing/karma-glob-compat.cjs` adapts the two properties Karma reads, while a scoped npm override gives Karma patched `minimatch` 3.1.4. This compatibility is limited to the runner.
 
-All three test targets and the demo build enable `preserveSymlinks`, keeping module identity stable when the workspace is opened through a junction or symbolic link.
+All four Angular test targets and both demo builds enable `preserveSymlinks`, keeping module identity stable when the workspace is opened through a junction or symbolic link. The portal and docs use Node's built-in test runner after TypeScript compilation.
 
 ## Install and run
 
@@ -25,6 +25,7 @@ npm ci
 npm run test:reports:core       # core engine reports
 npm run test:reports:angular    # Angular adapter reports
 npm run test:reports:demo       # Angular demo reports
+npm run test:reports:ngrx-demo  # Angular + NgRx demo reports
 npm run test:reports            # all projects plus dashboard and verification
 npm run test:ci                 # same pipeline with ChromeHeadlessCI
 ```
@@ -36,15 +37,19 @@ npm test
 npm run test:core
 npm run test:angular
 npm run test:demo
+npm run test:ngrx-demo
+npm run test:platform
 
 npm run test:coverage
 npm run test:coverage:core
 npm run test:coverage:angular
 npm run test:coverage:demo
+npm run test:coverage:ngrx-demo
 
 npm run test:watch:core
 npm run test:watch:angular
 npm run test:watch:demo
+npm run test:watch:ngrx-demo
 ```
 
 Report management:
@@ -64,6 +69,7 @@ npm run reports:verify     # validate output structure and local navigation
 | Core engine | `reports/core/tests/index.html` | `reports/core/coverage/index.html` | `reports/core/junit/test-results.xml` |
 | Angular adapter | `reports/angular/tests/index.html` | `reports/angular/coverage/index.html` | `reports/angular/junit/test-results.xml` |
 | Angular demo | `reports/angular-demo/tests/index.html` | `reports/angular-demo/coverage/index.html` | `reports/angular-demo/junit/test-results.xml` |
+| Angular + NgRx demo | `reports/angular-ngrx-demo/tests/index.html` | `reports/angular-ngrx-demo/coverage/index.html` | `reports/angular-ngrx-demo/junit/test-results.xml` |
 
 Each `tests/` directory also contains `summary.json`. Each `coverage/` directory also contains `lcov.info` and `coverage-summary.json`.
 
@@ -79,12 +85,12 @@ Karma exposes mapped stacks for failed Jasmine results. Passing results do not e
 
 `tools/testing/karma.shared.conf.cjs` enforces these minimums independently:
 
-| Metric | Core | Angular | Demo |
-| --- | ---: | ---: | ---: |
-| Statements | 90% | 90% | 90% |
-| Branches | 90% | 90% | 90% |
-| Functions | 90% | 90% | 90% |
-| Lines | 90% | 90% | 90% |
+| Metric | Core | Angular | Angular Demo | Angular + NgRx Demo |
+| --- | ---: | ---: | ---: | ---: |
+| Statements | 90% | 90% | 90% | 90% |
+| Branches | 90% | 90% | 90% | 90% |
+| Functions | 90% | 90% | 90% | 90% |
+| Lines | 90% | 90% | 90% | 90% |
 
 Below-threshold metrics return a non-zero process status locally and in CI. Report generation does not weaken the gate.
 
@@ -96,6 +102,7 @@ All executable TypeScript reached by a target is instrumented. Exclusions are na
 - `packages/core/src/lib/interfaces/**/*.ts`: type-only declarations.
 - `packages/angular/src/public-api.ts`: export-only adapter barrel.
 - `apps/angular-demo/src/main.ts`: platform bootstrap; `AppModule` behavior is covered by integration tests.
+- `apps/angular-ngrx-demo/src/main.ts`: platform bootstrap; reducers, policies, components, and synchronization behavior are covered directly.
 
 Do not exclude executable production code merely to increase a percentage. Add behavior-focused tests or separately review and remove dead code.
 
@@ -131,11 +138,23 @@ Do not exclude executable production code merely to increase a percentage. Add b
 | Deterministic dynamic performance-form construction | `performance-form-builder.service.spec.ts` |
 | Performance form rendering and state transitions | `performance-components.spec.ts` |
 
+### Angular + NgRx demo
+
+| Production surface | Primary specifications |
+| --- | --- |
+| Store actions, reducers, selectors, and validation lifecycle | `store/demo.reducer.spec.ts` |
+| Pure-state and Reactive Forms component synchronization | `application.spec.ts` |
+| Policy registration and model-first evaluation | `validation/demo-validation.policy.spec.ts` |
+
+### Node applications
+
+The portal tests its central application registry and missing-launcher failure state in `process-manager.spec.ts`. The documentation app tests Markdown rendering, escaping, and safe links in `markdown.spec.ts`.
+
 Tests are colocated with production code and named `*.spec.ts`. Prefer public behavior, model state, emitted values, and rendered DOM over private implementation details. Cover meaningful success, failure, empty, boundary, conditional, and asynchronous behavior.
 
 ## CI integration
 
-GitHub Actions installs with `npm ci`, verifies dependency boundaries, runs `npm run test:reports`, and builds all packages and the demo. `CI=true` selects the no-sandbox `ChromeHeadlessCI` launcher. On success or failure, the workflow uploads:
+GitHub Actions installs with `npm ci`, verifies dependency boundaries, runs `npm run test:ci`, and builds every package and application. `CI=true` selects the no-sandbox `ChromeHeadlessCI` launcher. On success or failure, the workflow uploads:
 
 - `validation-rules-test-reports`: the complete `reports/` tree, with `reports/index.html` as the landing page.
 - `validation-rules-junit-results`: every `reports/**/junit/test-results.xml` file.

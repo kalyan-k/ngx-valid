@@ -12,7 +12,8 @@ function configureKarma(config, projectName) {
   const sourceRoots = {
     core: path.join(workspaceRoot, 'packages', 'core'),
     angular: path.join(workspaceRoot, 'packages', 'angular'),
-    'angular-demo': path.join(workspaceRoot, 'apps', 'angular-demo')
+    'angular-demo': path.join(workspaceRoot, 'apps', 'angular-demo'),
+    'angular-ngrx-demo': path.join(workspaceRoot, 'apps', 'angular-ngrx-demo')
   };
   const sourceRoot = sourceRoots[projectName];
   if (!sourceRoot) {

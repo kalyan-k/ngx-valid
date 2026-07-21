@@ -16,6 +16,11 @@ interface NavItem {
 })
 export class DemoShellComponent {
   readonly frameworks = DEMO_FRAMEWORKS;
+  readonly platformLinks = [
+    { label: 'Demo Portal', href: 'http://127.0.0.1:4200/' },
+    { label: 'Documentation Site', href: 'http://127.0.0.1:4201/docs/overview' },
+    { label: 'Angular + NgRx Demo', href: 'http://127.0.0.1:4203/' }
+  ];
 
   readonly navItems: NavItem[] = [
     { label: 'Home', route: '/' },
