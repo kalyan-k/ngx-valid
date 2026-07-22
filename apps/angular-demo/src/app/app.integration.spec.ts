@@ -31,11 +31,7 @@ describe('demo application integration', () => {
     expect(fixture.nativeElement.textContent).toContain('UI framework demos');
   });
 
-  it('navigates to docs and redirects legacy and unknown routes', async () => {
-    await router.navigateByUrl('/docs');
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('app-docs')).not.toBeNull();
-
+  it('redirects legacy and unknown routes', async () => {
     await router.navigateByUrl('/sample-form');
     fixture.detectChanges();
     expect(router.url).toBe('/demos/bootstrap');

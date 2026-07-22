@@ -4,15 +4,32 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { documentationCatalog, documentationEntry, type DocumentationEntry } from './catalog.js';
 import { renderMarkdown } from './markdown.js';
+import { buildSearchIndex, searchDocumentation } from './search.js';
 
 const sourceDirectory = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(sourceDirectory, '..', '..', '..');
 const contentRoot = path.join(workspaceRoot, 'docs', 'site');
 const publicRoot = path.join(workspaceRoot, 'apps', 'docs', 'public');
+const shellRoot = path.join(workspaceRoot, 'tools', 'platform-shell');
 const docsPort = configuredPort('VALIDATION_RULES_DOCS_PORT', 4201);
 const portalUrl = process.env['VALIDATION_RULES_PORTAL_URL'] ?? 'http://127.0.0.1:4200';
 const angularDemoUrl = process.env['VALIDATION_RULES_ANGULAR_DEMO_URL'] ?? 'http://127.0.0.1:4202';
 const ngrxDemoUrl = process.env['VALIDATION_RULES_NGRX_DEMO_URL'] ?? 'http://127.0.0.1:4203';
+const workspacePackage = JSON.parse(readFileSync(path.join(workspaceRoot, 'package.json'), 'utf8')) as { version?: string };
+const assetVersion = encodeURIComponent(workspacePackage.version ?? '0.0.0');
+const platformAssets = new Set([
+  'favicon.ico', 'platform-shell.css', 'platform-shell.js', 'platform-theme.css', 'site.webmanifest',
+  'validation-rules-mark.svg',
+  ...[16, 32, 64, 180, 192, 512].map((size) => `validation-rules-icon-${size}.png`)
+]);
+const platformContentTypes: Record<string, string> = {
+  '.css': 'text/css; charset=utf-8', '.ico': 'image/x-icon', '.js': 'text/javascript; charset=utf-8',
+  '.png': 'image/png', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json'
+};
+const documentationSearchIndex = buildSearchIndex(
+  documentationCatalog,
+  (entry) => readFileSync(path.join(contentRoot, entry.source), 'utf8')
+);
 
 export function createDocumentationServer(): http.Server {
   return http.createServer((request, response) => handleRequest(request, response));
@@ -25,14 +42,29 @@ function handleRequest(request: IncomingMessage, response: ServerResponse): void
     return;
   }
   if (requestUrl.pathname === '/api/search') {
-    const query = (requestUrl.searchParams.get('q') ?? '').trim().toLowerCase();
-    const matches = documentationCatalog.filter((entry) => searchableText(entry).includes(query));
-    sendJson(response, 200, { results: matches.map(({ slug, title, section, summary }) => ({ slug, title, section, summary })) });
+    sendJson(response, 200, { results: searchDocumentation(documentationSearchIndex, requestUrl.searchParams.get('q') ?? '') });
+    return;
+  }
+  if (requestUrl.pathname === '/search-index.json') {
+    sendJson(response, 200, { documents: documentationSearchIndex });
+    return;
+  }
+  if (requestUrl.pathname === '/search.js') {
+    response.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
+    createReadStream(path.join(publicRoot, 'search.js')).pipe(response);
     return;
   }
   if (requestUrl.pathname === '/styles.css') {
     response.writeHead(200, { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': 'no-store' });
     createReadStream(path.join(publicRoot, 'styles.css')).pipe(response);
+    return;
+  }
+  if (platformAssets.has(requestUrl.pathname.slice(1))) {
+    response.writeHead(200, {
+      'Content-Type': platformContentTypes[path.extname(requestUrl.pathname)] ?? 'application/octet-stream',
+      'Cache-Control': 'public, max-age=3600'
+    });
+    createReadStream(path.join(shellRoot, requestUrl.pathname.slice(1))).pipe(response);
     return;
   }
   if (requestUrl.pathname === '/') {
@@ -63,19 +95,14 @@ function renderPage(entry: DocumentationEntry | undefined, content: string): str
     ? `<a class="demo-link" href="${ngrxDemoUrl}"><strong>Open Angular + NgRx Demo</strong><span>Try state-only and Reactive Forms workflows →</span></a>`
     : `<a class="demo-link" href="${angularDemoUrl}${entry?.demoPath ?? ''}"><strong>Open Angular Demo</strong><span>See the concepts running in a real application →</span></a>`;
 
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(entry?.summary ?? 'Validation Rules documentation')}"><title>${escapeHtml(entry?.title ?? 'Not found')} · Validation Rules</title><link rel="stylesheet" href="/styles.css"></head>
-  <body><header class="topbar"><a class="brand" href="${portalUrl}"><span>VR</span><strong>Validation Rules</strong><small>Documentation</small></a><nav><a href="${portalUrl}">Portal</a><a href="${angularDemoUrl}">Angular</a><a href="${ngrxDemoUrl}">Angular + NgRx</a><a href="https://github.com/kalyan-k/validation-rules">GitHub</a></nav></header>
-  <div class="docs-layout"><aside><label for="docs-search">Search documentation</label><input id="docs-search" type="search" placeholder="Filter topics…" autocomplete="off">${groupedNavigation}</aside>
-  <main><div class="breadcrumb"><a href="${portalUrl}">Demo Portal</a><span>/</span><span>${escapeHtml(entry?.section ?? 'Documentation')}</span></div><article>${content}</article>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(entry?.summary ?? 'Validation Rules documentation')}"><meta name="theme-color" content="#10243e"><title>${escapeHtml(entry?.title ?? 'Not found')} · Validation Rules</title><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/validation-rules-mark.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/validation-rules-icon-180.png"><link rel="manifest" href="/site.webmanifest"><link rel="preload" href="/platform-shell.css" as="style"><link rel="stylesheet" href="/platform-shell.css"><link rel="stylesheet" href="/platform-theme.css"><link rel="stylesheet" href="/styles.css"><script src="/platform-shell.js?v=${assetVersion}"></script><script src="/search.js?v=${assetVersion}" defer></script></head>
+  <body><validation-platform-shell active-application="documentation" application-name="Documentation" version="${escapeHtml(workspacePackage.version ?? '0.0.0')}" portal-url="${portalUrl}" docs-url="http://127.0.0.1:${docsPort}" angular-url="${angularDemoUrl}" ngrx-url="${ngrxDemoUrl}">
+  <div class="docs-layout"><aside><div class="docs-search"><label for="docs-search">Search documentation</label><div class="docs-search-control"><input id="docs-search" type="search" placeholder="Search docs…" autocomplete="off" aria-autocomplete="list" aria-controls="docs-search-results" aria-expanded="false"><button id="docs-search-clear" class="docs-search-clear" type="button" aria-label="Clear documentation search" title="Clear search" hidden>&times;</button></div><div id="docs-search-results" class="search-results" role="listbox" hidden></div></div><div class="docs-navigation">${groupedNavigation}</div></aside>
+  <main><div class="vr-breadcrumb"><a href="${portalUrl}">Home</a><span>/</span><a href="/docs/overview">Documentation</a><span>/</span><span>${escapeHtml(entry?.section ?? 'Documentation')}</span></div><article id="docs-content">${content}</article>
   ${entry ? `<section class="live-example"><p>Continue in the live platform</p>${demoLinks}</section>` : ''}
   <nav class="pager" aria-label="Documentation pages">${previous ? `<a href="/docs/${previous.slug}"><small>Previous</small><strong>← ${escapeHtml(previous.title)}</strong></a>` : '<span></span>'}${next ? `<a class="next" href="/docs/${next.slug}"><small>Next</small><strong>${escapeHtml(next.title)} →</strong></a>` : ''}</nav></main>
-  <aside class="on-page"><strong>On this page</strong><p>${escapeHtml(entry?.summary ?? '')}</p><a href="${portalUrl}">Back to Demo Portal →</a><a href="http://127.0.0.1:4200/reports/index.html">Test reports →</a></aside></div>
-  <script>const input=document.querySelector('#docs-search');input.addEventListener('input',()=>{const q=input.value.toLowerCase();document.querySelectorAll('[data-search]').forEach(link=>link.hidden=!link.dataset.search.includes(q));});</script></body></html>`;
-}
-
-function searchableText(entry: DocumentationEntry): string {
-  const source = readFileSync(path.join(contentRoot, entry.source), 'utf8');
-  return `${entry.title} ${entry.section} ${entry.summary} ${source}`.toLowerCase();
+  <aside class="on-page"><strong>On this page</strong><p>${escapeHtml(entry?.summary ?? '')}</p><a href="${portalUrl}">Back to Demo Portal →</a><a href="${portalUrl}/reports/index.html">Test reports →</a></aside></div>
+  </validation-platform-shell></body></html>`;
 }
 
 function configuredPort(name: string, fallback: number): number {

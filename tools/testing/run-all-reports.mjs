@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { cleanReports } from './clean-reports.mjs';
-import { generateReportIndex } from './generate-report-index.mjs';
+import { generateReportIndex } from './generate-report-platform.mjs';
 import { verifyReports } from './verify-reports.mjs';
 import {
   projects,

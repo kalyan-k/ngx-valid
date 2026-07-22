@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="tools/platform-shell/validation-rules-mark.svg" width="88" height="88" alt="Validation Rules logo">
+</p>
+
 # Validation Rules
 
 Validation Rules is an extendable monorepo for policy-driven model and form validation. It separates a framework-independent rules engine from framework adapters, so validation behavior can stay reusable and testable while each UI integration owns its lifecycle and rendering concerns.
@@ -14,6 +18,7 @@ The repository ships a core engine and production Angular adapter inside a multi
 - Field, group, policy-group, and page-level error summaries
 - Bootstrap, Angular Material, Tailwind-friendly, generic, automatic, and custom display strategies
 - One-command demo platform with application health monitoring and automatic browser launch
+- Instant documentation search across titles, headings, prose, and code with section deep links
 - Independent tests, coverage gates, and browsable reports for every Angular workspace project
 - Enforced dependency direction from Angular demos to adapter to core
 
@@ -58,6 +63,7 @@ validation-rules/
 |   `-- testing.md
 |-- tools/
 |   |-- architecture/          # dependency-boundary verification
+|   |-- platform-shell/        # shared product shell, theme, and navigation
 |   `-- testing/               # shared Karma config and persistent reports
 |-- package.json               # private npm-workspaces root
 `-- tsconfig.json
@@ -200,6 +206,10 @@ npm run demo
 The command builds the packages and Node applications, starts the portal at `http://127.0.0.1:4200`, starts documentation at port `4201`, the original Angular demo at `4202`, and the Angular + NgRx demo at `4203`, then opens the portal in the default browser. The portal polls every registered application and shows startup, healthy, or failed state without coupling their runtimes.
 
 The application registry in `apps/demo/src/applications.ts` is the single place to add a future demo. Each application remains independently runnable and communicates through stable local URLs.
+
+All four applications use the framework-neutral shell in `tools/platform-shell`. It provides one product identity, a compact Home / Docs / Demos / Reports / GitHub navigation, footer, page width, spacing system, breadcrumbs, action bars, cards, responsive breakpoints, and shared logo/icon assets while leaving each application's Bootstrap, Angular Material, or Tailwind components intact. The shell stylesheet is preloaded and the custom element is defined before application scripts to avoid navigation flicker.
+
+Documentation search is performed from a browser-cached index and returns highlighted title, heading, prose, and code matches with direct section links and full keyboard navigation. Generated reports use the exact shared application shell: collapsible Packages and Demo Applications groups plus Summary / Tests / Coverage tabs update one workspace, while the original Istanbul output remains unchanged.
 
 ## Roadmap
 

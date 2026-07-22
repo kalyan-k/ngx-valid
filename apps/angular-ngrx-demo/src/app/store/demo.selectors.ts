@@ -7,3 +7,4 @@ export const selectPureProfile = createSelector(selectDemoFeature, ({ pureProfil
 export const selectPureLifecycle = createSelector(selectDemoFeature, ({ pureLifecycle }) => pureLifecycle);
 export const selectReactiveAccount = createSelector(selectDemoFeature, ({ reactiveAccount }) => reactiveAccount);
 export const selectReactiveLifecycle = createSelector(selectDemoFeature, ({ reactiveLifecycle }) => reactiveLifecycle);
+export const selectReactiveSavedAt = createSelector(selectDemoFeature, ({ reactiveSavedAt }) => reactiveSavedAt);

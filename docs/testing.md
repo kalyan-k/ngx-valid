@@ -11,6 +11,10 @@ Two browsable HTML report types are generated:
 - The repository-owned `persistent-test-results` Karma reporter writes suites, cases, pass/fail/skip state, timing, browser data, repository-relative spec files, and failure logs. It also writes JSON summaries and JUnit XML.
 - `karma-coverage` writes Istanbul HTML source coverage with folder/file navigation, four coverage metrics, and highlighted source lines. LCOV and JSON summaries are generated beside it.
 
+The unified dashboard, persistent test pages, and coverage landing pages use the shared report branding module. Every page identifies the application, workspace version, report type, and generation time. This metadata is initially expanded, automatically collapses after about ten seconds, and stores a manual expanded/collapsed preference in session storage.
+
+The dashboard keeps report exploration in one browser tab. Its left tree separates collapsible Packages and Demo Applications groups, both expanded by default. Each project exposes Summary, Tests, and Coverage in that order; the same ordered tabs update the right pane with Summary selected initially. Coverage views load the unmodified Istanbul site in an iframe, and the raw source report remains available under each project's `coverage/` directory.
+
 The interactive `kjhtml` page and console progress remain enabled for local watch runs. Persistent reports remain usable after Karma exits and can be opened directly from the file system.
 
 Karma 6 expects older `glob` and `minimatch` APIs. `tools/testing/karma-glob-compat.cjs` adapts the two properties Karma reads, while a scoped npm override gives Karma patched `minimatch` 3.1.4. This compatibility is limited to the runner.
@@ -66,12 +70,12 @@ npm run reports:verify     # validate output structure and local navigation
 | Project | Test execution | Coverage | JUnit |
 | --- | --- | --- | --- |
 | Unified | `reports/index.html` | - | - |
-| Core engine | `reports/core/tests/index.html` | `reports/core/coverage/index.html` | `reports/core/junit/test-results.xml` |
-| Angular adapter | `reports/angular/tests/index.html` | `reports/angular/coverage/index.html` | `reports/angular/junit/test-results.xml` |
-| Angular demo | `reports/angular-demo/tests/index.html` | `reports/angular-demo/coverage/index.html` | `reports/angular-demo/junit/test-results.xml` |
-| Angular + NgRx demo | `reports/angular-ngrx-demo/tests/index.html` | `reports/angular-ngrx-demo/coverage/index.html` | `reports/angular-ngrx-demo/junit/test-results.xml` |
+| Core engine | `reports/core/tests/index.html` | `reports/core/coverage.html` | `reports/core/junit/test-results.xml` |
+| Angular adapter | `reports/angular/tests/index.html` | `reports/angular/coverage.html` | `reports/angular/junit/test-results.xml` |
+| Angular demo | `reports/angular-demo/tests/index.html` | `reports/angular-demo/coverage.html` | `reports/angular-demo/junit/test-results.xml` |
+| Angular + NgRx demo | `reports/angular-ngrx-demo/tests/index.html` | `reports/angular-ngrx-demo/coverage.html` | `reports/angular-ngrx-demo/junit/test-results.xml` |
 
-Each `tests/` directory also contains `summary.json`. Each `coverage/` directory also contains `lcov.info` and `coverage-summary.json`.
+Each `tests/` directory also contains `summary.json`. Each `coverage/` directory contains the original Istanbul `index.html`, browsable source pages, `lcov.info`, and `coverage-summary.json`.
 
 `reports/` and the Angular CLI `coverage/` directory are generated and ignored by Git. Cleaning resolves the path relative to the repository, validates the Validation Rules workspace identity, and removes only the expected report root.
 
@@ -148,7 +152,7 @@ Do not exclude executable production code merely to increase a percentage. Add b
 
 ### Node applications
 
-The portal tests its central application registry and missing-launcher failure state in `process-manager.spec.ts`. The documentation app tests Markdown rendering, escaping, and safe links in `markdown.spec.ts`.
+The portal tests its central application registry and missing-launcher failure state in `process-manager.spec.ts`. The documentation app tests Markdown rendering, escaping, and safe links in `markdown.spec.ts`, plus title, heading, content, code, ranking, and deep-link search behavior in `search.spec.ts`.
 
 Tests are colocated with production code and named `*.spec.ts`. Prefer public behavior, model state, emitted values, and rendered DOM over private implementation details. Cover meaningful success, failure, empty, boundary, conditional, and asynchronous behavior.
 
@@ -165,7 +169,7 @@ The workflow does not publish packages.
 
 - Dashboard missing: run `npm run test:reports`; `reports:open` fails intentionally when the dashboard does not exist.
 - One project incomplete: inspect its console output and the dashboard missing-output list, then rerun its project report command.
-- Coverage gate failure: open `reports/<project>/coverage/index.html` and inspect uncovered lines and branches.
+- Coverage gate failure: open `reports/<project>/coverage.html` and inspect uncovered lines and branches in the embedded Istanbul report.
 - Browser launch failure in a container: use `npm run test:ci` to select `ChromeHeadlessCI`.
 - Stale output after moving tests: run `npm run reports:clean` and regenerate all reports.
 - Boundary failure: run `npm run architecture:verify` and remove the reported reverse or framework dependency rather than weakening the guard.

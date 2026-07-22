@@ -120,10 +120,15 @@
             "tsConfig": "../../apps/angular-demo/tsconfig.app.json",
             "inlineStyleLanguage": "sass",
             "assets": [
-              "../../apps/angular-demo/src/favicon.ico",
-              "../../apps/angular-demo/src/assets"
+              "../../apps/angular-demo/src/assets",
+              {
+                "glob": "**/*",
+                "input": "../../tools/platform-shell",
+                "output": "/"
+              }
             ],
             "styles": [
+              "../../tools/platform-shell/platform-theme.css",
               "../../node_modules/bootstrap/dist/css/bootstrap.min.css",
               "@angular/material/prebuilt-themes/indigo-pink.css",
               "../../dist/validation-rules-angular/styles/policy-validation.css",
@@ -194,10 +199,15 @@
             ],
             "inlineStyleLanguage": "sass",
             "assets": [
-              "../../apps/angular-demo/src/favicon.ico",
-              "../../apps/angular-demo/src/assets"
+              "../../apps/angular-demo/src/assets",
+              {
+                "glob": "**/*",
+                "input": "../../tools/platform-shell",
+                "output": "/"
+              }
             ],
             "styles": [
+              "../../tools/platform-shell/platform-theme.css",
               "../../apps/angular-demo/src/styles.sass"
             ],
             "scripts": []
@@ -236,8 +246,15 @@
             ],
             "tsConfig": "../../apps/angular-ngrx-demo/tsconfig.app.json",
             "inlineStyleLanguage": "sass",
-            "assets": [],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "../../tools/platform-shell",
+                "output": "/"
+              }
+            ],
             "styles": [
+              "../../tools/platform-shell/platform-theme.css",
               "../../apps/angular-ngrx-demo/src/styles.sass"
             ],
             "scripts": []
@@ -304,8 +321,15 @@
               "../../apps/angular-ngrx-demo/src/main.ts"
             ],
             "inlineStyleLanguage": "sass",
-            "assets": [],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "../../tools/platform-shell",
+                "output": "/"
+              }
+            ],
             "styles": [
+              "../../tools/platform-shell/platform-theme.css",
               "../../apps/angular-ngrx-demo/src/styles.sass"
             ],
             "scripts": []

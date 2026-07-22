@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const reportBranding = require('./report-branding.cjs');
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -137,15 +138,14 @@ function renderHtml(report) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="report-project" content="${escapeHtml(report.projectName)}">
+  ${reportBranding.reportHeadAssets()}
   <title>${escapeHtml(report.displayName)} test results</title>
   <style>
+    ${reportBranding.reportStyles()}
     :root { color-scheme: light; --ink:#172033; --muted:#667085; --line:#d7deea; --panel:#fff; --bg:#f5f7fb; --pass:#087443; --fail:#b42318; --skip:#805500; --accent:#3157d5; }
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; }
     body { margin:0; color:var(--ink); background:var(--bg); font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
-    header { padding:28px 32px 22px; color:#fff; background:linear-gradient(120deg,#172554,#3157d5); }
-    header h1 { margin:0 0 6px; font-size:28px; }
-    header p { margin:0; color:#dbe5ff; }
     .layout { display:grid; grid-template-columns:minmax(220px,280px) minmax(0,1fr); gap:24px; max-width:1500px; margin:0 auto; padding:24px; }
     aside { position:sticky; top:16px; align-self:start; max-height:calc(100vh - 32px); overflow:auto; padding:18px; border:1px solid var(--line); border-radius:12px; background:var(--panel); }
     aside h2 { margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
@@ -180,15 +180,29 @@ function renderHtml(report) {
     pre { max-height:420px; overflow:auto; white-space:pre-wrap; word-break:break-word; font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
     .muted { color:var(--muted); }
     .test[hidden], .suite[hidden] { display:none; }
+    html.embedded-report validation-platform-shell::part(header),html.embedded-report validation-platform-shell::part(footer),html.embedded-report .vr-report-summary,html.embedded-report .vr-report-subnav { display:none; }
+    html.embedded-report .layout { max-width:none; margin:0; padding:18px; }
     @media (max-width:1000px) { .layout { grid-template-columns:1fr; } aside { position:static; max-height:none; } .cards { grid-template-columns:repeat(3,1fr); } }
-    @media (max-width:620px) { header { padding:22px 18px; } .layout { padding:14px; } .cards { grid-template-columns:repeat(2,1fr); } .metadata { width:100%; margin-left:0; } .source,.failure { margin-left:0; } }
+    @media (max-width:620px) { .layout { padding:14px; } .cards { grid-template-columns:repeat(2,1fr); } .metadata { width:100%; margin-left:0; } .source,.failure { margin-left:0; } }
   </style>
+  <script>if(new URLSearchParams(location.search).get('embed')==='1')document.documentElement.classList.add('embedded-report');</script>
 </head>
 <body>
-  <header>
-    <h1>${escapeHtml(report.displayName)} test execution report</h1>
-    <p>Jasmine/Karma persistent results · ${escapeHtml(report.finishedAt)}</p>
-  </header>
+  ${reportBranding.renderReportHeader({
+    applicationName: report.displayName,
+    reportType: 'Test execution report',
+    generatedAt: report.finishedAt,
+    version: report.version || 'unknown',
+    dashboardHref: '../../index.html',
+    coverageHref: '../coverage.html'
+  })}
+  ${reportBranding.renderReportSubnavigation({
+    dashboardHref: '../../index.html',
+    summaryHref: '../../index.html#' + report.projectName + '/summary',
+    testsHref: './index.html',
+    coverageHref: '../coverage.html',
+    junitHref: '../junit/test-results.xml'
+  })}
   <div class="layout">
     <aside aria-label="Test suite navigation">
       <h2>Test suites</h2>
@@ -213,6 +227,7 @@ function renderHtml(report) {
       ${suiteSections || '<section class="suite"><div class="suite-tests">No test cases were reported.</div></section>'}
     </main>
   </div>
+  ${reportBranding.renderReportFooter({ version: report.version || 'unknown' })}
   <script>
     const buttons = [...document.querySelectorAll('[data-filter]')];
     const suites = [...document.querySelectorAll('.suite')];
@@ -271,6 +286,12 @@ function PersistentTestResultsReporter(baseReporterDecorator, config, logger) {
   const displayName = displayNames[projectName] || projectName;
   const outputDir = options.outputDir || path.join(config.basePath, 'reports', projectName);
   const workspaceRoot = config.basePath || process.cwd();
+  let workspaceVersion = 'unknown';
+  try {
+    workspaceVersion = JSON.parse(fs.readFileSync(path.join(workspaceRoot, 'package.json'), 'utf8')).version || workspaceVersion;
+  } catch {
+    // A missing package manifest should not prevent report generation.
+  }
   let startedAt;
   let specs;
   let browserNames;
@@ -304,6 +325,7 @@ function PersistentTestResultsReporter(baseReporterDecorator, config, logger) {
       const report = {
         projectName,
         displayName,
+        version: workspaceVersion,
         startedAt: startedAt.toISOString(),
         finishedAt: finishedAt.toISOString(),
         durationMs: finishedAt.getTime() - startedAt.getTime(),

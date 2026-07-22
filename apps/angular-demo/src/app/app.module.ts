@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
@@ -14,7 +14,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DemoShellComponent } from './layout/demo-shell.component';
 import { HomeComponent } from './pages/home/home.component';
-import { DocsComponent } from './pages/docs/docs.component';
 import { FrameworkDemoComponent } from './pages/framework-demo/framework-demo.component';
 import { SampleFormComponent } from './components/sample-form/sample-form.component';
 import { SampleFormMaterialComponent } from './components/sample-form/sample-form-material.component';
@@ -33,7 +32,6 @@ import { validationProviders } from './validation.providers';
     AppComponent,
     DemoShellComponent,
     HomeComponent,
-    DocsComponent,
     FrameworkDemoComponent,
     SampleFormComponent,
     SampleFormMaterialComponent,
@@ -65,6 +63,7 @@ import { validationProviders } from './validation.providers';
     })
   ],
   providers: [...validationProviders],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

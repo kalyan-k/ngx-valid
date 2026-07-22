@@ -1,5 +1,7 @@
-<div class="demo-page home-page">
-  <header class="demo-page-header">
+<div class="vr-demo-home">
+  <div class="vr-breadcrumb"><a href="http://127.0.0.1:4200">Home</a><span>/</span><span>Angular Demo</span><span>/</span><span>Overview</span></div>
+  <header class="vr-demo-home__header">
+    <p class="vr-eyebrow">Angular forms</p>
     <h1>Validation Rules Demo Application</h1>
     <p class="lead">
       Explore policy-based Angular form validation with pluggable error display strategies.
@@ -7,8 +9,8 @@
     </p>
   </header>
 
-  <section class="demo-card-grid">
-    <article class="demo-card">
+  <section class="vr-demo-home__grid">
+    <article class="vr-demo-home__card">
       <h2>What you can try</h2>
       <ul>
         <li *ngFor="let demo of demos">
@@ -17,33 +19,33 @@
       </ul>
     </article>
 
-    <article class="demo-card">
+    <article class="vr-demo-home__card">
       <h2>UI framework demos</h2>
       <p>Pick a framework from the left menu. Each demo page includes tabs for all three form scenarios.</p>
-      <div class="framework-pills">
-        <a *ngFor="let fw of frameworks" class="framework-pill" [routerLink]="['/demos', fw.id]">
+      <div class="vr-demo-home__links">
+        <a *ngFor="let fw of frameworks" [routerLink]="['/demos', fw.id]">
           {{ fw.label }}
         </a>
       </div>
     </article>
   </section>
 
-  <section class="demo-card">
+  <section class="vr-demo-home__card">
     <h2>Quick start</h2>
-    <ol class="quick-start-list">
+    <ol class="vr-demo-home__steps">
       <li *ngFor="let item of quickStart">
-        <strong>{{ item.step }}. {{ item.title }}</strong>
+        <strong>{{ item.title }}</strong>
         <span>{{ item.detail }}</span>
       </li>
     </ol>
     <p class="mb-0">
-      Read the full guide in <a routerLink="/docs">Library Docs</a> for architecture, API reference, and best practices.
+      Read the authoritative <a [href]="docsUrl">Angular package guide</a> for architecture, API reference, and best practices.
     </p>
   </section>
 
-  <section class="demo-card">
+  <section class="vr-demo-home__card">
     <h2>Validation UX patterns demonstrated</h2>
-    <div class="pattern-grid">
+    <div class="vr-demo-home__patterns">
       <div>
         <h3>Field-level</h3>
         <p>Errors after blur/change via <code>policyValidator</code> and display strategies.</p>

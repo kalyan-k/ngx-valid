@@ -9,17 +9,32 @@ import { ApplicationProcessManager } from './process-manager.js';
 const sourceDirectory = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(sourceDirectory, '..', '..', '..');
 const publicRoot = path.join(workspaceRoot, 'apps', 'demo', 'public');
+const shellRoot = path.join(workspaceRoot, 'tools', 'platform-shell');
 const reportsRoot = path.join(workspaceRoot, 'reports');
 const rootPackage = JSON.parse(readFileSync(path.join(workspaceRoot, 'package.json'), 'utf8')) as { version?: string };
 
 const contentTypes: Record<string, string> = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
+  '.ico': 'image/x-icon',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.map': 'application/json; charset=utf-8',
+  '.png': 'image/png',
+  '.svg': 'image/svg+xml',
+  '.webmanifest': 'application/manifest+json',
   '.xml': 'application/xml; charset=utf-8'
 };
+
+const platformAssets = new Set([
+  'favicon.ico',
+  'platform-shell.css',
+  'platform-shell.js',
+  'platform-theme.css',
+  'site.webmanifest',
+  'validation-rules-mark.svg',
+  ...[16, 32, 64, 180, 192, 512].map((size) => `validation-rules-icon-${size}.png`)
+]);
 
 export function createPortalServer(manager: ApplicationProcessManager): http.Server {
   return http.createServer((request, response) => {
@@ -55,6 +70,10 @@ async function handleRequest(
     serveFile(response, reportsRoot, requestUrl.pathname.slice('/reports/'.length));
     return;
   }
+  if (platformAssets.has(requestUrl.pathname.slice(1))) {
+    serveFile(response, shellRoot, requestUrl.pathname.slice(1));
+    return;
+  }
   const relativePath = requestUrl.pathname === '/' ? 'index.html' : requestUrl.pathname.slice(1);
   serveFile(response, publicRoot, relativePath, true);
 }
@@ -75,7 +94,7 @@ function serveFile(response: ServerResponse, root: string, requestedPath: string
   }
   response.writeHead(200, {
     'Content-Type': contentTypes[path.extname(filePath)] ?? 'application/octet-stream',
-    'Cache-Control': 'no-store'
+    'Cache-Control': root === shellRoot ? 'public, max-age=3600' : 'no-store'
   });
   createReadStream(filePath).pipe(response);
 }

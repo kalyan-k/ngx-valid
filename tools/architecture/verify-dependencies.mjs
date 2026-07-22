@@ -9,6 +9,7 @@ const demoRoot = path.join(workspaceRoot, 'apps', 'angular-demo');
 const ngrxDemoRoot = path.join(workspaceRoot, 'apps', 'angular-ngrx-demo');
 const portalRoot = path.join(workspaceRoot, 'apps', 'demo');
 const docsRoot = path.join(workspaceRoot, 'apps', 'docs');
+const platformShellRoot = path.join(workspaceRoot, 'tools', 'platform-shell');
 const failures = [];
 
 function readJson(filePath) {
@@ -48,6 +49,21 @@ function expect(condition, message) {
 
 for (const root of [coreRoot, angularRoot, demoRoot, ngrxDemoRoot, portalRoot, docsRoot]) {
   expect(fs.existsSync(root), `Missing workspace project: ${relative(root)}`);
+}
+for (const file of [
+  'platform-shell.js',
+  'platform-shell.css',
+  'platform-theme.css',
+  'validation-rules-mark.svg',
+  'validation-rules-icon-32.png',
+  'validation-rules-icon-180.png',
+  'validation-rules-icon-192.png',
+  'validation-rules-icon-512.png',
+  'favicon.ico',
+  'site.webmanifest'
+]) {
+  const shellFile = path.join(platformShellRoot, file);
+  expect(fs.existsSync(shellFile), `Missing shared application-shell asset: ${relative(shellFile)}`);
 }
 
 if (failures.length === 0) {
@@ -135,6 +151,51 @@ if (failures.length === 0) {
     }
   }
 
+  const shellConsumers = [
+    path.join(portalRoot, 'public', 'index.html'),
+    path.join(docsRoot, 'src', 'server.ts'),
+    path.join(demoRoot, 'src', 'app', 'app.component.html'),
+    path.join(ngrxDemoRoot, 'src', 'app', 'app.component.html')
+  ];
+  for (const file of shellConsumers) {
+    expect(
+      fs.readFileSync(file, 'utf8').includes('validation-platform-shell'),
+      `${relative(file)} must render the shared application shell.`
+    );
+  }
+
+  const shellSource = fs.readFileSync(path.join(platformShellRoot, 'platform-shell.js'), 'utf8');
+  for (const label of ['Home', 'Docs', 'Demos', 'Reports', 'GitHub']) {
+    expect(shellSource.includes(label), `Shared application shell must expose the ${label} navigation destination.`);
+  }
+  expect(
+    shellSource.includes('/docs/roadmap') && shellSource.includes('/docs/faq'),
+    'Shared documentation navigation must expose Roadmap and FAQ deep links.'
+  );
+  expect(
+    fs.existsSync(path.join(docsRoot, 'src', 'search.ts'))
+      && fs.existsSync(path.join(docsRoot, 'public', 'search.js')),
+    'Documentation application must provide a client-side search index and controller.'
+  );
+  expect(
+    !fs.existsSync(path.join(demoRoot, 'src', 'app', 'pages', 'docs', 'docs.component.ts')),
+    'Angular demo must not duplicate the authoritative documentation application.'
+  );
+  expect(
+    fs.readFileSync(path.join(workspaceRoot, 'docs', 'site', 'angular.md'), 'utf8').includes('## Template-driven controls'),
+    'Angular-specific documentation consolidated from the demo must remain in the documentation application.'
+  );
+  expect(
+    fs.existsSync(path.join(ngrxDemoRoot, 'src', 'app', 'pages', 'home', 'home.component.ts')),
+    'Angular + NgRx demo must provide a landing page parallel to the Angular demo.'
+  );
+  for (const file of [
+    path.join(demoRoot, 'src', 'app', 'layout', 'demo-shell.component.html'),
+    path.join(ngrxDemoRoot, 'src', 'app', 'app.component.html')
+  ]) {
+    expect(fs.readFileSync(file, 'utf8').includes('vr-demo-shell'), `${relative(file)} must use the shared demo layout.`);
+  }
+
   for (const framework of ['react', 'vue']) {
     expect(
       !fs.existsSync(path.join(workspaceRoot, 'packages', framework))
@@ -152,4 +213,5 @@ if (failures.length > 0) {
   console.log('Verified dependency direction: Angular demos -> angular adapter -> core engine.');
   console.log('Verified that the portal and documentation applications remain Angular-free.');
   console.log('Verified that @validation-rules/core has no Angular dependency.');
+  console.log('Verified that every application renders the shared platform shell.');
 }

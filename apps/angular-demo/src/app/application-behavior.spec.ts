@@ -27,8 +27,6 @@ import { provideDemoFrameworkDisplay } from './demo/demo-framework.providers';
 import { DemoShellComponent } from './layout/demo-shell.component';
 import { AddressInfo, BillingInfo, ComplexFormModel, PersonalInfo } from './models/complex-form.model';
 import { SampleForm } from './models/sample-form.model';
-import { DocsComponent } from './pages/docs/docs.component';
-import { DOC_SECTIONS } from './pages/docs/docs-sections';
 import { FrameworkDemoComponent } from './pages/framework-demo/framework-demo.component';
 import { HomeComponent } from './pages/home/home.component';
 import { registerValidationPolicies, validationProviders } from './validation.providers';
@@ -52,7 +50,7 @@ describe('demo models, metadata, pages, and providers', () => {
   it('exposes three framework choices, demo tabs, navigation, and quick-start steps', () => {
     expect(DEMO_FRAMEWORKS.map((item) => item.id)).toEqual(['bootstrap', 'material', 'tailwind']);
     expect(DEMO_TABS.map((item) => item.id)).toEqual(['sample', 'complex', 'performance']);
-    expect(new DemoShellComponent().navItems[1].children?.length).toBe(3);
+    expect(new DemoShellComponent().frameworks.length).toBe(3);
     expect(new HomeComponent().quickStart.map((item) => item.step)).toEqual([1, 2, 3, 4]);
     expect(new AppComponent().title).toBe('demo-app');
   });
@@ -69,23 +67,6 @@ describe('demo models, metadata, pages, and providers', () => {
     expect(component.activeTab).toBe('performance');
     data.next({});
     expect(component.framework).toBe('bootstrap');
-  });
-
-  it('selects documentation sections, tracks active state, and scrolls when a target exists', () => {
-    const component = new DocsComponent();
-    const target = document.createElement('div');
-    target.id = `doc-${DOC_SECTIONS[1].id}`;
-    target.scrollIntoView = jasmine.createSpy('scrollIntoView');
-    document.body.appendChild(target);
-
-    component.selectSection(DOC_SECTIONS[1]);
-    expect(component.activeSectionId).toBe(DOC_SECTIONS[1].id);
-    expect(component.isActive(DOC_SECTIONS[1].id)).toBeTrue();
-    expect(component.isActive('missing')).toBeFalse();
-    expect(target.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' });
-
-    component.selectSection({ id: 'missing', title: '', summary: '' });
-    target.remove();
   });
 
   it('registers every static policy, form-group mapping, and checkout policy group', () => {

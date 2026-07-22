@@ -1,14 +1,43 @@
 <section class="demo-page" *ngIf="profile$ | async as profile">
-  <header><p class="eyebrow">Page 1 · no Angular Forms</p><h2>Pure NgRx State</h2><p>Inputs dispatch actions directly. Validation runs against a cloned store snapshot and dispatches the results back through the reducer.</p></header>
-  <div class="pattern-banner"><span>DOM event</span><b>→</b><span>NgRx action</span><b>→</b><span>State snapshot</span><b>→</b><span>Validation policy</span><b>→</b><span>Validated state</span></div>
-  <div class="content-grid">
-    <form class="demo-card" (submit)="$event.preventDefault(); validate()" novalidate>
-      <div class="card-heading"><div><small>Editable state</small><h3>Account profile</h3></div><span class="lifecycle" [attr.data-state]="lifecycle$ | async">{{ lifecycle$ | async }}</span></div>
-      <label>Full name<input type="text" [value]="profile.fullName" (input)="update('fullName', $event)" [class.field-invalid]="errorFor(profile, 'fullName')"><span class="field-error" *ngIf="errorFor(profile, 'fullName') as error">{{ error }}</span></label>
-      <label>Email<input type="email" [value]="profile.email" (input)="update('email', $event)" [class.field-invalid]="errorFor(profile, 'email')"><span class="field-error" *ngIf="errorFor(profile, 'email') as error">{{ error }}</span></label>
-      <label>Account role<select [value]="profile.role" (change)="update('role', $event)" [class.field-invalid]="errorFor(profile, 'role')"><option value="">Choose a role</option><option value="administrator">Administrator</option><option value="reviewer">Reviewer</option><option value="operator">Operator</option></select><span class="field-error" *ngIf="errorFor(profile, 'role') as error">{{ error }}</span></label>
-      <div class="actions"><button class="primary" type="submit">Validate store state</button><button type="button" (click)="reset()">Reset</button></div>
-    </form>
-    <aside class="state-card"><div class="card-heading"><div><small>Selected feature state</small><h3>NgRx snapshot</h3></div><span>{{ (profile.validationResults || []).length }} errors</span></div><pre>{{ profile | json }}</pre><p>No <code>FormGroup</code>, <code>FormControl</code>, or <code>ngModel</code> participates in this page.</p></aside>
-  </div>
+  <div class="vr-breadcrumb"><a href="http://127.0.0.1:4200">Home</a><span>/</span><span>Angular NgRx Demo</span><span>/</span><span>Pure NgRx State</span></div>
+  <header class="vr-page-heading"><div><p class="vr-eyebrow">Page 1 · no Angular Forms</p><h2>Pure NgRx State</h2><p>Every control dispatches an action. Policies evaluate a cloned state snapshot, including nested objects, collections, dynamic sections, and independent validation groups.</p></div><span class="lifecycle" [attr.data-state]="lifecycle$ | async">{{ lifecycle$ | async }}</span></header>
+  <div class="pattern-banner"><span>DOM event</span><b>→</b><span>NgRx action</span><b>→</b><span>State snapshot</span><b>→</b><span>Policy</span><b>→</b><span>Validated state</span></div>
+
+  <div class="policy-bar vr-action-bar"><label>Active policy<select [value]="profile.selectedPolicy" (change)="switchPolicy($event)"><option value="StateProfile">Standard onboarding</option><option value="StateProfileEnterprise">Enterprise onboarding</option></select></label><p><strong>Policy switching:</strong> Enterprise mode adds region, postal-code, and phone-type requirements without changing the store shape.</p></div>
+
+  <form (submit)="$event.preventDefault(); validate()" novalidate>
+    <section class="example-section">
+      <div class="vr-section-header"><div><p class="vr-eyebrow">Simple form</p><h3>Identity and contact state</h3></div><span class="group-status" [attr.data-state]="groupStatus(profile, 'identityGroup')?.isInValid ? 'invalid' : groupStatus(profile, 'identityGroup')?.isValid ? 'valid' : 'pending'">Identity group · {{ groupStatus(profile, 'identityGroup')?.errors?.length || 0 }} errors</span></div>
+      <div class="field-grid demo-card">
+        <label>First name<input type="text" [value]="profile.firstName" (input)="update('firstName', $event)" [class.field-invalid]="errorFor(profile, 'firstName')"><span class="field-error" *ngIf="errorFor(profile, 'firstName') as error">{{ error }}</span></label>
+        <label>Last name<input type="text" [value]="profile.lastName" (input)="update('lastName', $event)" [class.field-invalid]="errorFor(profile, 'lastName')"><span class="field-error" *ngIf="errorFor(profile, 'lastName') as error">{{ error }}</span></label>
+        <label>Email<input type="email" [value]="profile.email" (input)="update('email', $event)" [class.field-invalid]="errorFor(profile, 'email')"><span class="field-error" *ngIf="errorFor(profile, 'email') as error">{{ error }}</span></label>
+        <label>Primary phone<input type="tel" [value]="profile.phone" (input)="update('phone', $event)" [class.field-invalid]="errorFor(profile, 'phone')"><span class="field-error" *ngIf="errorFor(profile, 'phone') as error">{{ error }}</span></label>
+        <label>Account role<select [value]="profile.role" (change)="update('role', $event)" [class.field-invalid]="errorFor(profile, 'role')"><option value="">Choose a role</option><option value="administrator">Administrator</option><option value="reviewer">Reviewer</option><option value="operator">Operator</option></select><span class="field-error" *ngIf="errorFor(profile, 'role') as error">{{ error }}</span></label>
+      </div>
+    </section>
+
+    <section class="example-section">
+      <div class="vr-section-header"><div><p class="vr-eyebrow">Complex form</p><h3>Nested primary address</h3></div><span class="group-status" [attr.data-state]="groupStatus(profile, 'addressGroup')?.isInValid ? 'invalid' : groupStatus(profile, 'addressGroup')?.isValid ? 'valid' : 'pending'">Address group · {{ groupStatus(profile, 'addressGroup')?.errors?.length || 0 }} errors</span></div>
+      <div class="field-grid demo-card address-grid">
+        <label>Street<input [value]="profile.primaryAddress.street" (input)="updatePrimaryAddress('street', $event)"><span class="field-error" *ngIf="errorFor(profile, 'primaryAddress.street') as error">{{ error }}</span></label>
+        <label>City<input [value]="profile.primaryAddress.city" (input)="updatePrimaryAddress('city', $event)"><span class="field-error" *ngIf="errorFor(profile, 'primaryAddress.city') as error">{{ error }}</span></label>
+        <label>Country<select [value]="profile.primaryAddress.country" (change)="updatePrimaryAddress('country', $event)"><option value="">Choose country</option><option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option></select><span class="field-error" *ngIf="errorFor(profile, 'primaryAddress.country') as error">{{ error }}</span></label>
+        <label>State / region<input [value]="profile.primaryAddress.region" (input)="updatePrimaryAddress('region', $event)"><span class="field-error" *ngIf="errorFor(profile, 'primaryAddress.region') as error">{{ error }}</span></label>
+        <label>Postal code<input [value]="profile.primaryAddress.postalCode" (input)="updatePrimaryAddress('postalCode', $event)"><span class="field-error" *ngIf="errorFor(profile, 'primaryAddress.postalCode') as error">{{ error }}</span></label>
+      </div>
+    </section>
+
+    <section class="example-section">
+      <div class="vr-section-header"><div><p class="vr-eyebrow">Dynamic sections</p><h3>Addresses and phone collections</h3></div><span class="group-status" [attr.data-state]="groupStatus(profile, 'contactGroup')?.isInValid ? 'invalid' : groupStatus(profile, 'contactGroup')?.isValid ? 'valid' : 'pending'">Contact group · {{ groupStatus(profile, 'contactGroup')?.errors?.length || 0 }} errors</span></div>
+      <div class="collection-grid">
+        <article class="demo-card collection-card"><div class="card-heading"><div><small>Dynamic collection</small><h3>Additional addresses</h3></div><button type="button" (click)="addAddress()">Add address</button></div><div class="collection-row" *ngFor="let address of profile.addresses; let index = index; trackBy: trackByIndex"><div class="row-heading"><strong>{{ address.label || ('Address ' + (index + 2)) }}</strong><button type="button" (click)="removeAddress(index)">Remove</button></div><div class="compact-grid"><label>Label<input [value]="address.label" (input)="updateAddress(index, 'label', $event)"></label><label>Street<input [value]="address.street" (input)="updateAddress(index, 'street', $event)"></label><label>City<input [value]="address.city" (input)="updateAddress(index, 'city', $event)"></label><label>Country<input [value]="address.country" (input)="updateAddress(index, 'country', $event)"></label><label>Region<input [value]="address.region" (input)="updateAddress(index, 'region', $event)"></label><label>Postal code<input [value]="address.postalCode" (input)="updateAddress(index, 'postalCode', $event)"></label></div></div></article>
+        <article class="demo-card collection-card"><div class="card-heading"><div><small>Dynamic collection</small><h3>Phone numbers</h3></div><button type="button" (click)="addPhone()">Add phone</button></div><div class="collection-row phone-row" *ngFor="let phone of profile.phoneNumbers; let index = index; trackBy: trackByIndex"><label>Type<select [value]="phone.type" (change)="updatePhone(index, 'type', $event)"><option value="mobile">Mobile</option><option value="work">Work</option><option value="emergency">Emergency</option></select></label><label>Number<input type="tel" [value]="phone.value" (input)="updatePhone(index, 'value', $event)"><span class="field-error" *ngIf="errorFor(profile, 'phoneNumbers.' + index + '.value') as error">{{ error }}</span></label><button type="button" (click)="removePhone(index)">Remove</button></div></article>
+      </div>
+    </section>
+
+    <div class="actions action-footer"><button class="primary" type="submit">Validate complete store state</button><button type="button" (click)="reset()">Reset state</button><span>{{ (profile.validationResults || []).length }} current errors</span></div>
+  </form>
+
+  <aside class="state-card"><div class="card-heading"><div><small>Selected feature state</small><h3>NgRx snapshot</h3></div><span>No FormGroup</span></div><pre>{{ profile | json }}</pre><p>No <code>FormGroup</code>, <code>FormControl</code>, or <code>ngModel</code> participates anywhere on this page.</p></aside>
 </section>

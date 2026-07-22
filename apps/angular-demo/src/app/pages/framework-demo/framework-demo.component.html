@@ -1,10 +1,11 @@
 <div class="demo-page framework-demo-page" *ngIf="frameworkMeta as meta">
-  <header class="demo-page-header">
-    <h1>{{ meta.label }} Demo</h1>
-    <p class="lead">{{ meta.description }}</p>
+  <div class="vr-breadcrumb"><a href="http://127.0.0.1:4200">Home</a><span>/</span><span>Angular Demo</span><span>/</span><span>{{ meta.label }}</span></div>
+  <header class="vr-page-heading">
+    <div><p class="vr-eyebrow">UI framework demo</p><h1>{{ meta.label }} Demo</h1>
+    <p>{{ meta.description }}</p>
     <p class="strategy-note">
       Display strategy: <code>{{ meta.strategy }}</code>
-    </p>
+    </p></div>
   </header>
 
   <ul class="demo-tabs" role="tablist">

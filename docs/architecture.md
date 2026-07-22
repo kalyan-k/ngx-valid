@@ -16,6 +16,7 @@ validation-rules/
 |   `-- angular-ngrx-demo/    # private NgRx integration consumer
 |-- tools/
 |   |-- architecture/         # dependency-boundary verification
+|   |-- platform-shell/       # framework-neutral product shell and layout theme
 |   `-- testing/              # shared Karma config and persistent report pipeline
 |-- package.json              # private npm-workspaces root
 `-- tsconfig.json
@@ -86,6 +87,12 @@ A future extraction should first define a small expression-evaluator port in cor
 `apps/angular-ngrx-demo` is also private and consumes the same public adapter. Its pure-state page validates a cloned NgRx model without `FormGroup`; its Reactive Forms page synchronizes form values and validation lifecycle through NgRx.
 
 `apps/demo` owns process startup, health polling, the application registry, report links, and the browser entry point. `apps/docs` owns Markdown rendering, navigation, and search. These Node applications communicate with the demos through URLs and remain framework-neutral.
+
+`tools/platform-shell` owns the shared product chrome as a dependency-free Web Component plus static CSS. Node servers expose those files directly and Angular targets copy them as application assets. Applications keep their existing Bootstrap, Angular Material, and Tailwind components inside the shell slot; no application imports another application's runtime. The shell contract standardizes branding, application identity, version, the compact Home / Docs / Demos / Reports / GitHub navigation, footer links, page width, spacing, breadcrumbs, action bars, card rhythm, and responsive breakpoints.
+
+The same directory owns the product SVG, raster application icons, favicon, and web manifest. Applications preload the shell stylesheet and define the custom element before their own scripts, reserving header space and avoiding a flash of unstyled navigation. Node servers cache these shared static assets; Angular builds copy them through a single asset glob.
+
+Generated reports use `tools/testing/report-branding.cjs` to instantiate the same `validation-platform-shell` Web Component and CSS as every application. Persistent test reports and the unified dashboard therefore inherit identical header spacing, navigation behavior, branding, responsive layout, and footer treatment. The dashboard groups package and demo-application reports separately and uses a Summary / Tests / Coverage tab set to update one content pane. Direct coverage landing pages still embed the original Istanbul output, so branding is added without changing generated coverage data or source views.
 
 ## Build order
 

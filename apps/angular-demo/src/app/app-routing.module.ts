@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DemoShellComponent } from './layout/demo-shell.component';
 import { HomeComponent } from './pages/home/home.component';
-import { DocsComponent } from './pages/docs/docs.component';
 import { FrameworkDemoComponent } from './pages/framework-demo/framework-demo.component';
 import { provideDemoFrameworkDisplay } from './demo/demo-framework.providers';
 
@@ -12,7 +11,6 @@ const routes: Routes = [
     component: DemoShellComponent,
     children: [
       { path: '', component: HomeComponent },
-      { path: 'docs', component: DocsComponent },
       {
         path: 'demos/bootstrap',
         component: FrameworkDemoComponent,

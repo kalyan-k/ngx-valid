@@ -48,7 +48,8 @@ function requireText(text, token, filePath, failures) {
 
 function verifyLocalLinks(htmlFile, failures) {
   const html = fs.readFileSync(htmlFile, 'utf8');
-  const attributes = html.matchAll(/\b(?:href|src)=(['"])(.*?)\1/giu);
+  const linkSource = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/giu, '');
+  const attributes = linkSource.matchAll(/\b(?:href|src)=(['"])(.*?)\1/giu);
   for (const match of attributes) {
     const target = match[2];
     if (!target || /^(?:#|data:|https?:|javascript:|mailto:)/iu.test(target)) {
@@ -68,6 +69,7 @@ function verifyProject(projectName, failures) {
   const testHtmlPath = path.join(projectRoot, 'tests', 'index.html');
   const testSummaryPath = path.join(projectRoot, 'tests', 'summary.json');
   const coverageRoot = path.join(projectRoot, 'coverage');
+  const coverageWrapperPath = path.join(projectRoot, 'coverage.html');
   const coverageIndexPath = path.join(coverageRoot, 'index.html');
   const coverageSummaryPath = path.join(coverageRoot, 'coverage-summary.json');
   const junitPath = path.join(projectRoot, 'junit', 'test-results.xml');
@@ -83,10 +85,17 @@ function verifyProject(projectName, failures) {
     return;
   }
 
+  if (!fs.existsSync(coverageWrapperPath)) {
+    failures.push(`${relative(coverageWrapperPath)} is missing`);
+  }
+
   const testSummary = readJson(testSummaryPath, failures);
   const coverageSummary = readJson(coverageSummaryPath, failures);
   const testHtml = fs.readFileSync(testHtmlPath, 'utf8');
   const coverageIndex = fs.readFileSync(coverageIndexPath, 'utf8');
+  const coverageWrapper = fs.existsSync(coverageWrapperPath)
+    ? fs.readFileSync(coverageWrapperPath, 'utf8')
+    : '';
   const junit = fs.readFileSync(junitPath, 'utf8');
   const workspaceVariants = [workspaceRoot, workspaceRoot.replaceAll('\\', '/')];
 
@@ -96,6 +105,9 @@ function verifyProject(projectName, failures) {
     const counts = testSummary.summary;
     if (!counts || counts.total !== testSummary.specs?.length) {
       failures.push(`${relative(testSummaryPath)} has inconsistent test totals`);
+    }
+    if (!testSummary.version || !testSummary.finishedAt) {
+      failures.push(`${relative(testSummaryPath)} has incomplete report metadata`);
     }
     if ((counts?.passed ?? 0) + (counts?.failed ?? 0) + (counts?.skipped ?? 0) !== counts?.total) {
       failures.push(`${relative(testSummaryPath)} has inconsistent status counts`);
@@ -116,6 +128,18 @@ function verifyProject(projectName, failures) {
   requireText(testHtml, 'data-filter="failed"', testHtmlPath, failures);
   requireText(testHtml, 'data-filter="skipped"', testHtmlPath, failures);
   requireText(testHtml, 'Source:', testHtmlPath, failures);
+  requireText(testHtml, 'aria-label="Platform navigation"', testHtmlPath, failures);
+  requireText(testHtml, 'Validation Rules', testHtmlPath, failures);
+  requireText(testHtml, 'data-report-summary', testHtmlPath, failures);
+  requireText(testHtml, 'validation-rules:report-summary', testHtmlPath, failures);
+  requireText(testHtml, 'data:image/svg+xml;base64', testHtmlPath, failures);
+  requireText(testHtml, '<validation-platform-shell active-application="reports"', testHtmlPath, failures);
+  requireText(coverageWrapper, 'aria-label="Platform navigation"', coverageWrapperPath, failures);
+  requireText(coverageWrapper, 'src="./coverage/index.html"', coverageWrapperPath, failures);
+  requireText(coverageWrapper, 'data-report-summary', coverageWrapperPath, failures);
+  requireText(coverageWrapper, 'validation-rules:report-summary', coverageWrapperPath, failures);
+  requireText(coverageWrapper, 'data:image/svg+xml;base64', coverageWrapperPath, failures);
+  requireText(coverageWrapper, '<validation-platform-shell active-application="reports"', coverageWrapperPath, failures);
   requireText(junit, '<testsuites ', junitPath, failures);
   requireText(junit, '<testcase ', junitPath, failures);
 
@@ -159,10 +183,28 @@ export function verifyReports() {
 
   if (fs.existsSync(dashboardPath)) {
     const dashboard = fs.readFileSync(dashboardPath, 'utf8');
+    requireText(dashboard, 'aria-label="Report projects"', dashboardPath, failures);
+    requireText(dashboard, 'role="tablist"', dashboardPath, failures);
+    requireText(dashboard, 'data-tab="coverage"', dashboardPath, failures);
+    requireText(dashboard, 'data-tab="tests"', dashboardPath, failures);
+    requireText(dashboard, 'data-tab="summary"', dashboardPath, failures);
+    requireText(dashboard, '<details class="report-tree-group" open>', dashboardPath, failures);
+    requireText(dashboard, 'Packages', dashboardPath, failures);
+    requireText(dashboard, 'Demo Applications', dashboardPath, failures);
+    requireText(dashboard, 'data-report-summary', dashboardPath, failures);
+    requireText(dashboard, 'setTimeout(()=>setExpanded(false,false),10000)', dashboardPath, failures);
+    requireText(dashboard, "let selectedView = 'summary'", dashboardPath, failures);
+    const summaryTab = dashboard.indexOf('data-tab="summary"');
+    const testsTab = dashboard.indexOf('data-tab="tests"');
+    const coverageTab = dashboard.indexOf('data-tab="coverage"');
+    if (!(summaryTab >= 0 && summaryTab < testsTab && testsTab < coverageTab)) {
+      failures.push(`${relative(dashboardPath)} does not order report tabs as Summary, Tests, Coverage`);
+    }
     for (const projectName of projects) {
       requireText(dashboard, `./${projectName}/tests/index.html`, dashboardPath, failures);
       requireText(dashboard, `./${projectName}/coverage/index.html`, dashboardPath, failures);
-      requireText(dashboard, `./${projectName}/junit/test-results.xml`, dashboardPath, failures);
+      requireText(dashboard, `data-summary-project="${projectName}"`, dashboardPath, failures);
+      requireText(dashboard, `data-project="${projectName}" data-view="summary"`, dashboardPath, failures);
     }
   }
 
@@ -180,6 +222,6 @@ if (isDirectModule(import.meta.url)) {
     failures.forEach((failure) => console.error(`- ${failure}`));
     process.exitCode = 1;
   } else {
-    console.log('Verified dashboard, test reports, coverage reports, JUnit XML, source mappings, and local links.');
+    console.log('Verified the branded single-page report workspace, collapsible metadata, test reports, coverage wrappers, JUnit XML, source mappings, and local links.');
   }
 }

@@ -1,5 +1,5 @@
 .demo-page
-  max-width: 1180px
+  max-width: 1280px
   margin: 0 auto
   padding: clamp(2rem, 5vw, 4rem)
 
@@ -92,7 +92,7 @@ label
   font-size: .8rem
   font-weight: 700
 
-input
+input, select
   display: block
   width: 100%
   margin-top: .35rem
@@ -132,6 +132,7 @@ input
       background: #315fce
 
 .architecture-card
+  margin-top: 2rem
   color: #dce7f1
   background: #10243e
   .card-heading small
@@ -160,6 +161,133 @@ input
     background: #091827
     font: .72rem/1.55 ui-monospace, Consolas, monospace
 
+.example-section
+  margin-top: 2.6rem
+
+.field-grid
+  display: grid
+  grid-template-columns: repeat(3, minmax(0, 1fr))
+  gap: 1rem
+  label
+    margin: 0
+
+.group-status
+  display: inline-flex
+  margin-right: .6rem
+  padding: .38rem .65rem
+  border-radius: 999px
+  color: #7b5a19
+  background: #fff0d2
+  font-size: .68rem
+  font-weight: 800
+  &[data-state="valid"]
+    color: #08704d
+    background: #daf4e8
+  &[data-state="invalid"]
+    color: #ad3144
+    background: #fde3e7
+
+.small-button, .dynamic-row button, .performance-card button
+  padding: .48rem .7rem
+  border: 1px solid #cbd6df
+  border-radius: 7px
+  color: #40546b
+  background: #fff
+  font: inherit
+  font-size: .7rem
+  font-weight: 750
+  cursor: pointer
+
+.dynamic-list
+  display: grid
+  gap: 0
+
+.dynamic-row
+  display: grid
+  grid-template-columns: minmax(130px, .7fr) minmax(180px, 1fr) minmax(220px, 1fr) auto
+  align-items: end
+  gap: .75rem
+  padding: .9rem 0
+  border-top: 1px solid #e3e9ee
+  &:first-child
+    border-top: 0
+  > strong
+    align-self: center
+    color: #263b51
+    font-size: .76rem
+  label
+    margin: 0
+
+.department-list
+  max-height: 660px
+  overflow: auto
+
+.performance-card
+  display: grid
+  grid-template-columns: minmax(0, 1fr) auto auto
+  align-items: center
+  gap: 1.5rem
+  margin-top: 2.6rem
+  h3, p
+    margin: 0
+  p:not(.vr-eyebrow)
+    max-width: 650px
+    color: #617286
+    font-size: .78rem
+  button
+    color: #fff
+    border-color: #315fce
+    background: #315fce
+
+.performance-metrics
+  display: flex
+  gap: .6rem
+  span
+    min-width: 105px
+    padding: .65rem
+    border-radius: 8px
+    color: #64758a
+    background: #eef2f8
+    font-size: .66rem
+    text-align: center
+    strong
+      display: block
+      color: #22374d
+      font-size: .95rem
+
+.enterprise-actions
+  button
+    padding: .65rem .9rem
+    border: 1px solid #cbd6df
+    border-radius: 8px
+    color: #34495e
+    background: #fff
+    font-weight: 700
+    cursor: pointer
+    &.primary
+      color: #fff
+      border-color: #315fce
+      background: #315fce
+  span
+    margin-left: auto
+    color: #08704d
+    font-size: .73rem
+    font-weight: 750
+
 @media (max-width: 900px)
   .content-grid
     grid-template-columns: 1fr
+  .field-grid, .dynamic-row, .performance-card
+    grid-template-columns: 1fr
+  .performance-metrics
+    justify-content: flex-start
+
+@media (max-width: 600px)
+  .vr-section-header > div:last-child
+    display: grid
+    gap: .6rem
+  .group-status
+    margin-right: 0
+  .enterprise-actions span
+    width: 100%
+    margin-left: 0

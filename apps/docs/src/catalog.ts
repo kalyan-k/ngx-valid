@@ -20,6 +20,7 @@ export const documentationCatalog: DocumentationEntry[] = [
   { slug: 'architecture', title: 'Architecture', section: 'Project', summary: 'Dependency boundaries, application registry, and build order.', source: 'architecture.md' },
   { slug: 'testing', title: 'Testing, Coverage & Reports', section: 'Project', summary: 'Test commands, coverage gates, and persistent reports.', source: 'testing.md' },
   { slug: 'migration', title: 'Migration', section: 'Project', summary: 'Package boundaries and migration guidance.', source: 'migration.md' },
+  { slug: 'roadmap', title: 'Roadmap', section: 'Project', summary: 'Planned platform and adapter directions without placeholder implementations.', source: 'roadmap.md' },
   { slug: 'troubleshooting', title: 'Troubleshooting', section: 'Project', summary: 'Common setup, validation, display, and report issues.', source: 'troubleshooting.md' },
   { slug: 'faq', title: 'FAQ', section: 'Project', summary: 'Frequently asked design and usage questions.', source: 'faq.md' }
 ];

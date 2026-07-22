@@ -1,13 +1,30 @@
 :root { color-scheme:light; --ink:#17273c; --muted:#607086; --line:#dbe3eb; --paper:#fff; --canvas:#f5f7f9; --navy:#10243e; --teal:#0b887c; font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
 * { box-sizing:border-box; } html { scroll-behavior:smooth; } body { margin:0; color:var(--ink); background:var(--canvas); line-height:1.72; }
-a { color:var(--teal); } .topbar { position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; min-height:68px; padding:0 2.2rem; color:#fff; background:var(--navy); border-bottom:1px solid rgba(255,255,255,.1); }
-.brand { display:flex; align-items:center; gap:.7rem; color:#fff; text-decoration:none; } .brand>span { display:grid; place-items:center; width:34px; height:34px; border-radius:9px; background:var(--teal); font-size:.7rem; font-weight:900; } .brand small { color:#9eb3c8; }
-.topbar nav { display:flex; gap:1.25rem; } .topbar nav a { color:#c8d5e2; font-size:.8rem; text-decoration:none; }
+a { color:var(--teal); }
 .docs-layout { display:grid; grid-template-columns:270px minmax(0,850px) 220px; justify-content:center; min-height:calc(100vh - 68px); }
 .docs-layout>aside { position:sticky; top:68px; align-self:start; height:calc(100vh - 68px); overflow:auto; padding:2rem 1.35rem; }
-.docs-layout>aside:first-child { border-right:1px solid var(--line); background:#eef3f6; } .on-page { border-left:1px solid var(--line); color:var(--muted); font-size:.78rem; }
+.docs-layout>aside:first-child { z-index:30; display:flex; overflow:visible; flex-direction:column; border-right:1px solid var(--line); background:#eef3f6; } .on-page { border-left:1px solid var(--line); color:var(--muted); font-size:.78rem; }
 .on-page strong,.on-page a { display:block; margin-bottom:.65rem; } .on-page p { margin:0 0 1.25rem; }
 aside label { display:block; margin-bottom:.45rem; color:#607286; font-size:.68rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; } aside input { width:100%; padding:.65rem .75rem; border:1px solid #cbd7e1; border-radius:8px; background:#fff; }
+.docs-search { position:relative; z-index:2000; flex:none; }
+.docs-search-control { position:relative; }
+.docs-navigation { min-height:0; overflow:auto; padding-right:.2rem; }
+.docs-search input { padding-right:2.65rem; }
+.docs-search input:focus { outline:3px solid rgba(13,143,130,.16); border-color:var(--teal); }
+.docs-search input[type="search"]::-webkit-search-cancel-button { appearance:none; }
+.docs-search-clear { position:absolute; top:50%; right:.45rem; display:grid; width:1.8rem; height:1.8rem; padding:0; transform:translateY(-50%); place-items:center; border:0; border-radius:50%; color:#52667c; background:transparent; cursor:pointer; font:inherit; font-size:1.25rem; line-height:1; transition:color .16s ease,background-color .16s ease,transform .16s ease; }
+.docs-search-clear:hover { color:#075f59; background:#dcefeb; }
+.docs-search-clear:focus-visible { outline:3px solid rgba(13,143,130,.28); outline-offset:2px; }
+.docs-search-clear:active { transform:translateY(-50%) scale(.92); }
+.docs-search-clear[hidden] { display:none; }
+.search-results { position:absolute; top:calc(100% + .5rem); left:0; z-index:2100; width:min(520px,calc(100vw - 2rem)); max-height:min(540px,70vh); overflow:auto; padding:.45rem; border:1px solid #ccd9e2; border-radius:10px; background:#fff; box-shadow:0 18px 42px rgba(16,36,62,.22); }
+.search-results a { display:flex; flex-direction:column; gap:.14rem; padding:.7rem .75rem; border-radius:7px; color:#40546b; text-decoration:none; }
+.search-results a:hover,.search-results a.active { color:#075f59; background:#e5f3f1; }
+.search-results small { color:#718399; font-size:.65rem; text-transform:uppercase; letter-spacing:.04em; }
+.search-results strong { color:inherit; font-size:.82rem; }
+.search-results span { display:-webkit-box; overflow:hidden; color:#617187; font-size:.72rem; line-height:1.45; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
+.search-results mark,article mark { padding:0 .08em; color:inherit; background:#ffe69b; }
+.search-empty { margin:0; padding:.75rem; color:var(--muted); font-size:.76rem; }
 .nav-section { margin-top:1.5rem; } .nav-section h2 { margin:0 0 .45rem; color:#7a8999; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; } .nav-section a { display:block; padding:.42rem .55rem; border-radius:6px; color:#4f6277; font-size:.79rem; text-decoration:none; } .nav-section a:hover,.nav-section a.active { color:#075f59; background:#dcebe9; }
 main { min-width:0; padding:3rem clamp(1.5rem,5vw,4.5rem) 5rem; background:var(--paper); } .breadcrumb { display:flex; gap:.55rem; margin-bottom:2.1rem; color:#8a98a7; font-size:.75rem; } .breadcrumb a { text-decoration:none; }
 article h1 { margin:0 0 1rem; font-size:clamp(2.35rem,5vw,3.7rem); line-height:1.04; letter-spacing:-.05em; } article h2 { margin:2.7rem 0 .75rem; padding-top:.3rem; font-size:1.65rem; line-height:1.22; letter-spacing:-.025em; } article h3 { margin:2rem 0 .5rem; font-size:1.16rem; }
@@ -18,4 +35,4 @@ blockquote { margin:1.4rem 0; padding:1rem 1.1rem; border-left:4px solid var(--t
 .demo-link { display:flex; justify-content:space-between; gap:1rem; color:#075f59; text-decoration:none; } .demo-link strong,.demo-link span { display:block; } .demo-link span { color:#52706e; font-size:.8rem; }
 .pager { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--line); } .pager a { display:flex; flex-direction:column; color:#40546b; text-decoration:none; } .pager a.next { text-align:right; } .pager small { color:#8a99aa; }
 @media (max-width:1100px) { .docs-layout { grid-template-columns:240px minmax(0,1fr); } .on-page { display:none; } }
-@media (max-width:760px) { .topbar { padding:0 1rem; } .topbar nav { display:none; } .docs-layout { display:block; } .docs-layout>aside:first-child { position:static; width:100%; height:auto; border-right:0; } main { padding:2rem 1.2rem 4rem; } }
+@media (max-width:760px) { .docs-layout { display:block; } .docs-layout>aside:first-child { position:static; display:block; width:100%; height:auto; border-right:0; } .docs-navigation { overflow:visible; } .search-results { position:fixed; top:132px; right:1rem; left:1rem; width:auto; } main { padding:2rem 1.2rem 4rem; } }

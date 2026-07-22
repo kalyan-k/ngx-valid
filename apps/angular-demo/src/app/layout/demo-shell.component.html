@@ -1,58 +1,27 @@
-<div class="demo-shell">
-  <aside class="demo-sidebar">
-    <div class="demo-sidebar-brand">
-      <a routerLink="/" class="demo-brand-link">
-        <span class="demo-brand-title">Validation Rules</span>
-        <span class="demo-brand-subtitle">Interactive demo</span>
-      </a>
-    </div>
+<div class="vr-demo-shell">
+  <aside class="vr-demo-sidebar">
+    <header class="vr-demo-sidebar__intro">
+      <p class="vr-demo-sidebar__eyebrow">Angular demo</p>
+      <h2>Forms showcase</h2>
+      <p>Compare one validation policy across Bootstrap, Angular Material, and Tailwind-compatible presentation.</p>
+    </header>
 
-    <nav class="demo-sidebar-nav" aria-label="Demo navigation">
-      <ng-container *ngFor="let item of navItems">
-        <a
-          *ngIf="!item.children"
-          class="demo-nav-link"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [routerLinkActiveOptions]="{ exact: item.route === '/' }"
-        >
-          {{ item.label }}
-        </a>
-
-        <div *ngIf="item.children" class="demo-nav-group">
-          <button
-            type="button"
-            class="demo-nav-group-toggle"
-            (click)="isFrameworksExpanded = !isFrameworksExpanded"
-            [attr.aria-expanded]="isFrameworksExpanded"
-          >
-            {{ item.label }}
-            <span class="demo-nav-chevron">{{ isFrameworksExpanded ? 'v' : '>' }}</span>
-          </button>
-          <div *ngIf="isFrameworksExpanded" class="demo-nav-children">
-            <a
-              *ngFor="let child of item.children"
-              class="demo-nav-link demo-nav-child"
-              [routerLink]="child.route"
-              routerLinkActive="active"
-            >
-              {{ child.label }}
-            </a>
-          </div>
+    <nav class="vr-demo-nav" aria-label="Angular demo navigation">
+      <a class="vr-demo-nav__link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <p class="vr-demo-nav__section">Demos</p>
+      <div class="vr-demo-nav__group">
+        <button type="button" class="vr-demo-nav__toggle" (click)="isFrameworksExpanded = !isFrameworksExpanded" [attr.aria-expanded]="isFrameworksExpanded">UI frameworks</button>
+        <div *ngIf="isFrameworksExpanded" class="vr-demo-nav__children">
+          <a *ngFor="let framework of frameworks" class="vr-demo-nav__link" [routerLink]="'/demos/' + framework.id" routerLinkActive="active">{{ framework.label }}</a>
         </div>
-      </ng-container>
-      <div class="demo-nav-divider" aria-hidden="true"></div>
-      <p class="demo-nav-label">Platform</p>
-      <a *ngFor="let link of platformLinks" class="demo-nav-link" [href]="link.href">{{ link.label }}</a>
+      </div>
     </nav>
 
-    <footer class="demo-sidebar-footer">
-      <small>Policy-based validation for Angular forms</small>
-      <small class="text-muted">(c) {{ currentYear }}</small>
+    <footer class="vr-demo-sidebar__footer">
+      <a [href]="docsUrl">Read Angular documentation →</a>
+      <span>Policy-based validation for Angular forms · © {{ currentYear }}</span>
     </footer>
   </aside>
 
-  <main class="demo-main">
-    <router-outlet></router-outlet>
-  </main>
+  <main class="vr-demo-main"><router-outlet></router-outlet></main>
 </div>

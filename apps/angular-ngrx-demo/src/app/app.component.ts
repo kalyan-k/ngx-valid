@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.sass']
 })
 export class AppComponent {
+  isExamplesExpanded = true;
   readonly links = {
     portal: 'http://127.0.0.1:4200',
     docs: 'http://127.0.0.1:4201/docs/ngrx',

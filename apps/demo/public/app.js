@@ -35,6 +35,7 @@ async function loadMeta() {
     const response = await fetch('/api/meta', { cache: 'no-store' });
     const meta = await response.json();
     document.querySelector('#version').textContent = meta.version;
+    document.querySelector('validation-platform-shell')?.setAttribute('version', meta.version);
     document.querySelector('#revision').textContent = meta.revision;
     document.querySelector('#build-time').textContent = meta.builtAt;
   } catch { /* Optional metadata does not block the portal. */ }

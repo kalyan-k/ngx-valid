@@ -1,18 +1,41 @@
-<section class="demo-page">
-  <header><p class="eyebrow">Page 2 · enterprise synchronization</p><h2>NgRx + Reactive Forms</h2><p>The form owns interaction state, NgRx owns the durable draft, and Validation Rules owns policy evaluation.</p></header>
+<section class="demo-page" *ngIf="account$ | async as account">
+  <div class="vr-breadcrumb"><a href="http://127.0.0.1:4200">Home</a><span>/</span><span>Angular NgRx Demo</span><span>/</span><span>NgRx + Reactive Forms</span></div>
+  <header class="vr-page-heading"><div><p class="vr-eyebrow">Page 2 · enterprise synchronization</p><h2>NgRx + Reactive Forms</h2><p>Reactive Forms owns interaction state, NgRx owns the durable draft, and Validation Rules evaluates a reusable policy across nested groups and dynamic controls.</p></div><span class="lifecycle" [attr.data-state]="lifecycle$ | async">{{ lifecycle$ | async }}</span></header>
   <div class="lifecycle-strip"><span>Form value</span><b>→</b><span>Draft action</span><b>→</b><span>NgRx state</span><b>→</b><span>Policy result</span><b>→</b><span>Control errors + state</span></div>
-  <div class="content-grid">
-    <form class="demo-card" [formGroup]="form" (ngSubmit)="validate()" novalidate>
-      <div class="card-heading"><div><small>Reactive FormGroup</small><h3>Workspace account</h3></div><span class="lifecycle" [attr.data-state]="lifecycle$ | async">{{ lifecycle$ | async }}</span></div>
-      <label>Display name<input type="text" formControlName="displayName"><span class="field-error" *ngIf="form.controls.displayName.errors?.['policyValidation'] as error">{{ error }}</span></label>
-      <label>Work email<input type="email" formControlName="workEmail"><span class="field-error" *ngIf="form.controls.workEmail.errors?.['policyValidation'] as error">{{ error }}</span></label>
-      <label>Seat count<input type="number" formControlName="seatCount" min="1" max="500"><span class="field-error" *ngIf="form.controls.seatCount.errors?.['policyValidation'] as error">{{ error }}</span></label>
-      <div class="actions"><button class="primary" type="submit">Validate synchronized model</button><button type="button" (click)="reset()">Reset lifecycle</button></div>
-    </form>
-    <aside class="architecture-card" *ngIf="account$ | async as account">
-      <div class="card-heading"><div><small>Lifecycle ownership</small><h3>Three coordinated layers</h3></div><span>{{ (account.validationResults || []).length }} errors</span></div>
-      <ol><li><strong>Reactive Forms</strong><span>Value changes, touched state, and control-level errors.</span></li><li><strong>NgRx</strong><span>Serializable draft, validated snapshot, and lifecycle status.</span></li><li><strong>Validation Rules</strong><span>Reusable policy and structured validation results.</span></li></ol>
-      <pre>{{ account | json }}</pre>
-    </aside>
-  </div>
+
+  <form [formGroup]="form" (ngSubmit)="validate()" novalidate>
+    <section class="example-section">
+      <div class="vr-section-header"><div><p class="vr-eyebrow">Simple form</p><h3>Workspace account</h3></div><span class="group-status" [attr.data-state]="account.organizationGroup?.isInValid ? 'invalid' : account.organizationGroup?.isValid ? 'valid' : 'pending'">Organization group · {{ account.organizationGroup?.errors?.length || 0 }} errors</span></div>
+      <div class="demo-card field-grid">
+        <label>Display name<input type="text" formControlName="displayName"><span class="field-error" *ngIf="form.controls.displayName.errors?.['policyValidation'] as error">{{ error }}</span></label>
+        <label>Work email<input type="email" formControlName="workEmail"><span class="field-error" *ngIf="form.controls.workEmail.errors?.['policyValidation'] as error">{{ error }}</span></label>
+        <label>Seat count<input type="number" formControlName="seatCount" min="1" max="500"><span class="field-error" *ngIf="form.controls.seatCount.errors?.['policyValidation'] as error">{{ error }}</span></label>
+      </div>
+    </section>
+
+    <section class="example-section" formGroupName="company">
+      <div class="vr-section-header"><div><p class="vr-eyebrow">Complex form</p><h3>Nested company group</h3></div><span>FormGroup → nested NgRx object</span></div>
+      <div class="demo-card field-grid">
+        <label>Legal company name<input formControlName="legalName"><span class="field-error" *ngIf="form.controls.company.controls.legalName.errors?.['policyValidation'] as error">{{ error }}</span></label>
+        <label>Country<select formControlName="country"><option value="">Choose country</option><option value="US">United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option></select><span class="field-error" *ngIf="form.controls.company.controls.country.errors?.['policyValidation'] as error">{{ error }}</span></label>
+        <label>State / region<input formControlName="region"><span class="field-error" *ngIf="form.controls.company.controls.region.errors?.['policyValidation'] as error">{{ error }}</span></label>
+      </div>
+    </section>
+
+    <section class="example-section" formArrayName="contacts">
+      <div class="vr-section-header"><div><p class="vr-eyebrow">Dynamic controls</p><h3>Enterprise contacts</h3></div><div><span class="group-status" [attr.data-state]="account.contactsGroup?.isInValid ? 'invalid' : account.contactsGroup?.isValid ? 'valid' : 'pending'">Contacts group · {{ account.contactsGroup?.errors?.length || 0 }} errors</span><button class="small-button" type="button" (click)="addContact()">Add contact</button></div></div>
+      <div class="dynamic-list demo-card"><div class="dynamic-row" *ngFor="let contact of form.controls.contacts.controls; let index = index; trackBy: trackByIndex" [formGroupName]="index"><strong>Contact {{ index + 1 }}</strong><label>Name<input formControlName="name"><span class="field-error" *ngIf="contact.controls.name.errors?.['policyValidation'] as error">{{ error }}</span></label><label>Email<input type="email" formControlName="email"><span class="field-error" *ngIf="contact.controls.email.errors?.['policyValidation'] as error">{{ error }}</span></label><button type="button" (click)="removeContact(index)">Remove</button></div></div>
+    </section>
+
+    <section class="example-section" formArrayName="departments">
+      <div class="vr-section-header"><div><p class="vr-eyebrow">Enterprise example</p><h3>Department budgets</h3></div><div><span class="group-status" [attr.data-state]="account.departmentsGroup?.isInValid ? 'invalid' : account.departmentsGroup?.isValid ? 'valid' : 'pending'">Departments group · {{ account.departmentsGroup?.errors?.length || 0 }} errors</span><button class="small-button" type="button" (click)="addDepartment()">Add department</button></div></div>
+      <div class="dynamic-list demo-card department-list"><div class="dynamic-row" *ngFor="let department of form.controls.departments.controls; let index = index; trackBy: trackByIndex" [formGroupName]="index"><strong>{{ department.controls.name.value || ('Department ' + (index + 1)) }}</strong><label>Name<input formControlName="name"><span class="field-error" *ngIf="department.controls.name.errors?.['policyValidation'] as error">{{ error }}</span></label><label>Annual budget<input type="number" formControlName="budget"><span class="field-error" *ngIf="department.controls.budget.errors?.['policyValidation'] as error">{{ error }}</span></label><button type="button" (click)="removeDepartment(index)">Remove</button></div></div>
+    </section>
+
+    <section class="performance-card demo-card"><div><p class="vr-eyebrow">Performance example</p><h3>Large generated policy</h3><p>Generate 30 departments and validate more than 60 nested fields through the same synchronized workflow.</p></div><div class="performance-metrics"><span><strong>{{ form.controls.departments.length * 2 + form.controls.contacts.length * 2 + 6 }}</strong> policy fields</span><span><strong>{{ lastValidationMs | number:'1.1-2' }} ms</strong> last validation</span></div><button type="button" (click)="loadPerformanceScenario()">Load 30 departments</button></section>
+
+    <div class="enterprise-actions vr-action-bar"><button class="primary" type="submit">Validate synchronized model</button><button type="button" (click)="save()">Validate and save</button><button type="button" (click)="reset()">Reset lifecycle</button><span *ngIf="savedAt$ | async as savedAt">Saved {{ savedAt | date:'mediumTime' }}</span></div>
+  </form>
+
+  <aside class="architecture-card"><div class="card-heading"><div><small>Lifecycle ownership</small><h3>Three coordinated layers</h3></div><span>{{ (account.validationResults || []).length }} errors</span></div><ol><li><strong>Reactive Forms</strong><span>Nested groups, arrays, dynamic controls, touched state, and field errors.</span></li><li><strong>NgRx</strong><span>Serializable draft, validated snapshot, save state, and lifecycle status.</span></li><li><strong>Validation Rules</strong><span>Dynamic policy, validation groups, and structured results.</span></li></ol><pre>{{ account | json }}</pre></aside>
 </section>

@@ -4,21 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Validation Rules demos, documentation, packages, and project status in one developer portal.">
+  <meta name="theme-color" content="#10243e">
   <title>Validation Rules · Demo Portal</title>
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/validation-rules-mark.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/validation-rules-icon-180.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="preload" href="/platform-shell.css" as="style">
+  <link rel="stylesheet" href="/platform-shell.css">
+  <link rel="stylesheet" href="/platform-theme.css">
   <link rel="stylesheet" href="/styles.css">
+  <script src="/platform-shell.js"></script>
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="#home" aria-label="Validation Rules home">
-      <span class="brand-mark">VR</span>
-      <span><strong>Validation Rules</strong><small>Demo &amp; Documentation Platform</small></span>
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="#home">Home</a><a href="http://127.0.0.1:4201">Documentation</a><a href="#packages">Packages</a>
-      <a href="#applications">Demos</a><a href="#roadmap">Roadmap</a><a href="https://github.com/kalyan-k/validation-rules">GitHub</a>
-    </nav>
-  </header>
+  <validation-platform-shell active-application="demo-portal" application-name="Demo Portal" version="0.0.0">
 
   <main id="home">
     <section class="hero">
@@ -74,9 +74,6 @@
     </section>
   </main>
 
-  <footer>
-    <div><strong>Validation Rules</strong><span>Policy-driven validation for long-lived applications.</span></div>
-    <div class="footer-links"><a href="http://127.0.0.1:4201">Documentation</a><a href="/reports/index.html">Reports</a><a href="https://github.com/kalyan-k/validation-rules">GitHub</a></div>
-  </footer>
+  </validation-platform-shell>
 </body>
 </html>

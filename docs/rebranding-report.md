@@ -169,8 +169,6 @@ apps/angular-demo/src/app/application-behavior.spec.ts
 apps/angular-demo/src/app/validation.providers.ts
 apps/angular-demo/src/app/demo/demo-framework.providers.ts
 apps/angular-demo/src/app/layout/demo-shell.component.html
-apps/angular-demo/src/app/pages/docs/docs-sections.ts
-apps/angular-demo/src/app/pages/docs/docs.component.html
 apps/angular-demo/src/app/pages/home/home.component.html
 apps/angular-demo/src/app/components/complex-form/complex-form-material.component.ts
 apps/angular-demo/src/app/components/complex-form/complex-form-tailwind.component.ts
@@ -194,7 +192,7 @@ Repository tools modified:
 ```text
 tools/architecture/verify-dependencies.mjs
 tools/testing/clean-reports.mjs
-tools/testing/generate-report-index.mjs
+tools/testing/generate-report-platform.mjs
 ```
 
 Local Git metadata modified outside the source tree:
