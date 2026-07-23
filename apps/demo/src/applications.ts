@@ -22,7 +22,6 @@ function configuredPort(name: string, fallback: number): number {
 
 const docsPort = configuredPort('VALIDATION_RULES_DOCS_PORT', 4201);
 const angularDemoPort = configuredPort('VALIDATION_RULES_ANGULAR_DEMO_PORT', 4202);
-const ngrxDemoPort = configuredPort('VALIDATION_RULES_NGRX_DEMO_PORT', 4203);
 const reactDemoPort = configuredPort('VALIDATION_RULES_REACT_DEMO_PORT', 4204);
 
 export const applicationDefinitions: ApplicationDefinition[] = [
@@ -42,27 +41,29 @@ export const applicationDefinitions: ApplicationDefinition[] = [
     id: 'angular-demo',
     title: 'Angular Demo',
     shortTitle: 'Angular',
-    description: 'The original ngModel-based demo with Bootstrap, Material, and Tailwind display strategies.',
+    description: 'Angular validation demos with UI framework examples and comparable state management implementations.',
     kind: 'demo',
     url: `http://127.0.0.1:${angularDemoPort}`,
     healthUrl: `http://127.0.0.1:${angularDemoPort}`,
     startScript: 'serve:angular-demo:portal',
     startArgs: ['--host', '127.0.0.1', '--port', String(angularDemoPort)],
     documentationUrl: `http://127.0.0.1:${docsPort}/docs/angular`,
-    tags: ['ngModel', 'Policies', 'Display strategies']
-  },
-  {
-    id: 'angular-ngrx-demo',
-    title: 'Angular + NgRx Demo',
-    shortTitle: 'Angular + NgRx',
-    description: 'State-first validation and an enterprise Reactive Forms synchronization workflow.',
-    kind: 'demo',
-    url: `http://127.0.0.1:${ngrxDemoPort}`,
-    healthUrl: `http://127.0.0.1:${ngrxDemoPort}`,
-    startScript: 'serve:ngrx-demo:portal',
-    startArgs: ['--host', '127.0.0.1', '--port', String(ngrxDemoPort)],
-    documentationUrl: `http://127.0.0.1:${docsPort}/docs/ngrx`,
-    tags: ['NgRx', 'State', 'Reactive Forms']
+    tags: ['ngModel', 'Reactive Forms', 'NgRx', 'NGXS', 'Signals'],
+    demoLinks: [
+      ['Template Driven', 'template-driven', 'angular-ngmodel'],
+      ['Reactive Forms', 'reactive-forms', 'angular-reactive-forms'],
+      ['NgRx', 'ngrx', 'angular-state-ngrx'],
+      ['NGXS', 'ngxs', 'angular-state-ngxs'],
+      ['Akita', 'akita', 'angular-state-akita'],
+      ['Elf', 'elf', 'angular-state-elf'],
+      ['RxAngular State', 'rx-angular-state', 'angular-state-rx-angular'],
+      ['Signals', 'signals', 'angular-state-signals'],
+      ['Custom RxJS Store', 'custom-rxjs-store', 'angular-state-custom-rxjs-store']
+    ].map(([label, slug, docSlug]) => ({
+      label: label!,
+      url: `http://127.0.0.1:${angularDemoPort}/state/${slug}`,
+      documentationUrl: `http://127.0.0.1:${docsPort}/docs/${docSlug}`
+    }))
   },
   {
     id: 'react-demo',

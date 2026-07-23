@@ -282,7 +282,6 @@ function PersistentTestResultsReporter(baseReporterDecorator, config, logger) {
     angular: 'Angular Adapter',
     react: 'React Adapter',
     'angular-demo': 'Angular Demo',
-    'angular-ngrx-demo': 'Angular + NgRx Demo',
     'react-demo': 'React Demo'
   };
   const displayName = displayNames[projectName] || projectName;

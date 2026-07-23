@@ -28,6 +28,16 @@
         </a>
       </div>
     </article>
+
+    <article class="vr-demo-home__card">
+      <h2>State management demos</h2>
+      <p>Compare the same Overview, Simple Form, Complex Form, and Performance Form across Angular state strategies.</p>
+      <div class="vr-demo-home__links">
+        <a *ngFor="let strategy of stateStrategies" [routerLink]="['/state', strategy.id]">
+          {{ strategy.shortLabel }}
+        </a>
+      </div>
+    </article>
   </section>
 
   <section class="vr-demo-home__card">

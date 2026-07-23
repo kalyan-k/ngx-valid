@@ -25,8 +25,8 @@ validate(): void {
 }
 ```
 
-## NgRx link
+## Live demo
 
-The Angular + NgRx demo shows a complete Reactive Forms synchronization workflow with dynamic collections and store state.
+The unified Angular demo shows Reactive Forms with the same Overview, Simple Form, Complex Form, and Performance Form structure used by every Angular state strategy.
 
-[Open Angular + NgRx Reactive Forms](http://127.0.0.1:4203/reactive-forms)
+[Open Reactive Forms state demo](http://127.0.0.1:4202/state/reactive-forms)

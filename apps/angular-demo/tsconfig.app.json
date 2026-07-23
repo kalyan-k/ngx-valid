@@ -3,6 +3,7 @@
   "extends": "../../packages/angular/tsconfig.base.json",
   "compilerOptions": {
     "outDir": "../../out-tsc/angular-demo-app",
+    "skipLibCheck": true,
     "types": []
   },
   "files": [

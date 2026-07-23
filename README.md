@@ -34,12 +34,11 @@ This separation makes rules easier to reuse, test, review, and evolve without ty
 ```text
 apps/demo (launcher) ----URLs----> apps/docs
          |                         apps/angular-demo
-         |                         apps/angular-ngrx-demo
          |                         apps/react-demo
          |
          +---- application registry and health status
 
-Angular demos --> @validation-rules/angular --> @validation-rules/core
+Angular demo --> @validation-rules/angular --> @validation-rules/core
 React demo ----> @validation-rules/react -----> @validation-rules/core
 ```
 
@@ -54,8 +53,7 @@ validation-rules/
 |-- apps/
 |   |-- demo/                  # framework-neutral portal, launcher, and health dashboard
 |   |-- docs/                  # Markdown-backed documentation website
-|   |-- angular-demo/          # original ngModel demo
-|   |-- angular-ngrx-demo/     # pure NgRx and Reactive Forms integration patterns
+|   |-- angular-demo/          # Angular UI framework and state-management demos
 |   `-- react-demo/            # hooks-first controlled React forms
 |-- packages/
 |   |-- angular/               # @validation-rules/angular and Angular CLI workspace
@@ -202,8 +200,7 @@ Form groups aggregate field status for one portion of a view. Policy groups aggr
 | `packages/core` | `@validation-rules/core` | Framework-neutral contracts, rules, validators, results, and model-state utilities |
 | `packages/angular` | `@validation-rules/angular` | Angular policy execution, forms integration, directives, services, components, and display strategies |
 | `packages/react` | `@validation-rules/react` | React validation engine, provider, hooks, controlled-field helpers, and accessible messages |
-| `apps/angular-demo` | private | Browser demo and integration coverage using the Angular public API |
-| `apps/angular-ngrx-demo` | private | Store-first and Reactive Forms + NgRx integration examples |
+| `apps/angular-demo` | private | Browser demo, Angular UI framework examples, and Angular state-management integrations |
 | `apps/react-demo` | private | Home, simple, complex, and performance React examples |
 | `apps/docs` | private | Search-ready Markdown documentation server and site shell |
 | `apps/demo` | private | Application launcher, status API, report gateway, and product dashboard |
@@ -218,7 +215,7 @@ Start the complete local experience with one command:
 npm run demo
 ```
 
-The command builds the packages and Node applications, starts the portal at `http://127.0.0.1:4200`, documentation at `4201`, the original Angular demo at `4202`, Angular + NgRx at `4203`, and React at `4204`, then opens the portal in the default browser. The portal polls every registered application and shows startup, healthy, or failed state without coupling their runtimes.
+The command builds the packages and Node applications, starts the portal at `http://127.0.0.1:4200`, documentation at `4201`, the Angular demo at `4202`, and React at `4204`, then opens the portal in the default browser. The portal polls every registered application and shows startup, healthy, or failed state without coupling their runtimes.
 
 The application registry in `apps/demo/src/applications.ts` is the single place to add a future demo. Each application remains independently runnable and communicates through stable local URLs.
 
@@ -248,12 +245,12 @@ npm run build:all
 
 | Command | Purpose |
 | --- | --- |
-| `npm start` / `npm run demo` | Launch the portal, docs, two Angular demos, and React demo |
-| `npm run serve:demo` | Build packages and serve only the original Angular demo |
+| `npm start` / `npm run demo` | Launch the portal, docs, Angular demo, and React demo |
+| `npm run serve:demo` | Build packages and serve only the Angular demo |
 | `npm run serve:docs` | Build and serve only the documentation site |
 | `npm run build` | Build core plus Angular and React adapters in dependency order |
-| `npm run build:all` | Build packages, both Node applications, and all three demos |
-| `npm run build:demo` / `npm run build:ngrx-demo` | Build one Angular demo and its package dependencies |
+| `npm run build:all` | Build packages, both Node applications, and both demos |
+| `npm run build:demo` | Build the Angular demo and its package dependencies |
 | `npm run build:react` / `npm run build:react-demo` | Build the React package or demo and dependencies |
 | `npm test` | Run Node, Angular/Karma, and React/Vitest suites |
 | `npm run test:coverage` | Run all tests and independent 90% coverage gates |

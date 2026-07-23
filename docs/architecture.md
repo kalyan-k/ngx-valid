@@ -12,8 +12,8 @@ validation-rules/
 |-- apps/
 |   |-- demo/                 # framework-neutral launcher and status dashboard
 |   |-- docs/                 # Markdown documentation application
-|   |-- angular-demo/         # private ngModel consumer
-|   `-- angular-ngrx-demo/    # private NgRx integration consumer
+|   |-- angular-demo/         # private Angular forms and state-management consumer
+|   `-- react-demo/           # private React adapter consumer
 |-- tools/
 |   |-- architecture/         # dependency-boundary verification
 |   |-- platform-shell/       # framework-neutral product shell and layout theme
@@ -29,12 +29,11 @@ There is no `shared` package because the current code has no additional ownershi
 ```text
 apps/angular-demo ---------+
                            +--> @validation-rules/angular --> @validation-rules/core
-apps/angular-ngrx-demo ----+
 
 apps/demo ----URLs----> apps/docs and framework demos
 ```
 
-Both Angular demos import only `@validation-rules/angular`. The Angular adapter imports `@validation-rules/core`. Core imports neither Angular nor an adapter. The Node portal and docs applications import no Angular or NgRx runtime. npm workspaces link the local packages during repository development; Angular-owned TypeScript path mappings support tests and local compilation.
+The Angular demo imports only `@validation-rules/angular` plus demo-only state libraries. The Angular adapter imports `@validation-rules/core`. Core imports neither Angular nor an adapter. The Node portal and docs applications import no Angular or state-management runtime. npm workspaces link the local packages during repository development; Angular-owned TypeScript path mappings support tests and local compilation.
 
 Run `npm run architecture:verify` to validate this direction. CI runs the same command before tests. The verifier rejects Angular dependencies in core, reverse adapter imports, direct demo-to-core imports, missing workspace relationships, and out-of-scope React or Vue placeholders.
 
@@ -82,9 +81,7 @@ A future extraction should first define a small expression-evaluator port in cor
 
 ## Application boundaries
 
-`apps/angular-demo` is a private application. It consumes the Angular package name instead of package source paths, making its builds and integration tests representative of real consumers. Its routes, forms, display presets, and interaction behavior remain unchanged.
-
-`apps/angular-ngrx-demo` is also private and consumes the same public adapter. Its pure-state page validates a cloned NgRx model without `FormGroup`; its Reactive Forms page synchronizes form values and validation lifecycle through NgRx.
+`apps/angular-demo` is a private application. It consumes the Angular package name instead of package source paths, making its builds and integration tests representative of real consumers. It now owns both UI-framework demos and the comparable Angular state-management demos for ngModel, Reactive Forms, NgRx, NGXS, Akita, Elf, RxAngular State, Signals, and a custom RxJS store.
 
 `apps/demo` owns process startup, health polling, the application registry, report links, and the browser entry point. `apps/docs` owns Markdown rendering, navigation, and search. These Node applications communicate with the demos through URLs and remain framework-neutral.
 
@@ -102,7 +99,6 @@ Package builds follow dependency order:
 2. `@validation-rules/angular` to `dist/validation-rules-angular`
 3. Portal and documentation TypeScript to `dist/apps/*`
 4. `angular-demo` to `dist/angular-demo`
-5. `angular-ngrx-demo` to `dist/angular-ngrx-demo`
 
 The root scripts encode this order and delegate Angular CLI commands to the workspace configuration owned by `packages/angular`. Individual project targets remain available for focused development, but the Angular package build requires a current core artifact.
 

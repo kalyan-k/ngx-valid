@@ -1,8 +1,0 @@
-{
-  "extends": "../../packages/angular/tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "../../out-tsc/angular-ngrx-demo-spec",
-    "types": ["jasmine"]
-  },
-  "include": ["src/**/*.spec.ts", "src/**/*.d.ts"]
-}

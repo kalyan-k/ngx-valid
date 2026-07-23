@@ -28,4 +28,4 @@ Wrap your design-system input with `ControlValueAccessor`, then apply `policyVal
 
 ## Live demos
 
-[Angular Demo](http://127.0.0.1:4202/) compares Bootstrap, Material, and Tailwind-compatible display. [Angular + NgRx Demo](http://127.0.0.1:4203/) shows store-first and Reactive Forms workflows.
+[Angular Demo](http://127.0.0.1:4202/) compares Bootstrap, Material, Tailwind-compatible display, and Angular state management workflows including NgRx, NGXS, Akita, Elf, RxAngular State, Signals, and a custom RxJS store.

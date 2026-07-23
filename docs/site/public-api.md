@@ -30,6 +30,10 @@ The supported API is exposed from package public entry points. Do not import imp
 
 The adapter exports `ValidationModule`, `ValidatorDirective`, display configuration tokens and providers, display strategies, and the status/summary components.
 
+## React UI surface
+
+The React adapter exports `ValidationRulesProvider`, `useValidationRules`, `useValidationForm`, `useValidationField`, `ValidationMessage`, `ValidationSummary`, testing helpers, controlled-field props, and React-specific validation result types. React applications should import these APIs from `@validation-rules/react`.
+
 ## Compatibility
 
-Directive selectors, component selectors, `policy-validation-*` DOM hooks, the stylesheet export, and policy-domain type names remain compatibility contracts. Renaming them requires a planned breaking release.
+Core contracts, Angular directive selectors, Angular component selectors, `policy-validation-*` DOM hooks, the Angular stylesheet export, React hook names, React component names, and policy-domain type names remain compatibility contracts. Renaming them requires a planned breaking release.

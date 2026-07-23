@@ -1,6 +1,6 @@
 # Angular Package
 
-`@validation-rules/angular` adapts Core policies to Angular lifecycles while preserving model-first validation. It supports template-driven `ngModel` forms, Angular Material, Bootstrap, Tailwind-compatible classes, custom display strategies, dynamic sections, validation groups, summaries, and NgRx-driven state workflows.
+`@validation-rules/angular` adapts Core policies to Angular lifecycles while preserving model-first validation. It supports template-driven `ngModel` forms, Reactive Forms coordination, Angular Material, Bootstrap, Tailwind-compatible classes, custom display strategies, dynamic sections, validation groups, summaries, and state workflows including NgRx, NGXS, Akita, Elf, RxAngular State, Signals, and custom RxJS stores.
 
 ## What Angular owns
 
@@ -39,9 +39,9 @@ Use `replacePolicy()` for generated forms whose rule set changes at runtime.
 
 The directive registers the control, evaluates field rules during interaction, records metadata on the model, and delegates rendering to the configured display strategy.
 
-## Reactive Forms and NgRx
+## Reactive Forms and state management
 
-The adapter does not require Angular Forms, but it can be coordinated with Reactive Forms. The Angular + NgRx demo shows both pure store validation and a Reactive Forms synchronization workflow.
+The adapter does not require Angular Forms, but it can be coordinated with Reactive Forms and application-owned state. The Angular demo exposes a comparable state-management section where every strategy has Overview, Simple Form, Complex Form, and Performance Form pages.
 
 ## Multiple Forms
 
@@ -57,10 +57,10 @@ Angular summary components read the same field-error metadata produced by Core p
 
 ## Validation Lifecycle
 
-The directive-driven lifecycle validates fields during interaction, updates touched and required-state metadata, and lets submit or group actions validate broader sections. Reactive Forms and NgRx flows can call the service directly when state changes outside template-driven controls.
+The directive-driven lifecycle validates fields during interaction, updates touched and required-state metadata, and lets submit or group actions validate broader sections. Reactive Forms and store-driven flows can call the service directly when state changes outside template-driven controls.
 
 ## Custom Components
 
 Custom Angular inputs integrate by forwarding `ngModel`, path, policy, and form-group information to the validation directive or by using the service directly. Design-system components should keep rendering decisions in the component while leaving rule definitions in reusable policies.
 
-[Open the Angular demo](http://127.0.0.1:4202/) or [open the Angular + NgRx demo](http://127.0.0.1:4203/).
+[Open the Angular demo](http://127.0.0.1:4202/) or jump directly to the [Angular state-management overview](http://127.0.0.1:4202/state/template-driven).

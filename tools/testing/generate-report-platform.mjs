@@ -17,12 +17,11 @@ const projectTitles = Object.freeze({
   angular: 'Angular Adapter',
   react: 'React Adapter',
   'angular-demo': 'Angular Demo',
-  'angular-ngrx-demo': 'Angular + NgRx Demo',
   'react-demo': 'React Demo'
 });
 const reportGroups = Object.freeze([
   { label: 'Packages', projects: ['core', 'angular', 'react'] },
-  { label: 'Demo Applications', projects: ['angular-demo', 'angular-ngrx-demo', 'react-demo'] }
+  { label: 'Demo Applications', projects: ['angular-demo', 'react-demo'] }
 ]);
 
 function readJson(filePath) {

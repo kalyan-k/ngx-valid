@@ -44,7 +44,6 @@ function renderProject({ projectName, tests, coverage, missing }) {
     angular: 'Angular Adapter',
     react: 'React Adapter',
     'angular-demo': 'Angular Demo',
-    'angular-ngrx-demo': 'Angular + NgRx Demo',
     'react-demo': 'React Demo'
   };
   const title = titles[projectName] || projectName;

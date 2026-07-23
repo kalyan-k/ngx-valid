@@ -1,12 +1,20 @@
 # Installation & Quick Start
 
-Install the framework-neutral engine, Angular adapter, and the peer dependency used by the current validator implementation.
+Install the framework-neutral engine plus the adapter for your application framework.
+
+Angular consumers install the Angular adapter and its peer dependency used by the current validator implementation:
 
 ```bash
 npm install @validation-rules/core @validation-rules/angular underscore
 ```
 
 Angular framework packages are peer dependencies of `@validation-rules/angular`.
+
+React consumers install the React adapter and React peer packages:
+
+```bash
+npm install @validation-rules/core @validation-rules/react react react-dom
+```
 
 ## Define a policy
 
@@ -62,3 +70,7 @@ validation.validateAll(model, 'Account', {
 ```
 
 The package export is stable. Existing `policy-validation-*` selectors remain compatibility APIs.
+
+## React next step
+
+If you are building a React form, continue with the [React Quick Start](/docs/react-quick-start). It uses the same policy contract with `ValidationRulesProvider`, `useValidationForm`, `useValidationField`, and `ValidationSummary`.

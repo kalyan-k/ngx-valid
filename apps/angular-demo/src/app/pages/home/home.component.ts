@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { DEMO_FRAMEWORKS, DEMO_TABS } from '../../demo/demo-framework.model';
+import { ANGULAR_STATE_STRATEGIES } from '../../state-management/angular-state-demo.model';
 
 @Component({
   selector: 'app-home',
@@ -10,6 +11,7 @@ import { DEMO_FRAMEWORKS, DEMO_TABS } from '../../demo/demo-framework.model';
 export class HomeComponent {
   readonly frameworks = DEMO_FRAMEWORKS;
   readonly demos = DEMO_TABS;
+  readonly stateStrategies = ANGULAR_STATE_STRATEGIES;
   readonly docsUrl = 'http://127.0.0.1:4201/docs/angular';
 
   readonly quickStart = [

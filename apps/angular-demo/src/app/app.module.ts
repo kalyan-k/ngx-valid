@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,6 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { StoreModule } from '@ngrx/store';
+import { NgxsModule } from '@ngxs/store';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,6 +28,11 @@ import { PerformanceFormSectionComponent } from './components/performance-form/p
 import { PerformanceFormErrorSummaryComponent } from './components/performance-form/performance-form-error-summary.component';
 import { ValidationModule } from '@validation-rules/angular';
 import { validationProviders } from './validation.providers';
+import { AngularStateDemoComponent } from './state-management/angular-state-demo.component';
+import {
+  AngularStateDemoNgxsState,
+  angularStateDemoReducer
+} from './state-management/angular-state-runtime.service';
 
 @NgModule({
   declarations: [
@@ -41,13 +48,17 @@ import { validationProviders } from './validation.providers';
     ComplexFormTailwindComponent,
     PerformanceFormComponent,
     PerformanceFormSectionComponent,
-    PerformanceFormErrorSummaryComponent
+    PerformanceFormErrorSummaryComponent,
+    AngularStateDemoComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
+    StoreModule.forRoot({ angularStateDemo: angularStateDemoReducer }),
+    NgxsModule.forRoot([AngularStateDemoNgxsState]),
     MatButtonModule,
     MatCardModule,
     MatCheckboxModule,

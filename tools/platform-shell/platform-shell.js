@@ -1,18 +1,119 @@
-const documentationItems = [
-  ['Introduction', '/docs/overview'],
-  ['Getting Started', '/docs/getting-started'],
-  ['Architecture', '/docs/architecture'],
-  ['Packages', '/docs/core-package'],
-  ['Guides', '/docs/policies-and-rules'],
-  ['Examples', '/docs/advanced'],
-  ['API', '/docs/public-api'],
-  ['Roadmap', '/docs/roadmap'],
-  ['FAQ', '/docs/faq']
+const documentationSections = [
+  {
+    label: 'Introduction',
+    items: [
+      ['What is Validation Rules?', '/docs/overview'],
+      ['Installation & Quick Start', '/docs/getting-started']
+    ]
+  },
+  {
+    label: 'Core Package',
+    items: [
+      ['Overview', '/docs/core-package'],
+      ['Installation', '/docs/core-installation'],
+      ['Quick Start', '/docs/core-quick-start'],
+      ['Architecture', '/docs/core-architecture'],
+      ['Validation Policies', '/docs/core-validation-policies'],
+      ['Validation Rules', '/docs/core-validation-rules'],
+      ['Validation Groups', '/docs/core-validation-groups'],
+      ['Public API', '/docs/core-public-api'],
+      ['Examples', '/docs/core-examples'],
+      ['Best Practices', '/docs/core-best-practices'],
+      ['Troubleshooting', '/docs/core-troubleshooting'],
+      ['FAQ', '/docs/core-faq']
+    ]
+  },
+  {
+    label: 'Angular Package',
+    items: [
+      ['Overview', '/docs/angular'],
+      ['Installation', '/docs/angular-installation'],
+      ['Quick Start', '/docs/angular-quick-start'],
+      ['Architecture', '/docs/angular-architecture'],
+      ['Services', '/docs/angular-services'],
+      ['Components', '/docs/angular-components'],
+      ['Directives', '/docs/angular-directives'],
+      ['ngModel Integration', '/docs/angular-ngmodel'],
+      ['Reactive Forms', '/docs/angular-reactive-forms'],
+      ['NgRx', '/docs/angular-state-ngrx'],
+      ['NGXS', '/docs/angular-state-ngxs'],
+      ['Akita', '/docs/angular-state-akita'],
+      ['Elf', '/docs/angular-state-elf'],
+      ['RxAngular State', '/docs/angular-state-rx-angular'],
+      ['Signals', '/docs/angular-state-signals'],
+      ['Custom RxJS Store', '/docs/angular-state-custom-rxjs-store'],
+      ['Validation Policies', '/docs/angular-validation-policies'],
+      ['Validation Groups', '/docs/angular-validation-groups'],
+      ['Examples', '/docs/angular-examples'],
+      ['Best Practices', '/docs/angular-best-practices'],
+      ['Troubleshooting', '/docs/angular-troubleshooting'],
+      ['FAQ', '/docs/angular-faq']
+    ]
+  },
+  {
+    label: 'React Package',
+    items: [
+      ['Overview', '/docs/react-overview'],
+      ['Installation', '/docs/react-installation'],
+      ['Quick Start', '/docs/react-quick-start'],
+      ['Architecture', '/docs/react-architecture'],
+      ['Provider', '/docs/react-provider'],
+      ['Core Hooks', '/docs/react-hooks'],
+      ['Field Validation', '/docs/react-field-validation'],
+      ['Form Validation', '/docs/react-form-validation'],
+      ['Validation Policies', '/docs/react-policies'],
+      ['Validation Groups', '/docs/react-groups'],
+      ['Controlled Inputs', '/docs/react-controlled-inputs'],
+      ['Custom Inputs', '/docs/react-custom-components'],
+      ['Dynamic Fields', '/docs/react-dynamic-fields'],
+      ['Multiple Forms', '/docs/react-multiple-forms'],
+      ['Performance', '/docs/react-performance'],
+      ['Strict Mode', '/docs/react-strict-mode'],
+      ['Testing', '/docs/react-testing'],
+      ['Public API', '/docs/react-api'],
+      ['Migration and Compatibility', '/docs/react-migration'],
+      ['Local State', '/docs/react-state-local-state'],
+      ['Redux Toolkit', '/docs/react-state-redux-toolkit'],
+      ['Zustand', '/docs/react-state-zustand'],
+      ['Jotai', '/docs/react-state-jotai'],
+      ['Recoil', '/docs/react-state-recoil'],
+      ['MobX', '/docs/react-state-mobx'],
+      ['Context API', '/docs/react-state-context'],
+      ['Examples', '/docs/react-examples'],
+      ['Best Practices', '/docs/react-best-practices'],
+      ['Troubleshooting', '/docs/react-troubleshooting'],
+      ['FAQ', '/docs/react-faq']
+    ]
+  },
+  {
+    label: 'Guides',
+    items: [
+      ['Policies & Rules', '/docs/policies-and-rules'],
+      ['Validation Groups', '/docs/validation-groups'],
+      ['Advanced Examples', '/docs/advanced']
+    ]
+  },
+  {
+    label: 'Reference',
+    items: [
+      ['Public API Reference', '/docs/public-api']
+    ]
+  },
+  {
+    label: 'Project',
+    items: [
+      ['Architecture', '/docs/architecture'],
+      ['Testing, Coverage & Reports', '/docs/testing'],
+      ['Migration', '/docs/migration'],
+      ['Roadmap', '/docs/roadmap'],
+      ['Troubleshooting', '/docs/troubleshooting'],
+      ['FAQ', '/docs/faq']
+    ]
+  }
 ];
 
 const demoItems = [
   ['Angular Demo', 'angular'],
-  ['Angular NgRx Demo', 'ngrx'],
   ['React Demo', 'react']
 ];
 
@@ -41,17 +142,21 @@ class ValidationPlatformShell extends HTMLElement {
       portal: normalizedBase(this.getAttribute('portal-url'), defaultPortalUrl),
       docs: normalizedBase(this.getAttribute('docs-url'), 'http://127.0.0.1:4201'),
       angular: normalizedBase(this.getAttribute('angular-url'), 'http://127.0.0.1:4202'),
-      ngrx: normalizedBase(this.getAttribute('ngrx-url'), 'http://127.0.0.1:4203'),
       react: normalizedBase(this.getAttribute('react-url'), 'http://127.0.0.1:4204')
     };
     const docsActive = activeApplication === 'documentation';
-    const demosActive = activeApplication === 'angular-demo' || activeApplication === 'angular-ngrx-demo' || activeApplication === 'react-demo';
-    const docsNavigation = documentationItems.map(([label, path]) => {
-      const active = docsActive && location.pathname === path;
-      return `<a href="${urls.docs}${path}"${active ? ' aria-current="page" class="active"' : ''}>${label}</a>`;
-    }).join('');
+    const demosActive = activeApplication === 'angular-demo' || activeApplication === 'react-demo';
+    const docsNavigation = documentationSections.map((section) => `
+      <section class="platform-dropdown-section" aria-label="${section.label}">
+        <h3>${section.label}</h3>
+        ${section.items.map(([label, path]) => {
+          const active = docsActive && location.pathname === path;
+          return `<a href="${urls.docs}${path}"${active ? ' aria-current="page" class="active"' : ''}>${label}</a>`;
+        }).join('')}
+      </section>
+    `).join('');
     const demosNavigation = demoItems.map(([label, target]) => {
-      const applicationId = target === 'angular' ? 'angular-demo' : target === 'ngrx' ? 'angular-ngrx-demo' : 'react-demo';
+      const applicationId = target === 'angular' ? 'angular-demo' : 'react-demo';
       const active = activeApplication === applicationId;
       return `<a href="${urls[target]}/"${active ? ' aria-current="page" class="active"' : ''}>${label}</a>`;
     }).join('');
@@ -71,7 +176,7 @@ class ValidationPlatformShell extends HTMLElement {
           <a class="platform-nav-link ${activeApplication === 'demo-portal' ? 'active' : ''}" href="${urls.portal}/"${activeApplication === 'demo-portal' ? ' aria-current="page"' : ''}>Home</a>
           <details class="platform-nav-group ${docsActive ? 'active' : ''}">
             <summary>Docs<span aria-hidden="true"></span></summary>
-            <div class="platform-dropdown">${docsNavigation}</div>
+            <div class="platform-dropdown platform-docs-dropdown">${docsNavigation}</div>
           </details>
           <details class="platform-nav-group ${demosActive ? 'active' : ''}">
             <summary>Demos<span aria-hidden="true"></span></summary>

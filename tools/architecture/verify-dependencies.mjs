@@ -7,7 +7,6 @@ const coreRoot = path.join(workspaceRoot, 'packages', 'core');
 const angularRoot = path.join(workspaceRoot, 'packages', 'angular');
 const reactRoot = path.join(workspaceRoot, 'packages', 'react');
 const demoRoot = path.join(workspaceRoot, 'apps', 'angular-demo');
-const ngrxDemoRoot = path.join(workspaceRoot, 'apps', 'angular-ngrx-demo');
 const reactDemoRoot = path.join(workspaceRoot, 'apps', 'react-demo');
 const portalRoot = path.join(workspaceRoot, 'apps', 'demo');
 const docsRoot = path.join(workspaceRoot, 'apps', 'docs');
@@ -49,7 +48,7 @@ function expect(condition, message) {
   }
 }
 
-for (const root of [coreRoot, angularRoot, reactRoot, demoRoot, ngrxDemoRoot, reactDemoRoot, portalRoot, docsRoot]) {
+for (const root of [coreRoot, angularRoot, reactRoot, demoRoot, reactDemoRoot, portalRoot, docsRoot]) {
   expect(fs.existsSync(root), `Missing workspace project: ${relative(root)}`);
 }
 for (const file of [
@@ -73,7 +72,6 @@ if (failures.length === 0) {
   const angularPackage = readJson(path.join(angularRoot, 'package.json'));
   const reactPackage = readJson(path.join(reactRoot, 'package.json'));
   const demoPackage = readJson(path.join(demoRoot, 'package.json'));
-  const ngrxDemoPackage = readJson(path.join(ngrxDemoRoot, 'package.json'));
   const reactDemoPackage = readJson(path.join(reactDemoRoot, 'package.json'));
   const portalPackage = readJson(path.join(portalRoot, 'package.json'));
   const docsPackage = readJson(path.join(docsRoot, 'package.json'));
@@ -104,22 +102,21 @@ if (failures.length === 0) {
     demoPackage.dependencies?.['@validation-rules/core'] === undefined,
     'Angular demo must consume framework-neutral APIs through @validation-rules/angular.'
   );
-  expect(ngrxDemoPackage.private === true, 'Angular + NgRx demo must remain private.');
   expect(reactDemoPackage.private === true, 'React demo must remain private.');
   expect(portalPackage.private === true, 'Demo portal must remain private.');
   expect(docsPackage.private === true, 'Documentation application must remain private.');
-  expect(
-    ngrxDemoPackage.dependencies?.['@validation-rules/angular'] === angularPackage.version,
-    'Angular + NgRx demo must depend on the local Angular adapter version.'
-  );
-  expect(
-    ngrxDemoPackage.dependencies?.['@validation-rules/core'] === undefined,
-    'Angular + NgRx demo must consume framework-neutral APIs through @validation-rules/angular.'
-  );
-  expect(
-    typeof ngrxDemoPackage.dependencies?.['@ngrx/store'] === 'string',
-    'Angular + NgRx demo must declare @ngrx/store.'
-  );
+  for (const dependency of [
+    '@ngrx/store',
+    '@ngxs/store',
+    '@datorama/akita',
+    '@ngneat/elf',
+    '@rx-angular/state'
+  ]) {
+    expect(
+      typeof demoPackage.dependencies?.[dependency] === 'string',
+      `Angular demo must declare ${dependency} for state-management demonstrations.`
+    );
+  }
   expect(
     reactDemoPackage.dependencies?.['@validation-rules/react'] === reactPackage.version,
     'React demo must depend on the local React adapter version.'
@@ -162,16 +159,17 @@ if (failures.length === 0) {
   for (const file of findSourceMatches(demoRoot, /(['"])@validation-rules\/core\1/)) {
     failures.push(`Angular demo bypasses the adapter: ${relative(file)}`);
   }
-  expect(
-    findSourceMatches(ngrxDemoRoot, /(['"])@validation-rules\/angular\1/).length > 0,
-    'Angular + NgRx demo source must consume @validation-rules/angular.'
-  );
-  expect(
-    findSourceMatches(ngrxDemoRoot, /(['"])@ngrx\/store\1/).length > 0,
-    'Angular + NgRx demo source must demonstrate @ngrx/store.'
-  );
-  for (const file of findSourceMatches(ngrxDemoRoot, /(['"])@validation-rules\/core\1/)) {
-    failures.push(`Angular + NgRx demo bypasses the adapter: ${relative(file)}`);
+  for (const [dependency, label] of [
+    ['@ngrx/store', 'NgRx'],
+    ['@ngxs/store', 'NGXS'],
+    ['@datorama/akita', 'Akita'],
+    ['@ngneat/elf', 'Elf'],
+    ['@rx-angular/state', 'RxAngular State']
+  ]) {
+    expect(
+      findSourceMatches(demoRoot, new RegExp(`(['"])${dependency.replaceAll('/', '\\/')}(?:\\/[^'"]*)?\\1`)).length > 0,
+      `Angular demo source must demonstrate ${label}.`
+    );
   }
   expect(
     findSourceMatches(reactDemoRoot, /(['"])@validation-rules\/react\1/).length > 0,
@@ -192,8 +190,7 @@ if (failures.length === 0) {
     path.join(portalRoot, 'public', 'index.html'),
     path.join(docsRoot, 'src', 'server.ts'),
     path.join(demoRoot, 'src', 'app', 'app.component.html'),
-    path.join(ngrxDemoRoot, 'src', 'app', 'app.component.html')
-    ,path.join(reactDemoRoot, 'src', 'app.tsx')
+    path.join(reactDemoRoot, 'src', 'app.tsx')
   ];
   for (const file of shellConsumers) {
     expect(
@@ -224,17 +221,12 @@ if (failures.length === 0) {
     'Angular-specific documentation consolidated from the demo must remain in the documentation application.'
   );
   expect(
-    fs.existsSync(path.join(ngrxDemoRoot, 'src', 'app', 'pages', 'home', 'home.component.ts')),
-    'Angular + NgRx demo must provide a landing page parallel to the Angular demo.'
-  );
-  expect(
     fs.existsSync(path.join(reactDemoRoot, 'src', 'pages', 'home-page.tsx')),
     'React demo must provide a landing page parallel to the Angular demos.'
   );
   for (const file of [
     path.join(demoRoot, 'src', 'app', 'layout', 'demo-shell.component.html'),
-    path.join(ngrxDemoRoot, 'src', 'app', 'app.component.html')
-    ,path.join(reactDemoRoot, 'src', 'app.tsx')
+    path.join(reactDemoRoot, 'src', 'app.tsx')
   ]) {
     expect(fs.readFileSync(file, 'utf8').includes('vr-demo-shell'), `${relative(file)} must use the shared demo layout.`);
   }
@@ -258,7 +250,7 @@ if (failures.length > 0) {
   failures.forEach((failure) => console.error(`- ${failure}`));
   process.exitCode = 1;
 } else {
-  console.log('Verified dependency direction: Angular demos -> angular adapter -> core engine.');
+  console.log('Verified dependency direction: Angular demo -> angular adapter -> core engine.');
   console.log('Verified dependency direction: React demo -> React adapter -> core engine.');
   console.log('Verified that the portal and documentation applications remain Angular-free.');
   console.log('Verified that @validation-rules/core has no Angular dependency.');

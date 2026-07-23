@@ -16,13 +16,14 @@ Validation logic often spreads across templates, components, event handlers, red
 
 ## The platform
 
-The repository contains two publishable packages and several private applications:
+The repository contains three publishable packages and several private applications:
 
 - `@validation-rules/core` owns contracts, rules, validators, metadata, and result shapes.
 - `@validation-rules/angular` owns Angular policy execution, forms integration, directives, components, and display strategies.
+- `@validation-rules/react` owns React provider scope, hooks, controlled-field helpers, lifecycle-safe policy registration, and accessible messages.
 - The Demo Portal launches documentation and every complete demo application.
-- The Angular demo covers ngModel and multiple UI strategies.
-- The Angular + NgRx demo covers state-only and Reactive Forms workflows.
+- The Angular demo covers ngModel, Reactive Forms, NgRx, NGXS, Akita, Elf, RxAngular State, Signals, custom RxJS store workflows, and multiple UI strategies.
+- The React demo covers Local State, Redux Toolkit, Zustand, Jotai, Recoil, MobX, Context API, and generated performance forms.
 
 ## Where to go next
 

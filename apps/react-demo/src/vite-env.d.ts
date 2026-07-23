@@ -12,7 +12,6 @@ declare module 'react' {
       'portal-url'?: string;
       'docs-url'?: string;
       'angular-url'?: string;
-      'ngrx-url'?: string;
       'react-url'?: string;
       };
     }

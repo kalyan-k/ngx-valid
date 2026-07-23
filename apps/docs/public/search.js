@@ -59,6 +59,11 @@ function closeResults() {
   activeIndex = -1;
 }
 
+function scrollActiveNavigationLink() {
+  const activeLink = document.querySelector('.docs-navigation a[aria-current="page"], .docs-navigation a.active');
+  activeLink?.scrollIntoView({ block: 'center', inline: 'nearest' });
+}
+
 function setActive(index) {
   const options = [...resultsPanel.querySelectorAll('[role="option"]')];
   if (options.length === 0) return;
@@ -152,3 +157,4 @@ if (initialQuery) {
   });
 }
 syncClearButton();
+requestAnimationFrame(scrollActiveNavigationLink);
