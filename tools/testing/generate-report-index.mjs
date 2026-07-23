@@ -42,8 +42,10 @@ function renderProject({ projectName, tests, coverage, missing }) {
   const titles = {
     core: 'Core Engine',
     angular: 'Angular Adapter',
+    react: 'React Adapter',
     'angular-demo': 'Angular Demo',
-    'angular-ngrx-demo': 'Angular + NgRx Demo'
+    'angular-ngrx-demo': 'Angular + NgRx Demo',
+    'react-demo': 'React Demo'
   };
   const title = titles[projectName] || projectName;
   const summary = tests?.summary;

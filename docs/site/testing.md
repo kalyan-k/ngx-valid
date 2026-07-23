@@ -1,6 +1,6 @@
 # Testing, Coverage & Reports
 
-The repository tests the core engine, Angular adapter, Angular demos, portal, and documentation application while keeping coverage results isolated by Angular target.
+The repository tests the core engine, Angular and React adapters, all demos, portal, and documentation while keeping coverage results isolated by project.
 
 ## Common commands
 
@@ -13,11 +13,11 @@ npm run test:ci
 
 ## Coverage gates
 
-Every Karma target enforces at least 90% statements, branches, functions, and lines. A strong result in one project cannot hide a weak result in another.
+Every Karma and Vitest target enforces at least 90% statements, branches, functions, and lines. A strong result in one project cannot hide a weak result in another.
 
 ## Persistent reports
 
-Each Angular target writes:
+Each Angular or React target writes:
 
 - browsable test execution HTML,
 - JSON summaries,
@@ -32,6 +32,8 @@ The dashboard, test execution pages, and coverage wrappers share product navigat
 ## Node application tests
 
 The portal and documentation use Node's test runner for application registry and Markdown rendering behavior. They compile as strict TypeScript before tests execute.
+
+React uses Vitest, jsdom, React Testing Library, and user-event. A normalization step converts Vitest JSON into the same branded summary/test workspace used by Karma while preserving Vitest JUnit and V8/Istanbul coverage output.
 
 ## CI behavior
 

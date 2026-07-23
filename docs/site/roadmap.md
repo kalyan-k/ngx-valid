@@ -4,7 +4,7 @@ Validation Rules grows through complete, tested capabilities rather than placeho
 
 ## Framework adapters
 
-React, Vue, and other adapters can be evaluated when there is a concrete integration, a deliberate public API, independent tests, and a real consumer demo. Each adapter must depend on `@validation-rules/core`; core must never depend on an adapter.
+React is implemented as a complete adapter, demo, documentation section, and independently reported test target. Vue and other adapters can be evaluated only when there is a concrete integration, a deliberate public API, independent tests, and a real consumer demo. Each adapter must depend on `@validation-rules/core`; core must never depend on an adapter.
 
 ## Expression evaluation
 

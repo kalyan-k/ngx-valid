@@ -1,0 +1,33 @@
+{
+  "name": "@validation-rules/react",
+  "version": "1.0.0",
+  "description": "React hooks, provider, and accessible components for policy-based validation",
+  "keywords": ["react", "validation", "forms", "hooks", "validation-rules"],
+  "license": "MIT",
+  "author": "Kalyan K <kalyan411@gmail.com>",
+  "homepage": "https://github.com/kalyan-k/validation-rules#readme",
+  "repository": { "type": "git", "url": "git+ssh://git@github.com:kalyan-k/validation-rules.git" },
+  "bugs": { "url": "https://github.com/kalyan-k/validation-rules/issues" },
+  "type": "module",
+  "main": "./index.js",
+  "module": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": { "types": "./index.d.ts", "import": "./index.js", "default": "./index.js" },
+    "./package.json": "./package.json"
+  },
+  "files": ["*.js", "*.js.map", "**/*.d.ts", "**/*.d.ts.map", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "test": "vitest run --config vitest.config.ts",
+    "test:coverage": "vitest run --config vitest.config.ts --coverage"
+  },
+  "peerDependencies": {
+    "@validation-rules/core": "^1.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": { "@validation-rules/core": "1.0.0" },
+  "publishConfig": { "access": "public" }
+}

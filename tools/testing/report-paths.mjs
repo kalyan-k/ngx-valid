@@ -6,12 +6,14 @@ const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 export const workspaceRoot = path.resolve(toolsDirectory, '..', '..');
 export const reportsRoot = path.join(workspaceRoot, 'reports');
-export const projects = Object.freeze(['core', 'angular', 'angular-demo', 'angular-ngrx-demo']);
+export const projects = Object.freeze(['core', 'angular', 'react', 'angular-demo', 'angular-ngrx-demo', 'react-demo']);
 const projectScriptNames = Object.freeze({
   core: 'core',
   angular: 'angular',
+  react: 'react',
   'angular-demo': 'demo',
-  'angular-ngrx-demo': 'ngrx-demo'
+  'angular-ngrx-demo': 'ngrx-demo',
+  'react-demo': 'react-demo'
 });
 
 export function assertProject(projectName) {

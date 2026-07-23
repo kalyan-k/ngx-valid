@@ -1,15 +1,15 @@
 # Angular Package
 
-`@validation-rules/angular` adapts the core engine to Angular application lifecycles while preserving model-first validation.
+`@validation-rules/angular` adapts Core policies to Angular lifecycles while preserving model-first validation. It supports template-driven `ngModel` forms, Angular Material, Bootstrap, Tailwind-compatible classes, custom display strategies, dynamic sections, validation groups, summaries, and NgRx-driven state workflows.
 
-## Responsibilities
+## What Angular owns
 
-- policy registration and execution through `ValidationProviderService`
-- the `policyValidator` directive for template-driven controls
-- required-state and touched-state updates
-- form-group and policy-group status components
-- Bootstrap, Material, Tailwind, generic, and custom display strategies
-- refresh notifications for application-owned rendering
+- Policy registration and execution through `ValidationProviderService`.
+- The `policyValidator` directive for template-driven controls.
+- Required-state, touched-state, field-error, and group-status updates.
+- Summary and status components.
+- Bootstrap, Material, Tailwind, generic, default, and custom display strategies.
+- Refresh notifications for OnPush and application-owned rendering.
 
 ## Registration
 
@@ -26,8 +26,6 @@ Use `replacePolicy()` for generated forms whose rule set changes at runtime.
 
 ## Template-driven controls
 
-Attach `policyValidator` to a native control and identify the model path, model instance, policy, and optional validation group. The directive registers the control, evaluates field rules during interaction, and delegates error rendering to the configured display strategy.
-
 ```html
 <input
   [(ngModel)]="model.email"
@@ -39,38 +37,30 @@ Attach `policyValidator` to a native control and identify the model path, model 
 />
 ```
 
-## Display strategies
+The directive registers the control, evaluates field rules during interaction, records metadata on the model, and delegates rendering to the configured display strategy.
 
-- `BootstrapValidationDisplayStrategy` uses Bootstrap invalid-state and feedback conventions.
-- `MaterialValidationDisplayStrategy` integrates errors with Angular Material form fields.
-- `TailwindValidationDisplayStrategy` and `GenericValidationDisplayStrategy` apply configurable utility or application classes.
-- `DefaultValidationDisplayStrategy` can select an appropriate treatment from the rendered control context.
+## Reactive Forms and NgRx
 
-Configure explicit invalid, error, container, and required-marker classes through `ValidationModule.forRoot()` when the application owns its own visual system.
+The adapter does not require Angular Forms, but it can be coordinated with Reactive Forms. The Angular + NgRx demo shows both pure store validation and a Reactive Forms synchronization workflow.
 
-## Status and summary components
+## Multiple Forms
 
-The adapter includes form-group and policy-group status and summary components. They read validation state from the model, respond to validation refresh notifications, and support OnPush application trees without moving validation behavior into presentation code.
+Register each form with its own policy name and form-group name so metadata and summaries stay isolated. This is the pattern used by pages that render sample, complex, and performance forms side by side in the same Angular application shell.
 
-## Using the Angular demo
+## Dynamic Forms
 
-The Angular demo keeps validation policies constant while switching among Bootstrap, Angular Material, and Tailwind-compatible display strategies. Each framework view contains Sample, Complex, and Performance scenarios so markup and error presentation can be compared without changing the underlying rules.
+Dynamic Angular forms should generate model paths and policy rules from the same field definition source. When the definition changes, replace the generated policy and rebuild form-group membership so removed fields no longer report stale errors.
 
-[Open the Angular demo](http://127.0.0.1:4202/) and choose a framework from its Demos navigation group.
+## Validation Summary
 
-## Unregistration and cleanup
+Angular summary components read the same field-error metadata produced by Core policies. Use summaries for submit-level feedback and field messages for focused correction; both should point back to the same model paths.
 
-Long-lived applications should clean up dynamic registrations when a feature is unloaded.
+## Validation Lifecycle
 
-```ts
-validation.unregisterFormGroupPolicy('accountForm');
-validation.unregisterPolicyGroup('onboarding');
-validation.unregisterPolicy('Account');
-validation.clearValidationState(model, ['Account']);
-```
+The directive-driven lifecycle validates fields during interaction, updates touched and required-state metadata, and lets submit or group actions validate broader sections. Reactive Forms and NgRx flows can call the service directly when state changes outside template-driven controls.
 
-## Execution lifecycle
+## Custom Components
 
-`validateAll()` evaluates one policy. `evaluatePolicies()` evaluates several policies in order and can update an aggregate policy group. Both return observables so asynchronous validators participate in the same lifecycle.
+Custom Angular inputs integrate by forwarding `ngModel`, path, policy, and form-group information to the validation directive or by using the service directly. Design-system components should keep rendering decisions in the component while leaving rule definitions in reusable policies.
 
-The adapter does not require Angular Forms. The NgRx state demo calls `validateAll()` against a cloned store model without creating a `FormGroup`.
+[Open the Angular demo](http://127.0.0.1:4202/) or [open the Angular + NgRx demo](http://127.0.0.1:4203/).

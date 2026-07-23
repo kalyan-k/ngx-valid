@@ -13,6 +13,15 @@ function renderApplications(applications) {
   applicationGrid.innerHTML = applications.map((application, index) => `
     <article class="application-card"><div class="application-card-top"><span class="application-index">0${index + 1} · ${escapeHtml(application.kind)}</span><span class="application-state ${escapeHtml(application.state)}">${escapeHtml(application.state)}</span></div><h3>${escapeHtml(application.title)}</h3><p>${escapeHtml(application.description)}</p><div class="tag-list">${application.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join('')}</div><div class="card-actions"><a href="${escapeHtml(application.url)}">Open application →</a><a href="${escapeHtml(application.documentationUrl)}">Read documentation</a></div></article>
   `).join('');
+  applications.forEach((application, index) => {
+    if (!application.demoLinks?.length) return;
+    const actions = applicationGrid.children[index]?.querySelector('.card-actions');
+    actions?.insertAdjacentHTML('beforebegin', `
+      <details class="integration-links"><summary>Explore ${escapeHtml(application.shortTitle)} integrations</summary><div>
+        ${application.demoLinks.map((link) => `<span><a href="${escapeHtml(link.url)}">${escapeHtml(link.label)}</a><a href="${escapeHtml(link.documentationUrl)}" aria-label="${escapeHtml(link.label)} documentation">Docs</a></span>`).join('')}
+      </div></details>
+    `);
+  });
   const hasFailure = applications.some(({ state }) => state === 'failed');
   const allHealthy = applications.length > 0 && applications.every(({ state }) => state === 'healthy');
   overallStatus.textContent = hasFailure ? 'Attention' : allHealthy ? 'All ready' : 'Starting';

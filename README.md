@@ -6,27 +6,28 @@
 
 Validation Rules is an extendable monorepo for policy-driven model and form validation. It separates a framework-independent rules engine from framework adapters, so validation behavior can stay reusable and testable while each UI integration owns its lifecycle and rendering concerns.
 
-The repository ships a core engine and production Angular adapter inside a multi-application developer platform. A framework-neutral portal launches the documentation site, the original ngModel demo, and an Angular + NgRx integration lab from one command.
+The repository ships a core engine plus production Angular and React adapters inside a multi-application developer platform. A framework-neutral portal launches the documentation site, Angular demos, and a hooks-first React demo from one command.
 
 ## Key features
 
 - Fluent, reusable validation rules organized into named policies
 - Framework-independent validators, contracts, results, and model-state utilities
 - Angular template-driven forms integration through a directive and provider service
+- React 19.2 provider, engine, hooks, controlled-field props, and accessible error components
 - Nested model paths, conditional rules, asynchronous rules, and dependent fields
 - Form-group and multi-policy-group validation status
 - Field, group, policy-group, and page-level error summaries
 - Bootstrap, Angular Material, Tailwind-friendly, generic, automatic, and custom display strategies
 - One-command demo platform with application health monitoring and automatic browser launch
 - Instant documentation search across titles, headings, prose, and code with section deep links
-- Independent tests, coverage gates, and browsable reports for every Angular workspace project
-- Enforced dependency direction from Angular demos to adapter to core
+- Independent tests, 90% coverage gates, and browsable reports for every package and demo project
+- Enforced dependency direction from Angular/React demos to their adapters to core
 
 ## Why Validation Rules?
 
 Validation logic often becomes scattered across templates, components, event handlers, and backend-shaped models. Validation Rules gives that behavior an explicit home. A policy describes what a model requires; an adapter connects that policy to a framework; display strategies decide how errors appear.
 
-This separation makes rules easier to reuse, test, review, and evolve without tying the engine to a particular UI framework. Existing Angular behavior remains intact while the monorepo provides a clean boundary for future adapters when real implementations are ready.
+This separation makes rules easier to reuse, test, review, and evolve without tying the engine to a particular UI framework. Existing Angular behavior remains intact while React receives an isolated hooks-first integration.
 
 ## Architecture
 
@@ -34,13 +35,15 @@ This separation makes rules easier to reuse, test, review, and evolve without ty
 apps/demo (launcher) ----URLs----> apps/docs
          |                         apps/angular-demo
          |                         apps/angular-ngrx-demo
+         |                         apps/react-demo
          |
          +---- application registry and health status
 
 Angular demos --> @validation-rules/angular --> @validation-rules/core
+React demo ----> @validation-rules/react -----> @validation-rules/core
 ```
 
-Dependencies flow in one direction. The private demo consumes only the Angular package. The Angular adapter consumes the core public entry point. Core has no Angular dependency. `npm run architecture:verify` enforces these boundaries and rejects speculative React or Vue placeholders.
+Dependencies flow in one direction. Each private demo consumes its framework adapter, each adapter consumes the core public entry point, and core has no Angular or React dependency. `npm run architecture:verify` enforces these boundaries and rejects speculative Vue placeholders.
 
 See [Architecture](docs/architecture.md) for ownership decisions and extension guidance.
 
@@ -52,10 +55,12 @@ validation-rules/
 |   |-- demo/                  # framework-neutral portal, launcher, and health dashboard
 |   |-- docs/                  # Markdown-backed documentation website
 |   |-- angular-demo/          # original ngModel demo
-|   `-- angular-ngrx-demo/     # pure NgRx and Reactive Forms integration patterns
+|   |-- angular-ngrx-demo/     # pure NgRx and Reactive Forms integration patterns
+|   `-- react-demo/            # hooks-first controlled React forms
 |-- packages/
 |   |-- angular/               # @validation-rules/angular and Angular CLI workspace
-|   `-- core/                  # @validation-rules/core and core Karma config
+|   |-- core/                  # @validation-rules/core and core Karma config
+|   `-- react/                 # @validation-rules/react ESM package
 |-- docs/
 |   |-- site/                  # documentation website source pages
 |   |-- architecture.md
@@ -78,6 +83,14 @@ npm install @validation-rules/core @validation-rules/angular underscore
 ```
 
 Angular framework packages are peer dependencies of `@validation-rules/angular`.
+
+React consumers install the core and React packages with the tested React 19.2 peers:
+
+```bash
+npm install @validation-rules/core @validation-rules/react react react-dom
+```
+
+See the [React quick start](docs/site/react-quick-start.md) for provider, policy, field hook, native input, summary, and submit examples.
 
 To use the optional default stylesheet, add its stable package entry point to the Angular workspace configuration:
 
@@ -188,8 +201,10 @@ Form groups aggregate field status for one portion of a view. Policy groups aggr
 | --- | --- | --- |
 | `packages/core` | `@validation-rules/core` | Framework-neutral contracts, rules, validators, results, and model-state utilities |
 | `packages/angular` | `@validation-rules/angular` | Angular policy execution, forms integration, directives, services, components, and display strategies |
+| `packages/react` | `@validation-rules/react` | React validation engine, provider, hooks, controlled-field helpers, and accessible messages |
 | `apps/angular-demo` | private | Browser demo and integration coverage using the Angular public API |
 | `apps/angular-ngrx-demo` | private | Store-first and Reactive Forms + NgRx integration examples |
+| `apps/react-demo` | private | Home, simple, complex, and performance React examples |
 | `apps/docs` | private | Search-ready Markdown documentation server and site shell |
 | `apps/demo` | private | Application launcher, status API, report gateway, and product dashboard |
 
@@ -203,11 +218,11 @@ Start the complete local experience with one command:
 npm run demo
 ```
 
-The command builds the packages and Node applications, starts the portal at `http://127.0.0.1:4200`, starts documentation at port `4201`, the original Angular demo at `4202`, and the Angular + NgRx demo at `4203`, then opens the portal in the default browser. The portal polls every registered application and shows startup, healthy, or failed state without coupling their runtimes.
+The command builds the packages and Node applications, starts the portal at `http://127.0.0.1:4200`, documentation at `4201`, the original Angular demo at `4202`, Angular + NgRx at `4203`, and React at `4204`, then opens the portal in the default browser. The portal polls every registered application and shows startup, healthy, or failed state without coupling their runtimes.
 
 The application registry in `apps/demo/src/applications.ts` is the single place to add a future demo. Each application remains independently runnable and communicates through stable local URLs.
 
-All four applications use the framework-neutral shell in `tools/platform-shell`. It provides one product identity, a compact Home / Docs / Demos / Reports / GitHub navigation, footer, page width, spacing system, breadcrumbs, action bars, cards, responsive breakpoints, and shared logo/icon assets while leaving each application's Bootstrap, Angular Material, or Tailwind components intact. The shell stylesheet is preloaded and the custom element is defined before application scripts to avoid navigation flicker.
+All browser applications use the framework-neutral shell in `tools/platform-shell`. It provides one product identity, a compact Home / Docs / Demos / Reports / GitHub navigation, footer, page width, spacing system, breadcrumbs, action bars, cards, responsive breakpoints, and shared logo/icon assets while leaving each application's framework-specific components intact. The shell stylesheet is preloaded and the custom element is defined before application scripts to avoid navigation flicker.
 
 Documentation search is performed from a browser-cached index and returns highlighted title, heading, prose, and code matches with direct section links and full keyboard navigation. Generated reports use the exact shared application shell: collapsible Packages and Demo Applications groups plus Summary / Tests / Coverage tabs update one workspace, while the original Istanbul output remains unchanged.
 
@@ -216,9 +231,9 @@ Documentation search is performed from a browser-cached index and returns highli
 - Continue strengthening the framework-neutral engine and adapter contract
 - Evaluate a parser abstraction that could move expression execution out of Angular without changing behavior
 - Improve package release coordination and consumer migration tooling after package names are approved
-- Add React, Vue, playground, or performance applications by registering complete implementations with the portal
+- Add Vue or other adapters only with complete implementations, tests, documentation, and real consumer demos
 
-No non-Angular framework package or placeholder exists in this repository.
+React is implemented and verified; no Vue or other framework placeholder exists in this repository.
 
 ## Development
 
@@ -233,14 +248,15 @@ npm run build:all
 
 | Command | Purpose |
 | --- | --- |
-| `npm start` / `npm run demo` | Launch the portal, docs, Angular demo, and Angular + NgRx demo |
+| `npm start` / `npm run demo` | Launch the portal, docs, two Angular demos, and React demo |
 | `npm run serve:demo` | Build packages and serve only the original Angular demo |
 | `npm run serve:docs` | Build and serve only the documentation site |
-| `npm run build` | Build core and the Angular adapter in dependency order |
-| `npm run build:all` | Build packages, both Node applications, and both Angular demos |
+| `npm run build` | Build core plus Angular and React adapters in dependency order |
+| `npm run build:all` | Build packages, both Node applications, and all three demos |
 | `npm run build:demo` / `npm run build:ngrx-demo` | Build one Angular demo and its package dependencies |
-| `npm test` | Run Node application tests and every Angular/Karma suite |
-| `npm run test:coverage` | Run all tests and independent Angular 90% coverage gates |
+| `npm run build:react` / `npm run build:react-demo` | Build the React package or demo and dependencies |
+| `npm test` | Run Node, Angular/Karma, and React/Vitest suites |
+| `npm run test:coverage` | Run all tests and independent 90% coverage gates |
 | `npm run test:reports` | Generate and verify browsable reports for every project |
 | `npm run reports:open` | Open the generated report dashboard |
 | `npm run lint:all` | Lint every configured project |

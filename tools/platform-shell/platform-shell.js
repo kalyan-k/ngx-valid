@@ -12,7 +12,8 @@ const documentationItems = [
 
 const demoItems = [
   ['Angular Demo', 'angular'],
-  ['Angular NgRx Demo', 'ngrx']
+  ['Angular NgRx Demo', 'ngrx'],
+  ['React Demo', 'react']
 ];
 
 function normalizedBase(value, fallback) {
@@ -40,16 +41,17 @@ class ValidationPlatformShell extends HTMLElement {
       portal: normalizedBase(this.getAttribute('portal-url'), defaultPortalUrl),
       docs: normalizedBase(this.getAttribute('docs-url'), 'http://127.0.0.1:4201'),
       angular: normalizedBase(this.getAttribute('angular-url'), 'http://127.0.0.1:4202'),
-      ngrx: normalizedBase(this.getAttribute('ngrx-url'), 'http://127.0.0.1:4203')
+      ngrx: normalizedBase(this.getAttribute('ngrx-url'), 'http://127.0.0.1:4203'),
+      react: normalizedBase(this.getAttribute('react-url'), 'http://127.0.0.1:4204')
     };
     const docsActive = activeApplication === 'documentation';
-    const demosActive = activeApplication === 'angular-demo' || activeApplication === 'angular-ngrx-demo';
+    const demosActive = activeApplication === 'angular-demo' || activeApplication === 'angular-ngrx-demo' || activeApplication === 'react-demo';
     const docsNavigation = documentationItems.map(([label, path]) => {
       const active = docsActive && location.pathname === path;
       return `<a href="${urls.docs}${path}"${active ? ' aria-current="page" class="active"' : ''}>${label}</a>`;
     }).join('');
     const demosNavigation = demoItems.map(([label, target]) => {
-      const applicationId = target === 'angular' ? 'angular-demo' : 'angular-ngrx-demo';
+      const applicationId = target === 'angular' ? 'angular-demo' : target === 'ngrx' ? 'angular-ngrx-demo' : 'react-demo';
       const active = activeApplication === applicationId;
       return `<a href="${urls[target]}/"${active ? ' aria-current="page" class="active"' : ''}>${label}</a>`;
     }).join('');

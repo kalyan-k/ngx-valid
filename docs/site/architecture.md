@@ -6,9 +6,12 @@ The platform separates publishable validation packages from private documentatio
 
 ```text
 Angular demos → @validation-rules/angular → @validation-rules/core
+React demo → @validation-rules/react → @validation-rules/core
 ```
 
 Core cannot import Angular. The Angular adapter consumes core through its public entry point. Demo applications consume the adapter package rather than source files.
+
+Core cannot import React either, Angular cannot depend on React, and React cannot depend on Angular. The React adapter consumes core contracts/rules and owns its engine, hooks, context, lifecycle, subscriptions, and components.
 
 ## Application platform
 
@@ -16,7 +19,8 @@ Core cannot import Angular. The Angular adapter consumes core through its public
 Demo Portal
 ├── Documentation
 ├── Angular Demo
-└── Angular + NgRx Demo
+├── Angular + NgRx Demo
+└── React Demo
 ```
 
 The framework-neutral Demo Portal owns a registry of independent applications. Each entry supplies a start script, URL, health URL, description, and documentation link. Startup and status UI are generated from this registry.
@@ -29,7 +33,7 @@ The global navigation is deliberately compact: Home, Docs, Demos, Reports, and G
 
 The shell logo, favicon, application icons, and web manifest also live in `tools/platform-shell`. Every browser surface preloads the shared stylesheet and loads the shell definition before application scripts, which reserves the header space and prevents unstyled navigation from flashing during startup. Node applications serve these immutable shell assets with short cache headers, while Angular builds copy the same asset directory.
 
-Persistent reports use `tools/testing/report-branding.cjs` to instantiate the exact shared application shell. The dashboard is a single report workspace: collapsible Packages and Demo Applications groups select Core, Angular Adapter, Angular Demo, or Angular + NgRx Demo; Summary, Tests, and Coverage tabs change the right-hand pane without opening extra browser tabs. Direct test and coverage pages retain branded wrappers, while raw Istanbul HTML remains untouched so coverage data and source highlighting are preserved.
+Persistent reports use `tools/testing/report-branding.cjs` to instantiate the exact shared application shell. The dashboard is a single report workspace: collapsible Packages and Demo Applications groups select Core, Angular Adapter, React Adapter, Angular Demo, Angular + NgRx Demo, or React Demo; Summary, Tests, and Coverage tabs change the right-hand pane without opening extra browser tabs. Direct test and coverage pages retain branded wrappers, while raw Istanbul HTML remains untouched so coverage data and source highlighting are preserved.
 
 ## Why applications stay independent
 
@@ -39,8 +43,9 @@ Applications communicate through URLs, not shared runtime state. One demo can fa
 
 1. Build `@validation-rules/core`.
 2. Build `@validation-rules/angular`.
-3. Build Node portal and documentation applications.
-4. Build Angular demo applications.
+3. Build `@validation-rules/react`.
+4. Build Node portal and documentation applications.
+5. Build Angular and React demo applications.
 
 ## Adding a future demo
 
