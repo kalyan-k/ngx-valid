@@ -16,11 +16,11 @@
         </div>
       </div>
       <div class="vr-demo-nav__group">
-        <button type="button" class="vr-demo-nav__toggle" (click)="isStateExpanded = !isStateExpanded" [attr.aria-expanded]="isStateExpanded">State management</button>
-        <div *ngIf="isStateExpanded" class="vr-demo-nav__children vr-demo-nav__state">
-          <section *ngFor="let strategy of stateStrategies" class="vr-demo-nav__strategy">
+        <p class="vr-demo-nav__section">State management</p>
+        <div class="vr-demo-nav__children vr-demo-nav__state">
+          <section *ngFor="let strategy of stateStrategies" class="vr-demo-nav__strategy vr-demo-nav__flyout">
             <a class="vr-demo-nav__link" [routerLink]="['/state', strategy.id]" routerLinkActive="active">{{ strategy.shortLabel }}</a>
-            <div class="vr-demo-nav__subchildren">
+            <div class="vr-demo-nav__subchildren vr-demo-nav__flyout-menu">
               <a
                 *ngFor="let page of statePages"
                 class="vr-demo-nav__link vr-demo-nav__sublink"
@@ -37,8 +37,8 @@
     </nav>
 
     <footer class="vr-demo-sidebar__footer">
-      <a [href]="docsUrl">Read Angular documentation →</a>
-      <span>Policy-based validation for Angular forms · © {{ currentYear }}</span>
+      <a [href]="docsUrl">Read Angular documentation &rarr;</a>
+      <span>Policy-based validation for Angular forms - (c) {{ currentYear }}</span>
     </footer>
   </aside>
 

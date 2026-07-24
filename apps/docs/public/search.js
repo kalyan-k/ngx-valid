@@ -89,7 +89,7 @@ function renderResults(matches, query) {
       link.setAttribute('role', 'option');
       link.href = `/docs/${match.slug}?search=${encodeURIComponent(query)}${match.anchor ? `#${match.anchor}` : ''}`;
       const context = document.createElement('small');
-      context.textContent = `${match.section} · ${match.title}`;
+      context.textContent = `${match.section} - ${match.title}`;
       const heading = document.createElement('strong');
       heading.append(highlightedText(match.heading, terms));
       const excerpt = document.createElement('span');
@@ -138,6 +138,64 @@ clearButton.addEventListener('click', () => {
   input.focus();
 });
 
+function codeText(pre) {
+  const code = pre.querySelector('code');
+  return code?.innerText ?? pre.innerText ?? '';
+}
+
+async function copyToClipboard(value) {
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = value;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.top = '-9999px';
+  document.body.append(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  textarea.remove();
+}
+
+function enhanceCodeBlocks() {
+  document.querySelectorAll('#docs-content pre').forEach((pre, index) => {
+    if (pre.parentElement?.classList.contains('docs-code-block')) {
+      return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'docs-code-block';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'docs-copy-button';
+    button.title = 'Click to copy';
+    button.setAttribute('aria-label', 'Click to copy code block');
+    button.innerHTML = '<span class="docs-copy-icon" aria-hidden="true"></span><span class="docs-copy-check" aria-hidden="true"></span><span class="docs-copy-label">Copy</span>';
+    let resetTimer;
+    button.addEventListener('click', async () => {
+      await copyToClipboard(codeText(pre));
+      button.classList.add('copied');
+      button.title = 'Copied';
+      button.setAttribute('aria-label', 'Code copied');
+      button.querySelector('.docs-copy-label').textContent = 'Copied';
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => {
+        button.classList.remove('copied');
+        button.title = 'Click to copy';
+        button.setAttribute('aria-label', 'Click to copy code block');
+        button.querySelector('.docs-copy-label').textContent = 'Copy';
+      }, 10000);
+    });
+
+    pre.replaceWith(wrapper);
+    wrapper.append(button, pre);
+    pre.id ||= `docs-code-block-${index + 1}`;
+  });
+}
+
 const initialQuery = new URLSearchParams(location.search).get('search')?.trim();
 if (initialQuery) {
   input.value = initialQuery;
@@ -158,3 +216,4 @@ if (initialQuery) {
 }
 syncClearButton();
 requestAnimationFrame(scrollActiveNavigationLink);
+enhanceCodeBlocks();

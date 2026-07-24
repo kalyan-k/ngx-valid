@@ -30,12 +30,12 @@
 .vr-card { border: 1px solid var(--vr-line); border-radius: var(--vr-radius); background: var(--vr-paper); box-shadow: var(--vr-shadow); }
 
 .vr-demo-shell { display:grid; grid-template-columns:280px minmax(0,1fr); min-height:100vh; background:var(--vr-canvas); }
-.vr-demo-sidebar { display:flex; min-width:0; flex-direction:column; color:#dce7ef; border-right:1px solid #29445f; background:#16304c; }
+.vr-demo-sidebar { position:relative; z-index:5; display:flex; min-width:0; flex-direction:column; color:#dce7ef; border-right:1px solid #29445f; background:#16304c; }
 .vr-demo-sidebar__intro { padding:2rem 1.5rem 1.45rem; border-bottom:1px solid rgba(255,255,255,.1); }
 .vr-demo-sidebar__eyebrow { margin:0 0 .55rem; color:#64d3c8; font-size:.68rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
 .vr-demo-sidebar__intro h2 { margin:0; color:#fff; font-size:1.48rem; line-height:1.14; letter-spacing:-.025em; }
 .vr-demo-sidebar__intro p:last-child { margin:.7rem 0 0; color:#a8bac9; font-size:.8rem; line-height:1.55; }
-.vr-demo-nav { flex:1; overflow:auto; padding:1rem .85rem; }
+.vr-demo-nav { flex:1; overflow:visible; padding:1rem .85rem; }
 .vr-demo-nav__section { margin:1.25rem .75rem .4rem; color:#8298ab; font-size:.62rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
 .vr-demo-nav__link,.vr-demo-nav__toggle { position:relative; display:flex; width:100%; align-items:center; min-height:40px; padding:.62rem .78rem; border:0; border-radius:7px; color:#c9d6e1; background:transparent; text-align:left; text-decoration:none; font:inherit; font-size:.8rem; font-weight:680; cursor:pointer; transition:color .16s ease,background .16s ease,transform .16s ease; }
 .vr-demo-nav__link::before { width:5px; height:5px; margin-right:.65rem; border:1.5px solid currentColor; border-radius:50%; content:""; opacity:.7; }
@@ -47,7 +47,12 @@
 .vr-demo-nav__toggle[aria-expanded="true"]::after { margin-top:3px; transform:rotate(225deg); }
 .vr-demo-nav__children { display:grid; gap:2px; margin:.2rem 0 .35rem .7rem; padding-left:.5rem; border-left:1px solid rgba(255,255,255,.12); }
 .vr-demo-nav__children .vr-demo-nav__link { font-size:.76rem; }
-.vr-demo-sidebar__footer { display:grid; gap:.45rem; padding:1.1rem 1.5rem; border-top:1px solid rgba(255,255,255,.1); color:#8fa4b6; font-size:.68rem; }
+.vr-demo-nav__flyout { position:relative; }
+.vr-demo-nav__flyout-menu { position:absolute; top:0; left:calc(100% + .65rem); z-index:80; display:none; min-width:190px; margin:0; padding:.45rem; border:1px solid rgba(185,206,224,.38); border-radius:10px; background:#10243e; box-shadow:0 18px 38px rgba(3,16,29,.34); }
+.vr-demo-nav__flyout-menu::before { position:absolute; top:0; bottom:0; left:-.7rem; width:.7rem; content:""; }
+.vr-demo-nav__flyout:hover > .vr-demo-nav__flyout-menu,.vr-demo-nav__flyout:focus-within > .vr-demo-nav__flyout-menu { display:grid; gap:2px; }
+.vr-demo-nav__flyout-menu .vr-demo-nav__link { min-height:34px; font-size:.73rem; }
+.vr-demo-sidebar__footer { display:grid; gap:.45rem; padding:1.1rem 1.5rem; border-top:1px solid rgba(255,255,255,.1); color:#8fa4b6; font-size:.68rem; line-height:1.45; }
 .vr-demo-sidebar__footer a { color:#73dacf; font-size:.74rem; font-weight:750; text-decoration:none; }
 .vr-demo-sidebar__footer a:hover { color:#b7f0ea; }
 .vr-demo-main { min-width:0; overflow-x:hidden; background:var(--vr-canvas); }
@@ -81,6 +86,8 @@
   .vr-demo-sidebar { border-right:0; border-bottom:1px solid #29445f; }
   .vr-demo-sidebar__intro { padding:1.35rem 1.25rem 1rem; }
   .vr-demo-nav { overflow:visible; padding:.7rem; }
+  .vr-demo-nav__flyout-menu { position:static; display:grid; margin:.12rem 0 .35rem .55rem; padding-left:.45rem; border:0; border-left:1px solid rgba(255,255,255,.12); border-radius:0; background:transparent; box-shadow:none; }
+  .vr-demo-nav__flyout-menu::before { display:none; }
   .vr-demo-sidebar__footer { padding:1rem 1.25rem; }
   .vr-demo-home { padding:2rem 1.2rem 3rem; }
   .vr-demo-home__grid,.vr-demo-home__steps,.vr-demo-home__patterns { grid-template-columns:1fr; }

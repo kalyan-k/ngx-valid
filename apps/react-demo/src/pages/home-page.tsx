@@ -1,3 +1,5 @@
+import { platformUrl } from '../platform-urls';
+
 export interface HomePageProps { navigate(path: string): void; }
 
 export function HomePage({ navigate }: HomePageProps) {
@@ -17,24 +19,24 @@ export function HomePage({ navigate }: HomePageProps) {
       <div className="vr-demo-home__grid">
         <article className="vr-demo-home__card">
           <h2>One dependency direction</h2>
-          <p><code>React application → @validation-rules/react → @validation-rules/core</code></p>
+          <p><code>React application -&gt; @validation-rules/react -&gt; @validation-rules/core</code></p>
           <p>Policies stay reusable and React owns lifecycle, rendering, touch state, and native-control binding.</p>
         </article>
         <article className="vr-demo-home__card">
           <h2>Bring your own UI</h2>
           <p>Use native controls, a design system, local state, reducers, Redux, Zustand, or another state layer.</p>
           <div className="vr-demo-home__links">
-            <a href="http://127.0.0.1:4201/docs/react-custom-components">Custom controls</a>
-            <a href="http://127.0.0.1:4201/docs/core-package">Core package</a>
+            <a href={platformUrl('docs', '/docs/react-custom-components')}>Custom controls</a>
+            <a href={platformUrl('docs', '/docs/core-package')}>Core package</a>
           </div>
         </article>
       </div>
       <article className="vr-demo-home__card">
         <h2>Choose the Local State baseline</h2>
         <div className="vr-demo-home__patterns">
-          <div><h3>Simple Form</h3><p>Blur, change, submit, inline messages, summary, and reset.</p>{demoLink('/state/local-state/simple', 'Open simple form →')}</div>
-          <div><h3>Complex Form</h3><p>Nested paths, arrays, conditional rules, policies, groups, and dynamic sections.</p>{demoLink('/state/local-state/complex', 'Open complex form →')}</div>
-          <div><h3>Performance Form</h3><p>Generated fields and live timing/render metrics from the current browser.</p>{demoLink('/state/local-state/performance', 'Open performance form →')}</div>
+          <div><h3>Simple Form</h3><p>Blur, change, submit, inline messages, summary, and reset.</p>{demoLink('/state/local-state/simple', 'Open simple form ->')}</div>
+          <div><h3>Complex Form</h3><p>Nested paths, arrays, conditional rules, policies, groups, and dynamic sections.</p>{demoLink('/state/local-state/complex', 'Open complex form ->')}</div>
+          <div><h3>Performance Form</h3><p>Generated fields and live timing/render metrics from the current browser.</p>{demoLink('/state/local-state/performance', 'Open performance form ->')}</div>
         </div>
       </article>
       <article className="vr-demo-home__card">
@@ -46,8 +48,8 @@ export function HomePage({ navigate }: HomePageProps) {
           <li><strong>Validate</strong><span>Change, blur, submit, or call directly.</span></li>
         </ol>
         <div className="vr-demo-home__links">
-          <a href="http://127.0.0.1:4201/docs/react-quick-start">React quick start</a>
-          <a href="http://127.0.0.1:4201/docs/react-api">API reference</a>
+          <a href={platformUrl('docs', '/docs/react-quick-start')}>React quick start</a>
+          <a href={platformUrl('docs', '/docs/react-api')}>API reference</a>
         </div>
       </article>
     </div>

@@ -63,7 +63,7 @@ function reportStyles() {
     :root { color-scheme:light; --vr-ink:#17273c; --vr-muted:#607086; --vr-line:#dbe3eb; --vr-panel:#fff; --vr-bg:#eef2f8; --vr-accent:#0d8f82; --vr-pass:#087443; --vr-warn:#b54708; --vr-fail:#b42318; }
     * { box-sizing:border-box; }
     body { margin:0; color:var(--vr-ink); background:var(--vr-bg); font:15px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif; }
-    .vr-report-summary { max-width:1500px; margin:0 auto; padding:24px 28px; border-bottom:1px solid var(--vr-line); background:#fff; }
+    .vr-report-summary { box-sizing:border-box; max-width:1600px; margin:0 auto; padding:24px 28px; border-bottom:1px solid var(--vr-line); background:#fff; }
     .vr-report-summary__heading { display:flex; align-items:center; justify-content:space-between; gap:24px; }
     .vr-report-summary__heading button { display:flex; align-items:center; gap:8px; padding:7px 10px; border:1px solid #c8d5df; border-radius:8px; color:#40556b; background:#f7fafb; font:inherit; font-size:11px; cursor:pointer; }
     .vr-report-summary__heading button:hover { color:#075f59; border-color:#8bc7c1; background:#eaf5f3; }

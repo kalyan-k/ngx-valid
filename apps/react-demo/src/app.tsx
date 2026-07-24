@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { HomePage } from './pages/home-page';
+import { platformUrl } from './platform-urls';
 import { StateIntegrationRoute } from './state-integrations/state-integration-route';
 import { findStrategy, strategies } from './state-integrations/strategies';
-import type { StateDemoPage, StrategyId } from './state-integrations/types';
+import type { StateDemoPage } from './state-integrations/types';
 
 const statePages = [
-  { id: 'home', label: 'Home' },
+  { id: 'home', label: 'Overview' },
   { id: 'simple', label: 'Simple Form' },
   { id: 'complex', label: 'Complex Form' },
   { id: 'performance', label: 'Performance Form' }
@@ -20,8 +21,6 @@ function normalizePath(pathname: string): string {
 
 export function App() {
   const [path, setPath] = useState(() => normalizePath(window.location.pathname));
-  const [stateNavExpanded, setStateNavExpanded] = useState(true);
-  const [expandedStrategies, setExpandedStrategies] = useState<ReadonlySet<StrategyId>>(() => new Set(['local-state']));
   useEffect(() => {
     const onPopState = () => setPath(normalizePath(window.location.pathname));
     window.addEventListener('popstate', onPopState);
@@ -36,19 +35,6 @@ export function App() {
   const stateMatch = /^\/state\/([a-z-]+)(?:\/(simple|complex|performance))?$/u.exec(path);
   const activeStrategy = stateMatch?.[1] ? findStrategy(stateMatch[1]) : undefined;
   const statePage = (stateMatch?.[2] ?? 'home') as StateDemoPage;
-  useEffect(() => {
-    if (!activeStrategy) return;
-    setStateNavExpanded(true);
-    setExpandedStrategies((current) => new Set(current).add(activeStrategy.id));
-  }, [activeStrategy]);
-  const toggleStrategy = useCallback((id: StrategyId) => {
-    setExpandedStrategies((current) => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
   const page = activeStrategy
     ? <StateIntegrationRoute key={path} strategy={activeStrategy} page={statePage} navigate={navigate} />
     : <HomePage navigate={navigate} />;
@@ -58,7 +44,10 @@ export function App() {
       active-application="react-demo"
       application-name="React Demo"
       version="0.0.0"
-      react-url="http://127.0.0.1:4204"
+      portal-url={platformUrl('portal')}
+      docs-url={platformUrl('docs')}
+      angular-url={platformUrl('angular')}
+      react-url={platformUrl('react')}
     >
       <div className="vr-demo-shell">
         <aside className="vr-demo-sidebar">
@@ -78,59 +67,47 @@ export function App() {
             </a>
             <p className="vr-demo-nav__section">Demos</p>
             <div className="vr-demo-nav__group">
-              <button
-                type="button"
-                className="vr-demo-nav__toggle"
-                aria-expanded={stateNavExpanded}
-                onClick={() => setStateNavExpanded((expanded) => !expanded)}
-              >
-                State management
-              </button>
-              {stateNavExpanded ? (
-                <div className="vr-demo-nav__children react-state-nav">
-                  {strategies.map((strategy) => {
-                    const root = `/state/${strategy.id}`;
-                    const active = activeStrategy?.id === strategy.id;
-                    const open = expandedStrategies.has(strategy.id);
-                    return (
-                      <div key={strategy.id} className={`vr-demo-nav__subgroup${active ? ' active' : ''}`}>
-                        <button
-                          type="button"
-                          className="vr-demo-nav__toggle state-strategy-toggle"
-                          aria-expanded={open}
-                          onClick={() => toggleStrategy(strategy.id)}
-                        >
-                          {strategy.label}
-                        </button>
-                        {open ? (
-                          <div className="vr-demo-nav__children state-page-links">
-                            {statePages.map((stateRoute) => {
-                              const routePath = stateRoute.id === 'home' ? root : `${root}/${stateRoute.id}`;
-                              return (
-                                <a
-                                  key={routePath}
-                                  className={`vr-demo-nav__link${path === routePath ? ' active' : ''}`}
-                                  href={routePath}
-                                  aria-label={`${strategy.label} ${stateRoute.label}`}
-                                  aria-current={path === routePath ? 'page' : undefined}
-                                  onClick={(event) => { event.preventDefault(); navigate(routePath); }}
-                                >
-                                  {stateRoute.label}
-                                </a>
-                              );
-                            })}
-                          </div>
-                        ) : null}
+              <p className="vr-demo-nav__section">State management</p>
+              <div className="vr-demo-nav__children react-state-nav">
+                {strategies.map((strategy) => {
+                  const root = `/state/${strategy.id}`;
+                  const active = activeStrategy?.id === strategy.id;
+                  return (
+                    <div key={strategy.id} className={`vr-demo-nav__subgroup vr-demo-nav__flyout${active ? ' active' : ''}`}>
+                      <a
+                        className={`vr-demo-nav__link state-strategy-link${active && statePage === 'home' ? ' active' : ''}`}
+                        href={root}
+                        aria-current={path === root ? 'page' : undefined}
+                        onClick={(event) => { event.preventDefault(); navigate(root); }}
+                      >
+                        {strategy.label}
+                      </a>
+                      <div className="vr-demo-nav__children state-page-links vr-demo-nav__flyout-menu">
+                        {statePages.map((stateRoute) => {
+                          const routePath = stateRoute.id === 'home' ? root : `${root}/${stateRoute.id}`;
+                          return (
+                            <a
+                              key={routePath}
+                              className={`vr-demo-nav__link${path === routePath ? ' active' : ''}`}
+                              href={routePath}
+                              aria-label={`${strategy.label} ${stateRoute.label}`}
+                              aria-current={path === routePath ? 'page' : undefined}
+                              onClick={(event) => { event.preventDefault(); navigate(routePath); }}
+                            >
+                              {stateRoute.label}
+                            </a>
+                          );
+                        })}
                       </div>
-                    );
-                  })}
-                </div>
-              ) : null}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </nav>
           <div className="vr-demo-sidebar__footer">
-            <a href="http://127.0.0.1:4201/docs/react-overview">React documentation →</a>
-            <span>@validation-rules/react</span>
+            <a href={platformUrl('docs', '/docs/react-overview')}>React documentation &rarr;</a>
+            <span>@validation-rules/react - hooks-first policy validation</span>
           </div>
         </aside>
         <main className="vr-demo-main">{page}</main>

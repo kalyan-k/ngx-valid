@@ -33,17 +33,22 @@ const documentationSections = [
       ['Services', '/docs/angular-services'],
       ['Components', '/docs/angular-components'],
       ['Directives', '/docs/angular-directives'],
-      ['ngModel Integration', '/docs/angular-ngmodel'],
-      ['Reactive Forms', '/docs/angular-reactive-forms'],
-      ['NgRx', '/docs/angular-state-ngrx'],
-      ['NGXS', '/docs/angular-state-ngxs'],
-      ['Akita', '/docs/angular-state-akita'],
-      ['Elf', '/docs/angular-state-elf'],
-      ['RxAngular State', '/docs/angular-state-rx-angular'],
-      ['Signals', '/docs/angular-state-signals'],
-      ['Custom RxJS Store', '/docs/angular-state-custom-rxjs-store'],
       ['Validation Policies', '/docs/angular-validation-policies'],
       ['Validation Groups', '/docs/angular-validation-groups'],
+      {
+        label: 'State Management',
+        items: [
+          ['Template Driven Forms', '/docs/angular-ngmodel'],
+          ['Reactive Forms', '/docs/angular-reactive-forms'],
+          ['NgRx', '/docs/angular-state-ngrx'],
+          ['NGXS', '/docs/angular-state-ngxs'],
+          ['Akita', '/docs/angular-state-akita'],
+          ['Elf', '/docs/angular-state-elf'],
+          ['RxAngular State', '/docs/angular-state-rx-angular'],
+          ['Signals', '/docs/angular-state-signals'],
+          ['Custom RxJS Store', '/docs/angular-state-custom-rxjs-store']
+        ]
+      },
       ['Examples', '/docs/angular-examples'],
       ['Best Practices', '/docs/angular-best-practices'],
       ['Troubleshooting', '/docs/angular-troubleshooting'],
@@ -63,6 +68,18 @@ const documentationSections = [
       ['Form Validation', '/docs/react-form-validation'],
       ['Validation Policies', '/docs/react-policies'],
       ['Validation Groups', '/docs/react-groups'],
+      {
+        label: 'State Management',
+        items: [
+          ['Local State', '/docs/react-state-local-state'],
+          ['Redux Toolkit', '/docs/react-state-redux-toolkit'],
+          ['Zustand', '/docs/react-state-zustand'],
+          ['Jotai', '/docs/react-state-jotai'],
+          ['Recoil', '/docs/react-state-recoil'],
+          ['MobX', '/docs/react-state-mobx'],
+          ['Context API', '/docs/react-state-context']
+        ]
+      },
       ['Controlled Inputs', '/docs/react-controlled-inputs'],
       ['Custom Inputs', '/docs/react-custom-components'],
       ['Dynamic Fields', '/docs/react-dynamic-fields'],
@@ -72,13 +89,6 @@ const documentationSections = [
       ['Testing', '/docs/react-testing'],
       ['Public API', '/docs/react-api'],
       ['Migration and Compatibility', '/docs/react-migration'],
-      ['Local State', '/docs/react-state-local-state'],
-      ['Redux Toolkit', '/docs/react-state-redux-toolkit'],
-      ['Zustand', '/docs/react-state-zustand'],
-      ['Jotai', '/docs/react-state-jotai'],
-      ['Recoil', '/docs/react-state-recoil'],
-      ['MobX', '/docs/react-state-mobx'],
-      ['Context API', '/docs/react-state-context'],
       ['Examples', '/docs/react-examples'],
       ['Best Practices', '/docs/react-best-practices'],
       ['Troubleshooting', '/docs/react-troubleshooting'],
@@ -118,7 +128,47 @@ const demoItems = [
 ];
 
 function normalizedBase(value, fallback) {
-  return (value || fallback).replace(/\/$/, '');
+  return String(value || fallback).replace(/\/$/, '');
+}
+
+function configuredUrls() {
+  const config = globalThis.validationRulesPlatformConfig || {};
+  return config.urls || config;
+}
+
+function configuredBase(key, attributeValue, fallback) {
+  const urls = configuredUrls();
+  return normalizedBase(
+    attributeValue
+      || urls[key]
+      || urls[`${key}Url`],
+    fallback
+  );
+}
+
+function currentOriginWhen(activeApplication, applications, fallback) {
+  return applications.includes(activeApplication) && /^https?:$/u.test(location.protocol)
+    ? location.origin
+    : fallback;
+}
+
+function flattenDocsItems(items) {
+  return items.flatMap((item) => (Array.isArray(item) ? [item] : flattenDocsItems(item.items)));
+}
+
+function isDocsItemActive(item) {
+  if (Array.isArray(item)) {
+    return location.pathname === item[1];
+  }
+  return item.items.some((child) => isDocsItemActive(child));
+}
+
+function firstDocsPath(section) {
+  return flattenDocsItems(section.items)[0]?.[1] || '/docs/overview';
+}
+
+function isDocsSectionActive(section) {
+  return section.items.some((item) => isDocsItemActive(item));
 }
 
 class ValidationPlatformShell extends HTMLElement {
@@ -135,26 +185,19 @@ class ValidationPlatformShell extends HTMLElement {
     const applicationName = this.getAttribute('application-name') || 'Platform';
     const version = this.getAttribute('version') || '0.0.0';
     const brandMarkUrl = this.getAttribute('brand-mark-url') || '/validation-rules-mark.svg';
-    const defaultPortalUrl = activeApplication === 'reports' && /^https?:$/u.test(location.protocol)
-      ? location.origin
-      : 'http://127.0.0.1:4200';
+    const defaultPortalUrl = currentOriginWhen(activeApplication, ['demo-portal', 'reports'], 'http://127.0.0.1:4200');
     const urls = {
-      portal: normalizedBase(this.getAttribute('portal-url'), defaultPortalUrl),
-      docs: normalizedBase(this.getAttribute('docs-url'), 'http://127.0.0.1:4201'),
-      angular: normalizedBase(this.getAttribute('angular-url'), 'http://127.0.0.1:4202'),
-      react: normalizedBase(this.getAttribute('react-url'), 'http://127.0.0.1:4204')
+      portal: configuredBase('portal', this.getAttribute('portal-url'), defaultPortalUrl),
+      docs: configuredBase('docs', this.getAttribute('docs-url'), currentOriginWhen(activeApplication, ['documentation'], 'http://127.0.0.1:4201')),
+      angular: configuredBase('angular', this.getAttribute('angular-url'), currentOriginWhen(activeApplication, ['angular-demo'], 'http://127.0.0.1:4202')),
+      react: configuredBase('react', this.getAttribute('react-url'), currentOriginWhen(activeApplication, ['react-demo'], 'http://127.0.0.1:4204'))
     };
     const docsActive = activeApplication === 'documentation';
     const demosActive = activeApplication === 'angular-demo' || activeApplication === 'react-demo';
-    const docsNavigation = documentationSections.map((section) => `
-      <section class="platform-dropdown-section" aria-label="${section.label}">
-        <h3>${section.label}</h3>
-        ${section.items.map(([label, path]) => {
-          const active = docsActive && location.pathname === path;
-          return `<a href="${urls.docs}${path}"${active ? ' aria-current="page" class="active"' : ''}>${label}</a>`;
-        }).join('')}
-      </section>
-    `).join('');
+    const docsNavigation = documentationSections.map((section) => {
+      const active = docsActive && isDocsSectionActive(section);
+      return `<a href="${urls.docs}${firstDocsPath(section)}"${active ? ' aria-current="page" class="active"' : ''}>${section.label}</a>`;
+    }).join('');
     const demosNavigation = demoItems.map(([label, target]) => {
       const applicationId = target === 'angular' ? 'angular-demo' : 'react-demo';
       const active = activeApplication === applicationId;
@@ -188,8 +231,11 @@ class ValidationPlatformShell extends HTMLElement {
       </header>
       <div class="platform-content"><slot></slot></div>
       <footer class="platform-footer" part="footer">
-        <div><strong>Validation Rules</strong><span>Policy-driven validation for long-lived applications.</span></div>
-        <div class="platform-footer-meta"><span data-version>v${version}</span><span>MIT License</span><a href="${urls.docs}/docs/overview">Documentation</a><a href="https://github.com/kalyan-k/validation-rules">GitHub</a></div>
+        <div class="platform-footer-brand">
+          <img class="platform-footer-mark" src="${brandMarkUrl}" width="30" height="30" alt="">
+          <div><strong>Validation Rules</strong><span>Reusable policy validation for Angular, React, and framework-neutral TypeScript.</span></div>
+        </div>
+        <div class="platform-footer-meta"><span data-version>v${version}</span><span>MIT License</span><a href="${urls.docs}/docs/overview">Docs</a><a href="${urls.portal}/reports/index.html">Reports</a><a href="https://github.com/kalyan-k/validation-rules">GitHub</a></div>
       </footer>`;
 
     const button = root.querySelector('.platform-menu');

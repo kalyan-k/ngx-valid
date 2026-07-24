@@ -3,7 +3,7 @@ import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
 import http, { type IncomingMessage, type ServerResponse } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { applicationDefinitions, portalPort } from './applications.js';
+import { applicationDefinitions, platformUrls, portalPort } from './applications.js';
 import { ApplicationProcessManager } from './process-manager.js';
 
 const sourceDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -62,8 +62,13 @@ async function handleRequest(
       version: rootPackage.version ?? '0.0.0',
       revision: repositoryRevision(),
       builtAt: process.env['VALIDATION_RULES_BUILD_TIME'] ?? 'Local development',
-      repository: 'https://github.com/kalyan-k/validation-rules'
+      repository: 'https://github.com/kalyan-k/validation-rules',
+      urls: platformUrls
     });
+    return;
+  }
+  if (requestUrl.pathname === '/platform-config.js') {
+    sendJavaScript(response, platformConfigScript());
     return;
   }
   if (requestUrl.pathname.startsWith('/reports/')) {
@@ -92,6 +97,11 @@ function serveFile(response: ServerResponse, root: string, requestedPath: string
     sendText(response, 404, 'Not found');
     return;
   }
+  if (root === publicRoot && path.basename(filePath) === 'index.html') {
+    response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+    response.end(rewriteConfiguredLinks(readFileSync(filePath, 'utf8')));
+    return;
+  }
   response.writeHead(200, {
     'Content-Type': contentTypes[path.extname(filePath)] ?? 'application/octet-stream',
     'Cache-Control': root === shellRoot ? 'public, max-age=3600' : 'no-store'
@@ -107,6 +117,24 @@ function sendJson(response: ServerResponse, status: number, value: unknown): voi
 function sendText(response: ServerResponse, status: number, value: string): void {
   response.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8' });
   response.end(value);
+}
+
+function sendJavaScript(response: ServerResponse, value: string): void {
+  response.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+  response.end(value);
+}
+
+function platformConfigScript(): string {
+  return `globalThis.validationRulesPlatformConfig = ${JSON.stringify({ urls: platformUrls })};`;
+}
+
+function rewriteConfiguredLinks(html: string): string {
+  return html
+    .replaceAll('http://127.0.0.1:4200', platformUrls.portal)
+    .replaceAll('http://127.0.0.1:4201', platformUrls.docs)
+    .replaceAll('http://127.0.0.1:4202', platformUrls.angular)
+    .replaceAll('http://127.0.0.1:4203', platformUrls.angular)
+    .replaceAll('http://127.0.0.1:4204', platformUrls.react);
 }
 
 function repositoryRevision(): string {
@@ -131,11 +159,10 @@ function openPortal(url: string): void {
 async function main(): Promise<void> {
   const manager = new ApplicationProcessManager(applicationDefinitions, workspaceRoot);
   const server = createPortalServer(manager);
-  const portalUrl = `http://127.0.0.1:${portalPort}`;
   server.listen(portalPort, '127.0.0.1', () => {
-    console.log(`Validation Rules Demo Portal: ${portalUrl}`);
+    console.log(`Validation Rules Demo Portal: ${platformUrls.portal}`);
     manager.startAll();
-    openPortal(portalUrl);
+    openPortal(platformUrls.portal);
   });
 
   let closing = false;

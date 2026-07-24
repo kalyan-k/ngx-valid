@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/validation-rules-react",
+    "outDir": "../../dist/packages/react",
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": true,

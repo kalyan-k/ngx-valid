@@ -1,4 +1,5 @@
 import type { PropsWithChildren, ReactNode } from 'react';
+import { platformUrl } from '../../platform-urls';
 import type { StrategyDefinition } from '../types';
 import { useDemoState } from '../types';
 
@@ -28,7 +29,7 @@ export function StatePageFrame({
           <h1>{title}</h1>
           <p>{description}</p>
         </div>
-        <a className="docs-button" href={`http://127.0.0.1:4201/docs/react-state-${strategy.id}`}>Read Documentation</a>
+        <a className="docs-button" href={platformUrl('docs', `/docs/react-state-${strategy.id}`)}>Read Documentation</a>
       </header>
       <StateReadout />
       {actions}

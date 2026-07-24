@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ValidationProviderService } from '@validation-rules/angular';
 import { RxState } from '@rx-angular/state';
 import { combineLatest, Subscription } from 'rxjs';
+import { platformUrl } from '../platform-urls';
 import {
   ANGULAR_STATE_PAGES,
   ANGULAR_STATE_STRATEGIES,
@@ -60,7 +61,8 @@ export class AngularStateDemoComponent implements OnInit, OnDestroy {
   readonly employeeTypeOptions = ['Full-time', 'Contractor', 'Partner', 'Vendor'];
   readonly notificationOptions = ['Daily', 'Weekly', 'Monthly'];
   readonly riskTierOptions = ['Low', 'Medium', 'High'];
-  readonly docsBaseUrl = 'http://127.0.0.1:4201/docs/';
+  readonly docsBaseUrl = platformUrl('docs', '/docs/');
+  readonly portalUrl = platformUrl('portal');
 
   strategy: AngularStateStrategy = ANGULAR_STATE_STRATEGIES[0];
   page: AngularStatePage = 'overview';

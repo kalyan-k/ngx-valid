@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-const outputDirectory = resolve(__dirname, '../../dist/validation-rules-react');
+const outputDirectory = resolve(__dirname, '../../dist/packages/react');
 
 export default defineConfig({
   plugins: [

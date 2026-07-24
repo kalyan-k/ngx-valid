@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { ValidationSummary } from '@validation-rules/react';
 import { FormField } from '../../components/form-field';
 import { PerformanceField } from '../../performance/performance-field';
+import { platformUrl } from '../../platform-urls';
 import {
   DEFAULT_PERFORMANCE_CONFIG,
   PERFORMANCE_CONFIG_GROUP,
@@ -112,7 +113,7 @@ export function StatePerformancePage({ strategy }: { strategy: StrategyDefinitio
         ))}
         <div className="form-actions"><button className="primary" type="submit">Submit large form</button></div>
       </form>
-      <p className="docs-callout">Values are live measurements, not benchmark claims. <a href="http://127.0.0.1:4201/docs/react-performance">Read performance guidance →</a></p>
+      <p className="docs-callout">Values are live measurements, not benchmark claims. <a href={platformUrl('docs', '/docs/react-performance')}>Read performance guidance &rarr;</a></p>
     </StatePageFrame>
   );
 }

@@ -85,7 +85,7 @@ Changing these identifiers would be a functional, consumer-visible breaking chan
 - Updated npm workspace package names, peer dependencies, local dependencies, imports, and TypeScript path aliases.
 - Updated package metadata and repository URLs for the intended `validation-rules` repository.
 - Updated the local Git `origin` URL without fetching, pushing, or changing the hosted repository.
-- Renamed core and Angular package output folders to `dist/validation-rules-core` and `dist/validation-rules-angular`.
+- Renamed core and Angular package output folders under `dist/packages/core` and `dist/packages/angular`.
 - Updated the demo stylesheet input, package dry-run path, and publication path to the new Angular artifact location.
 - Regenerated npm workspace links and `package-lock.json`.
 - Updated report dashboard branding, safe-clean workspace identity, CI artifact names, and architecture checks.

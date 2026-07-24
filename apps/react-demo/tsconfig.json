@@ -3,10 +3,9 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "skipLibCheck": true,
-    "baseUrl": ".",
     "paths": {
-      "@validation-rules/react": ["../../dist/validation-rules-react", "../../packages/react/src/index.ts"],
-      "@validation-rules/core": ["../../dist/validation-rules-core", "../../packages/core/src/public-api.ts"]
+      "@validation-rules/react": ["../../dist/packages/react", "../../packages/react/src/index.ts"],
+      "@validation-rules/core": ["../../dist/packages/core", "../../packages/core/src/public-api.ts"]
     },
     "types": ["vite/client", "react", "react-dom"]
   },

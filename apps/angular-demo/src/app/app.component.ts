@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { platformUrl } from './platform-urls';
 
 @Component({
   selector: 'app-root',
@@ -8,4 +9,8 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'demo-app';
+  readonly portalUrl = platformUrl('portal');
+  readonly docsUrl = platformUrl('docs');
+  readonly angularUrl = platformUrl('angular');
+  readonly reactUrl = platformUrl('react');
 }

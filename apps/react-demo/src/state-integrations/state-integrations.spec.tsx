@@ -16,12 +16,13 @@ describe.each(strategies)('$label state integration', (strategy) => {
   it('renders its home, active navigation, architecture, derived state, and client-side links', async () => {
     renderRoute(root);
     expect(screen.getByRole('heading', { name: `${strategy.label} + Validation Rules` })).toBeTruthy();
-    expect(screen.getByRole('link', { name: `${strategy.label} Home` }).getAttribute('aria-current')).toBe('page');
+    const navigation = screen.getByRole('navigation', { name: 'React demo pages' });
+    expect(within(navigation).getByRole('link', { name: strategy.label }).getAttribute('aria-current')).toBe('page');
     expect(screen.getByRole('link', { name: 'Read Documentation' }).getAttribute('href')).toContain(`react-state-${strategy.id}`);
     expect(screen.getByText(strategy.architecture)).toBeTruthy();
     await userEvent.click(screen.getByRole('button', { name: 'Dispatch sample update' }));
     expect(within(screen.getByRole('region', { name: 'State store activity' })).getAllByText('1')).toHaveLength(2);
-    await userEvent.click(screen.getByRole('link', { name: 'Open simple form →' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Open simple form ->' }));
     expect(screen.getByRole('heading', { name: 'Simple contact form' })).toBeTruthy();
   });
 

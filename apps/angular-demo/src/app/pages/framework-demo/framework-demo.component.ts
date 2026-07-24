@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DEMO_FRAMEWORKS, DEMO_TABS, DemoFramework, DemoTab } from '../../demo/demo-framework.model';
+import { platformUrl } from '../../platform-urls';
 
 @Component({
   selector: 'app-framework-demo',
@@ -13,6 +14,7 @@ export class FrameworkDemoComponent implements OnInit {
   activeTab: DemoTab = 'sample';
 
   readonly tabs = DEMO_TABS;
+  readonly portalUrl = platformUrl('portal');
 
   constructor(private route: ActivatedRoute) {}
 

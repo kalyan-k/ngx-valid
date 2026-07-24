@@ -110,7 +110,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "../../dist/angular-demo",
+            "outputPath": "../../dist/demos/angular",
             "preserveSymlinks": true,
             "index": "../../apps/angular-demo/src/index.html",
             "main": "../../apps/angular-demo/src/main.ts",
@@ -131,7 +131,7 @@
               "../../tools/platform-shell/platform-theme.css",
               "../../node_modules/bootstrap/dist/css/bootstrap.min.css",
               "@angular/material/prebuilt-themes/indigo-pink.css",
-              "../../dist/validation-rules-angular/styles/policy-validation.css",
+              "../../dist/packages/angular/styles/policy-validation.css",
               "../../apps/angular-demo/src/styles.sass"
             ],
             "scripts": []

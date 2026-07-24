@@ -11,7 +11,7 @@ export function StateHomePage({ strategy, navigate }: { strategy: StrategyDefini
   return (
     <StatePageFrame
       strategy={strategy}
-      pageLabel="Home"
+      pageLabel="Overview"
       title={`${strategy.label} + Validation Rules`}
       description={strategy.shortDescription}
     >
@@ -36,7 +36,7 @@ export function StateHomePage({ strategy, navigate }: { strategy: StrategyDefini
             <div key={page}>
               <h3>{page[0]?.toUpperCase()}{page.slice(1)} Form</h3>
               <p>{page === 'simple' ? 'Field and submit validation.' : page === 'complex' ? 'Nested data, dynamic rows, and groups.' : 'Eighty fields with live measurements.'}</p>
-              <a href={`/state/${strategy.id}/${page}`} onClick={open(`/state/${strategy.id}/${page}`)}>Open {page} form →</a>
+              <a href={`/state/${strategy.id}/${page}`} onClick={open(`/state/${strategy.id}/${page}`)}>Open {page} form -&gt;</a>
             </div>
           ))}
         </div>

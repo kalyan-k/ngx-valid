@@ -205,7 +205,7 @@ Form groups aggregate field status for one portion of a view. Policy groups aggr
 | `apps/docs` | private | Search-ready Markdown documentation server and site shell |
 | `apps/demo` | private | Application launcher, status API, report gateway, and product dashboard |
 
-Build artifacts are written beneath `dist/`, with publishable packages kept separate from private applications.
+Build artifacts are written beneath `dist/`, with publishable packages in `dist/packages/*`, browser demos in `dist/demos/*`, and Node platform applications in `dist/apps/*`.
 
 ## Demo and documentation platform
 
@@ -216,6 +216,8 @@ npm run demo
 ```
 
 The command builds the packages and Node applications, starts the portal at `http://127.0.0.1:4200`, documentation at `4201`, the Angular demo at `4202`, and React at `4204`, then opens the portal in the default browser. The portal polls every registered application and shows startup, healthy, or failed state without coupling their runtimes.
+
+Deployment URLs are runtime configurable. Set `VALIDATION_RULES_PORTAL_URL`, `VALIDATION_RULES_DOCS_URL`, `VALIDATION_RULES_ANGULAR_DEMO_URL`, and `VALIDATION_RULES_REACT_DEMO_URL` for the Node portal/docs servers. Static Angular and React demo deployments can replace the copied `platform-config.js` with `globalThis.validationRulesPlatformConfig = { urls: { portal, docs, angular, react } };`.
 
 The application registry in `apps/demo/src/applications.ts` is the single place to add a future demo. Each application remains independently runnable and communicates through stable local URLs.
 

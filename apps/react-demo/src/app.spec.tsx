@@ -17,7 +17,7 @@ describe('React demo application', () => {
     renderApp();
     expect(screen.getByRole('navigation', { name: 'React demo pages' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Policy validation that fits React.' })).toBeTruthy();
-    expect(screen.getByText(/React application → @validation-rules\/react/)).toBeTruthy();
+    expect(screen.getByText(/React application -> @validation-rules\/react/)).toBeTruthy();
     expect(screen.getByRole('link', { name: 'React documentation →' }).getAttribute('href')).toContain('/docs/react-overview');
     expect(document.querySelector('validation-platform-shell')?.getAttribute('active-application')).toBe('react-demo');
   });
@@ -37,7 +37,7 @@ describe('React demo application', () => {
 
   it('uses home example links as client-side navigation', async () => {
     renderApp();
-    await userEvent.click(screen.getByRole('link', { name: 'Open complex form →' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Open complex form ->' }));
     expect(screen.getByRole('heading', { name: 'Complex enterprise profile' })).toBeTruthy();
   });
 

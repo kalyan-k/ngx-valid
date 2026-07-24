@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { ValidationSummary } from '@validation-rules/react';
 import { FormField } from '../../components/form-field';
+import { platformUrl } from '../../platform-urls';
 import { SIMPLE_INITIAL_MODEL, simpleStatePolicy, type SimpleStateModel } from '../models';
 import type { StrategyDefinition } from '../types';
 import { useManagedValidationForm } from '../use-managed-validation-form';
@@ -52,7 +53,7 @@ export function StateSimplePage({ strategy }: { strategy: StrategyDefinition }) 
           <p className="vr-eyebrow">Consistent contract</p>
           <h2>State ownership changes. Validation does not.</h2>
           <ul><li>Focused field messages</li><li>Validate-on-change email</li><li>Accessible summary</li><li>Store-backed reset and submit</li></ul>
-          <a href="http://127.0.0.1:4201/docs/react-field-validation">Read the field-validation guide →</a>
+          <a href={platformUrl('docs', '/docs/react-field-validation')}>Read the field-validation guide &rarr;</a>
         </aside>
       </div>
     </StatePageFrame>

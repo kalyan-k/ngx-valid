@@ -12,9 +12,10 @@ const contentRoot = path.join(workspaceRoot, 'docs', 'site');
 const publicRoot = path.join(workspaceRoot, 'apps', 'docs', 'public');
 const shellRoot = path.join(workspaceRoot, 'tools', 'platform-shell');
 const docsPort = configuredPort('VALIDATION_RULES_DOCS_PORT', 4201);
-const portalUrl = process.env['VALIDATION_RULES_PORTAL_URL'] ?? 'http://127.0.0.1:4200';
-const angularDemoUrl = process.env['VALIDATION_RULES_ANGULAR_DEMO_URL'] ?? 'http://127.0.0.1:4202';
-const reactDemoUrl = process.env['VALIDATION_RULES_REACT_DEMO_URL'] ?? 'http://127.0.0.1:4204';
+const docsUrl = configuredBaseUrl('VALIDATION_RULES_DOCS_URL', `http://127.0.0.1:${docsPort}`);
+const portalUrl = configuredBaseUrl('VALIDATION_RULES_PORTAL_URL', 'http://127.0.0.1:4200');
+const angularDemoUrl = configuredBaseUrl('VALIDATION_RULES_ANGULAR_DEMO_URL', 'http://127.0.0.1:4202');
+const reactDemoUrl = configuredBaseUrl('VALIDATION_RULES_REACT_DEMO_URL', 'http://127.0.0.1:4204');
 const workspacePackage = JSON.parse(readFileSync(path.join(workspaceRoot, 'package.json'), 'utf8')) as { version?: string };
 const assetVersion = encodeURIComponent(workspacePackage.version ?? '0.0.0');
 const platformAssets = new Set([
@@ -59,6 +60,10 @@ function handleRequest(request: IncomingMessage, response: ServerResponse): void
     createReadStream(path.join(publicRoot, 'styles.css')).pipe(response);
     return;
   }
+  if (requestUrl.pathname === '/platform-config.js') {
+    sendJavaScript(response, platformConfigScript());
+    return;
+  }
   if (platformAssets.has(requestUrl.pathname.slice(1))) {
     response.writeHead(200, {
       'Content-Type': platformContentTypes[path.extname(requestUrl.pathname)] ?? 'application/octet-stream',
@@ -81,30 +86,68 @@ function handleRequest(request: IncomingMessage, response: ServerResponse): void
   }
   const markdown = readFileSync(path.join(contentRoot, entry.source), 'utf8');
   response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
-  response.end(renderPage(entry, renderMarkdown(markdown)));
+  response.end(renderPage(entry, rewriteConfiguredLinks(renderMarkdown(markdown))));
 }
 
 function renderPage(entry: DocumentationEntry | undefined, content: string): string {
   const currentIndex = entry ? documentationCatalog.indexOf(entry) : -1;
   const previous = currentIndex > 0 ? documentationCatalog[currentIndex - 1] : undefined;
   const next = currentIndex >= 0 && currentIndex < documentationCatalog.length - 1 ? documentationCatalog[currentIndex + 1] : undefined;
-  const groupedNavigation = [...new Set(documentationCatalog.map(({ section }) => section))].map((section) => `
-    <section class="nav-section"><h2>${escapeHtml(section)}</h2>${documentationCatalog.filter((item) => item.section === section).map((item) => `<a data-search="${escapeHtml(`${item.title} ${item.summary}`.toLowerCase())}" class="${item === entry ? 'active' : ''}"${item === entry ? ' aria-current="page"' : ''} href="/docs/${item.slug}">${escapeHtml(item.title)}</a>`).join('')}</section>
-  `).join('');
+  const groupedNavigation = [...new Set(documentationCatalog.map(({ section }) => section))].map((section) => {
+    const sectionEntries = documentationCatalog.filter((item) => item.section === section);
+    return `
+    <section class="nav-section"><h2>${escapeHtml(section)}</h2>${renderNavigationItems(sectionEntries, entry)}</section>
+  `;
+  }).join('');
   const demoLinks = entry?.slug.startsWith('react-')
-    ? `<a class="demo-link" href="${reactDemoUrl}${entry.demoPath ?? ''}"><strong>Open React Demo</strong><span>Try the hooks and policies in a live React application â†’</span></a>`
+    ? `<a class="demo-link" href="${reactDemoUrl}${entry.demoPath ?? ''}"><strong>Open React Demo</strong><span>Try the hooks and policies in a live React application &rarr;</span></a>`
     : entry?.section === 'Core Package'
-    ? `<a class="demo-link" href="${portalUrl}"><strong>Open Demo Portal</strong><span>Choose Angular or React demos that all use Core policies â†’</span></a>`
-    : `<a class="demo-link" href="${angularDemoUrl}${entry?.demoPath ?? ''}"><strong>Open Angular Demo</strong><span>See the concepts running in a real application â†’</span></a>`;
+    ? `<a class="demo-link" href="${portalUrl}"><strong>Open Demo Portal</strong><span>Choose Angular or React demos that all use Core policies &rarr;</span></a>`
+    : `<a class="demo-link" href="${angularDemoUrl}${entry?.demoPath ?? ''}"><strong>Open Angular Demo</strong><span>See the concepts running in a real application &rarr;</span></a>`;
 
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(entry?.summary ?? 'Validation Rules documentation')}"><meta name="theme-color" content="#10243e"><title>${escapeHtml(entry?.title ?? 'Not found')} Â· Validation Rules</title><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/validation-rules-mark.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/validation-rules-icon-180.png"><link rel="manifest" href="/site.webmanifest"><link rel="preload" href="/platform-shell.css" as="style"><link rel="stylesheet" href="/platform-shell.css"><link rel="stylesheet" href="/platform-theme.css"><link rel="stylesheet" href="/styles.css"><script src="/platform-shell.js?v=${assetVersion}"></script><script src="/search.js?v=${assetVersion}" defer></script></head>
-  <body><validation-platform-shell active-application="documentation" application-name="Documentation" version="${escapeHtml(workspacePackage.version ?? '0.0.0')}" portal-url="${portalUrl}" docs-url="http://127.0.0.1:${docsPort}" angular-url="${angularDemoUrl}" react-url="${reactDemoUrl}">
-  <div class="docs-layout"><aside><div class="docs-search"><label for="docs-search">Search documentation</label><div class="docs-search-control"><input id="docs-search" type="search" placeholder="Search docsâ€¦" autocomplete="off" aria-autocomplete="list" aria-controls="docs-search-results" aria-expanded="false"><button id="docs-search-clear" class="docs-search-clear" type="button" aria-label="Clear documentation search" title="Clear search" hidden>&times;</button></div><div id="docs-search-results" class="search-results" role="listbox" hidden></div></div><div class="docs-navigation">${groupedNavigation}</div></aside>
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${escapeHtml(entry?.summary ?? 'Validation Rules documentation')}"><meta name="theme-color" content="#10243e"><title>${escapeHtml(entry?.title ?? 'Not found')} &middot; Validation Rules</title><link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="/validation-rules-mark.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/validation-rules-icon-180.png"><link rel="manifest" href="/site.webmanifest"><link rel="preload" href="/platform-shell.css" as="style"><link rel="stylesheet" href="/platform-shell.css"><link rel="stylesheet" href="/platform-theme.css"><link rel="stylesheet" href="/styles.css"><script src="/platform-config.js?v=${assetVersion}"></script><script src="/platform-shell.js?v=${assetVersion}"></script><script src="/search.js?v=${assetVersion}" defer></script></head>
+  <body><validation-platform-shell active-application="documentation" application-name="Documentation" version="${escapeHtml(workspacePackage.version ?? '0.0.0')}" portal-url="${portalUrl}" docs-url="${docsUrl}" angular-url="${angularDemoUrl}" react-url="${reactDemoUrl}">
+  <div class="docs-layout"><aside><div class="docs-search"><label for="docs-search">Search documentation</label><div class="docs-search-control"><input id="docs-search" type="search" placeholder="Search docs..." autocomplete="off" aria-autocomplete="list" aria-controls="docs-search-results" aria-expanded="false"><button id="docs-search-clear" class="docs-search-clear" type="button" aria-label="Clear documentation search" title="Clear search" hidden>&times;</button></div><div id="docs-search-results" class="search-results" role="listbox" hidden></div></div><div class="docs-navigation">${groupedNavigation}</div></aside>
   <main><div class="vr-breadcrumb"><a href="${portalUrl}">Home</a><span>/</span><a href="/docs/overview">Documentation</a><span>/</span><span>${escapeHtml(entry?.section ?? 'Documentation')}</span></div><article id="docs-content">${content}</article>
   ${entry ? `<section class="live-example"><p>Continue in the live platform</p>${demoLinks}</section>` : ''}
-  <nav class="pager" aria-label="Documentation pages">${previous ? `<a href="/docs/${previous.slug}"><small>Previous</small><strong>â† ${escapeHtml(previous.title)}</strong></a>` : '<span></span>'}${next ? `<a class="next" href="/docs/${next.slug}"><small>Next</small><strong>${escapeHtml(next.title)} â†’</strong></a>` : ''}</nav></main>
-  <aside class="on-page"><strong>On this page</strong><p>${escapeHtml(entry?.summary ?? '')}</p><a href="${portalUrl}">Back to Demo Portal â†’</a><a href="${portalUrl}/reports/index.html">Test reports â†’</a></aside></div>
+  <nav class="pager" aria-label="Documentation pages">${previous ? `<a href="/docs/${previous.slug}"><small>Previous</small><strong>&larr; ${escapeHtml(previous.title)}</strong></a>` : '<span></span>'}${next ? `<a class="next" href="/docs/${next.slug}"><small>Next</small><strong>${escapeHtml(next.title)} &rarr;</strong></a>` : ''}</nav></main>
+  <aside class="on-page"><strong>On this page</strong><p>${escapeHtml(entry?.summary ?? '')}</p><a href="${portalUrl}">Back to Demo Portal &rarr;</a><a href="${portalUrl}/reports/index.html">Test reports &rarr;</a></aside></div>
   </validation-platform-shell></body></html>`;
+}
+
+function renderNavigationItems(items: DocumentationEntry[], activeEntry: DocumentationEntry | undefined): string {
+  const content: string[] = [];
+  let index = 0;
+
+  while (index < items.length) {
+    const item = items[index];
+    if (!item) {
+      index += 1;
+      continue;
+    }
+
+    if (item.navGroup) {
+      const groupName = item.navGroup;
+      const groupItems: DocumentationEntry[] = [];
+      while (items[index]?.navGroup === groupName) {
+        groupItems.push(items[index] as DocumentationEntry);
+        index += 1;
+      }
+      const isActiveGroup = groupItems.some((groupItem) => groupItem === activeEntry);
+      content.push(`<details class="nav-subsection"${isActiveGroup ? ' open' : ''}><summary>${escapeHtml(groupName)}</summary><div>${groupItems.map((groupItem) => renderNavigationLink(groupItem, activeEntry)).join('')}</div></details>`);
+      continue;
+    }
+
+    content.push(renderNavigationLink(item, activeEntry));
+    index += 1;
+  }
+
+  return content.join('');
+}
+
+function renderNavigationLink(item: DocumentationEntry, activeEntry: DocumentationEntry | undefined): string {
+  const active = item === activeEntry;
+  return `<a data-search="${escapeHtml(`${item.title} ${item.summary}`.toLowerCase())}" class="${active ? 'active' : ''}"${active ? ' aria-current="page"' : ''} href="/docs/${item.slug}">${escapeHtml(item.title)}</a>`;
 }
 
 function configuredPort(name: string, fallback: number): number {
@@ -112,9 +155,38 @@ function configuredPort(name: string, fallback: number): number {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
+function configuredBaseUrl(name: string, fallback: string): string {
+  return (process.env[name] ?? fallback).replace(/\/$/, '');
+}
+
+function rewriteConfiguredLinks(html: string): string {
+  return html
+    .replaceAll('http://127.0.0.1:4200', portalUrl)
+    .replaceAll('http://127.0.0.1:4201', docsUrl)
+    .replaceAll('http://127.0.0.1:4202', angularDemoUrl)
+    .replaceAll('http://127.0.0.1:4203', angularDemoUrl)
+    .replaceAll('http://127.0.0.1:4204', reactDemoUrl);
+}
+
 function sendJson(response: ServerResponse, status: number, value: unknown): void {
   response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
   response.end(JSON.stringify(value));
+}
+
+function sendJavaScript(response: ServerResponse, value: string): void {
+  response.writeHead(200, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-store' });
+  response.end(value);
+}
+
+function platformConfigScript(): string {
+  return `globalThis.validationRulesPlatformConfig = ${JSON.stringify({
+    urls: {
+      portal: portalUrl,
+      docs: docsUrl,
+      angular: angularDemoUrl,
+      react: reactDemoUrl
+    }
+  })};`;
 }
 
 function escapeHtml(value: string): string {
@@ -123,6 +195,6 @@ function escapeHtml(value: string): string {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   createDocumentationServer().listen(docsPort, '127.0.0.1', () => {
-    console.log(`Validation Rules Documentation: http://127.0.0.1:${docsPort}`);
+    console.log(`Validation Rules Documentation: ${docsUrl}`);
   });
 }

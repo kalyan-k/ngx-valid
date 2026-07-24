@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
-  "dest": "../../dist/validation-rules-angular",
+  "dest": "../../dist/packages/angular",
   "assets": [
     {
       "glob": "policy-validation.css",

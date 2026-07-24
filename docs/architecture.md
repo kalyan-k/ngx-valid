@@ -95,10 +95,10 @@ Generated reports use `tools/testing/report-branding.cjs` to instantiate the sam
 
 Package builds follow dependency order:
 
-1. `@validation-rules/core` to `dist/validation-rules-core`
-2. `@validation-rules/angular` to `dist/validation-rules-angular`
+1. `@validation-rules/core` to `dist/packages/core`
+2. `@validation-rules/angular` to `dist/packages/angular`
 3. Portal and documentation TypeScript to `dist/apps/*`
-4. `angular-demo` to `dist/angular-demo`
+4. `angular-demo` to `dist/demos/angular`
 
 The root scripts encode this order and delegate Angular CLI commands to the workspace configuration owned by `packages/angular`. Individual project targets remain available for focused development, but the Angular package build requires a current core artifact.
 

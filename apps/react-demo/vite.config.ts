@@ -14,14 +14,14 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@validation-rules/react': testing
           ? resolve(__dirname, '../../packages/react/src/index.ts')
-          : resolve(__dirname, '../../dist/validation-rules-react/index.js'),
+          : resolve(__dirname, '../../dist/packages/react/index.js'),
         '@validation-rules/core': testing
           ? resolve(__dirname, '../../packages/core/src/public-api.ts')
-          : resolve(__dirname, '../../dist/validation-rules-core/fesm2022/validation-rules-core.mjs')
+          : resolve(__dirname, '../../dist/packages/core/fesm2022/validation-rules-core.mjs')
       }
     },
   build: {
-    outDir: resolve(__dirname, '../../dist/react-demo'),
+    outDir: resolve(__dirname, '../../dist/demos/react'),
     emptyOutDir: true,
     sourcemap: true
   },

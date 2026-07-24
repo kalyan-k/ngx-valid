@@ -20,9 +20,20 @@ function configuredPort(name: string, fallback: number): number {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
+function configuredBaseUrl(name: string, fallback: string): string {
+  return (process.env[name] ?? fallback).replace(/\/$/, '');
+}
+
+export const portalPort = configuredPort('VALIDATION_RULES_PORTAL_PORT', 4200);
 const docsPort = configuredPort('VALIDATION_RULES_DOCS_PORT', 4201);
 const angularDemoPort = configuredPort('VALIDATION_RULES_ANGULAR_DEMO_PORT', 4202);
 const reactDemoPort = configuredPort('VALIDATION_RULES_REACT_DEMO_PORT', 4204);
+export const platformUrls = {
+  portal: configuredBaseUrl('VALIDATION_RULES_PORTAL_URL', `http://127.0.0.1:${portalPort}`),
+  docs: configuredBaseUrl('VALIDATION_RULES_DOCS_URL', `http://127.0.0.1:${docsPort}`),
+  angular: configuredBaseUrl('VALIDATION_RULES_ANGULAR_DEMO_URL', `http://127.0.0.1:${angularDemoPort}`),
+  react: configuredBaseUrl('VALIDATION_RULES_REACT_DEMO_URL', `http://127.0.0.1:${reactDemoPort}`)
+};
 
 export const applicationDefinitions: ApplicationDefinition[] = [
   {
@@ -31,10 +42,10 @@ export const applicationDefinitions: ApplicationDefinition[] = [
     shortTitle: 'Docs',
     description: 'Concepts, guides, public APIs, architecture, testing, and migration guidance.',
     kind: 'documentation',
-    url: `http://127.0.0.1:${docsPort}`,
-    healthUrl: `http://127.0.0.1:${docsPort}/health`,
+    url: platformUrls.docs,
+    healthUrl: `${platformUrls.docs}/health`,
     startScript: 'serve:docs:portal',
-    documentationUrl: `http://127.0.0.1:${docsPort}/docs/overview`,
+    documentationUrl: `${platformUrls.docs}/docs/overview`,
     tags: ['Guides', 'API', 'Architecture']
   },
   {
@@ -43,11 +54,11 @@ export const applicationDefinitions: ApplicationDefinition[] = [
     shortTitle: 'Angular',
     description: 'Angular validation demos with UI framework examples and comparable state management implementations.',
     kind: 'demo',
-    url: `http://127.0.0.1:${angularDemoPort}`,
-    healthUrl: `http://127.0.0.1:${angularDemoPort}`,
-    startScript: 'serve:angular-demo:portal',
+    url: platformUrls.angular,
+    healthUrl: platformUrls.angular,
+    startScript: 'serve:angular-demo',
     startArgs: ['--host', '127.0.0.1', '--port', String(angularDemoPort)],
-    documentationUrl: `http://127.0.0.1:${docsPort}/docs/angular`,
+    documentationUrl: `${platformUrls.docs}/docs/angular`,
     tags: ['ngModel', 'Reactive Forms', 'NgRx', 'NGXS', 'Signals'],
     demoLinks: [
       ['Template Driven', 'template-driven', 'angular-ngmodel'],
@@ -61,8 +72,8 @@ export const applicationDefinitions: ApplicationDefinition[] = [
       ['Custom RxJS Store', 'custom-rxjs-store', 'angular-state-custom-rxjs-store']
     ].map(([label, slug, docSlug]) => ({
       label: label!,
-      url: `http://127.0.0.1:${angularDemoPort}/state/${slug}`,
-      documentationUrl: `http://127.0.0.1:${docsPort}/docs/${docSlug}`
+      url: `${platformUrls.angular}/state/${slug}`,
+      documentationUrl: `${platformUrls.docs}/docs/${docSlug}`
     }))
   },
   {
@@ -71,11 +82,11 @@ export const applicationDefinitions: ApplicationDefinition[] = [
     shortTitle: 'React',
     description: 'Hooks-first controlled forms with nested policies, dynamic groups, accessibility, and measured large-form behavior.',
     kind: 'demo',
-    url: `http://127.0.0.1:${reactDemoPort}`,
-    healthUrl: `http://127.0.0.1:${reactDemoPort}`,
-    startScript: 'serve:react-demo:portal',
+    url: platformUrls.react,
+    healthUrl: platformUrls.react,
+    startScript: 'serve:react-demo',
     startArgs: ['--host', '127.0.0.1', '--port', String(reactDemoPort)],
-    documentationUrl: `http://127.0.0.1:${docsPort}/docs/react-overview`,
+    documentationUrl: `${platformUrls.docs}/docs/react-overview`,
     tags: ['React', 'Hooks', 'Seven state integrations'],
     demoLinks: [
       ['Local State', 'local-state'],
@@ -87,10 +98,8 @@ export const applicationDefinitions: ApplicationDefinition[] = [
       ['Context API', 'context']
     ].map(([label, slug]) => ({
       label: label!,
-      url: `http://127.0.0.1:${reactDemoPort}/state/${slug}`,
-      documentationUrl: `http://127.0.0.1:${docsPort}/docs/react-state-${slug}`
+      url: `${platformUrls.react}/state/${slug}`,
+      documentationUrl: `${platformUrls.docs}/docs/react-state-${slug}`
     }))
   }
 ];
-
-export const portalPort = configuredPort('VALIDATION_RULES_PORTAL_PORT', 4200);
